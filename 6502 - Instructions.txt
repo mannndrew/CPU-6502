@@ -1,0 +1,17 @@
+$ - Used to represent hexadecimal values
+
+LDA (zp,x)    - A1      EX: LDA ($12, X)                ~ Indirect + X
+LDA zp        - A5      EX: LDA $12                     ~ Zero Page
+LDA #         - A9      EX: LDA #$12                    ~ Immediate
+LDA a         - AD      EX: LDA $1234                   ~ Absolute
+LDA (zp), y   - B1      EX: LDA ($12), Y                ~ Indirect + Y
+LDA (zp)      - B2      EX: NOT FOUND
+LDA zp,x      - B5      EX: LDA $12, X                  ~ Zero Page + X
+LDA a,y       - B9      EX: LDA $1234, Y                ~ Absolute + Y
+LDA a,x       - BD      EX: LDA $1234, X                ~ Absolute + X
+
+
+
+
+LDA #         - A9      EX: LDA #$12                    ~ Immediate         1 Decode 1 Operand
+LDA zp        - A5      EX: LDA $12                     ~ Zero Page         1
