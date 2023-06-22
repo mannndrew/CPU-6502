@@ -1,18 +1,46 @@
 import sys
 import re
 
+
+
+# Addressing Modes
+# 1 = Absolute                             a
+# 2 = Absolute Indexed Indirect           (a, x)
+# 3 = Absolute Indexed with X              a, x
+# 4 = Absolute Indexed with Y              a, y
+# 5 = Absolute Indirect                   (a)
+# 6 = Accumulator                          A
+# 7 = Immediate Addressing                 #
+# 8 = Implied Addressing                   i
+# 9 = Program Counter Relative             r
+# 10 = Stack                               s
+# 11 = Zero Page                           zp
+# 12 = Zero Page Indexed Indirect         (zp, x)
+# 13 = Zero Page Indexed with X            zp, x
+# 14 = Zero Page Indexed with Y            zp, y
+# 15 = Zero Page Indirect                 (zp)
+# 16 = Zero Page Indirect with Indexed    (zp), y
+
+
 # Variables
 linenum = 1
 filename = ""
 defines = {}
 checkpoints = {}
 checkpoint_count = 0
+addressing_mode = 0
 
 instructions = {"ADC", "AND", "ASL", "BBR", "BBS", "BCC", "BCS", "BEQ", "BIT", "BMI", "BNE", "BPL", "BRA", "BRK", "BVC", 
                 "BVS", "CLC", "CLD", "CLI", "CLV", "CMP", "CPX", "CPY", "DEC", "DEX", "DEY", "EOR", "INC", "INX", "INY",
                 "JMP", "JSR", "LDA", "LDX", "LDY", "LSR", "NOP", "ORA", "PHA", "PHP", "PHX", "PHY", "PLA", "PLP", "PLX",
                 "PLY", "RMB", "ROL", "ROR", "RTI", "RTS", "SBC", "SEC", "SED", "SEI", "SMB", "STA", "STP", "STX", "STY",
                 "STZ", "TAX", "TAY", "TRB", "TSB", "TSX", "TXA", "TXS", "TYA", "WAI"}
+
+
+
+instruction_dict = {
+    "ADC": {1: "6D", 3: "7D", 4: "79", 7: "69", 11: "65", 12: "61", 13: "75", 15: "72", 16: "71"}
+}
 
 
 
@@ -147,8 +175,8 @@ for line in file:
                 checkpoints[words[0][:-1]] = checkpoint_count
                 checkpoint_count += 1
 
-        # Check if the line is an instruction
-        elif words[0] in instructions:
+        # Check if the line is in instruction dictionary
+        elif words[0] in instruction_dict:
 
             argument = ""
 
@@ -161,14 +189,6 @@ for line in file:
             else:
                 print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid number of arguments")
                 exit(2)
-
-
-            #print(argument)
-            
-
-
-
-
 
 
 
@@ -187,9 +207,10 @@ for line in file:
                 # Immediate Hex
                 if (argument[1] == "$"):
                     
-                    if (len(argument[2:]) == 2):
+                    if (len(argument) == 4):
                         if (valid_hex(argument[2:])):
                             hex = argument[2:]
+                            addressing_mode = 7
                             print(f"Immediate Hex: {hex}")
                         else:
                             print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -199,11 +220,12 @@ for line in file:
                         exit(2)
 
                 # Immediate Dec
-                elif (len(argument[1:]) == 3):
+                elif (len(argument) == 4):
                     
                     if valid_dec(argument[1:]):
                         dec = argument[1:]
                         hex = dec_to_2hex(dec)
+                        addressing_mode = 7
                         check_length(dec, hex, 2, line, linenum)
                         print(f"Immediate Dec: {hex}")
                     else:
@@ -217,31 +239,34 @@ for line in file:
 
             # Direct Addressing Hex
             elif (argument[0] == "$"):
-                if (len(argument[1:]) == 2):
+                if (len(argument) == 3):
                     if (valid_hex(argument[1:3])):
                         hex = argument[1:3]
+                        addressing_mode = 11
                         print(f"Zero Page: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                         exit(2)
 
-                elif (len(argument[1:]) == 5):
+                elif (len(argument) == 6):
                     if (valid_hex(argument[1:3]) and argument[3:6].__eq__(", X")):
                         hex = argument[1:3]
+                        addressing_mode = 13
                         print(f"Zero Page, X: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                         exit(2)
 
-                elif (len(argument[1:]) == 4):
+                elif (len(argument) == 5):
                     if (valid_hex(argument[1:5])):
                         hex = argument[1:5]
+                        addressing_mode = 1
                         print(f"Absolute: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                         exit(2)
 
-                elif (len(argument[1:]) == 7):
+                elif (len(argument) == 8):
                     if valid_hex(argument[1:5]):
                         if argument[5:8].__eq__(", X"):
                             hex = argument[1:5]
@@ -289,7 +314,95 @@ for line in file:
                         exit(2)
 
                 # Indirect Addressing Dec
-                # elif (argument.__len__() == 6):
+                elif (len(argument)== 5):
+                    if (valid_dec(argument[1:4]) and argument[4] == ")"):
+                        dec = argument[1:4]
+                        hex = dec_to_2hex(dec)
+                        check_length(dec, hex, 2, line, linenum)
+                        print(f"Zero Page Indirect: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+
+                elif (len(argument) == 8):
+                    if (valid_dec(argument[1:4]) and argument[4:].__eq__(", X)")):
+                        dec = argument[1:4]
+                        hex = dec_to_2hex(dec)
+                        check_length(dec, hex, 2, line, linenum)
+                        print(f"Zero Page Indirect, X: {hex}")
+                    elif (valid_dec(argument[1:4]) and argument[4:].__eq__("), Y")):
+                        dec = argument[1:4]
+                        hex = dec_to_2hex(dec)
+                        check_length(dec, hex, 2, line, linenum)
+                        print(f"Zero Page Indirect, Y: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
+
+
+            ###########################################################################################################
+            
+            # Zero Page Dec
+            elif (len(argument) == 3):
+                if (valid_dec(argument)):
+                    dec = argument
+                    hex = dec_to_2hex(dec)
+                    check_length(dec, hex, 2, line, linenum)
+                    print(f"Zero Page: {hex}")
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
+
+            # Zero Page, X Dec
+            elif (len(argument) == 6):
+                if (valid_dec(argument[0:3]) and argument[3:].__eq__(", X")):
+                    dec = argument[0:3]
+                    hex = dec_to_2hex(dec)
+                    check_length(dec, hex, 2, line, linenum)
+                    print(f"Zero Page, X: {hex}")
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
+            
+            # Absolute Dec
+            elif (len(argument) == 5):
+                if (valid_dec(argument)):
+                    dec = argument
+                    hex = dec_to_4hex(dec)
+                    check_length(dec, hex, 4, line, linenum)
+                    print(f"Absolute: {hex}")
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
+            
+            # Absolute, X and Y Dec
+            elif (len(argument) == 8):
+                if (valid_dec(argument[0:5])):
+                    if (argument[5:].__eq__(", X")):
+                        dec = argument[0:5]
+                        hex = dec_to_4hex(dec)
+                        check_length(dec, hex, 4, line, linenum)
+                        print(f"Absolute, X: {hex}")
+                    elif (argument[5:].__eq__(", Y")):
+                        dec = argument[0:5]
+                        hex = dec_to_4hex(dec)
+                        check_length(dec, hex, 4, line, linenum)
+                        print(f"Absolute, Y: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
+
+            else:
+                print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                exit(2)
+            
+
 
                     
 
@@ -335,13 +448,8 @@ for line in file:
 
 
         
-    # print(words)
+    
     linenum += 1
-
-#print(f'{defines}\n\n')
-#print(checkpoints)
-
-
 
 
 # Close file
