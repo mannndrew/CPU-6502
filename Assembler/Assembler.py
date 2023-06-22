@@ -29,6 +29,8 @@ defines = {}
 checkpoints = {}
 checkpoint_count = 0
 addressing_mode = 0
+addressing_dict = {}
+opcode = ""
 
 instructions = {"ADC", "AND", "ASL", "BBR", "BBS", "BCC", "BCS", "BEQ", "BIT", "BMI", "BNE", "BPL", "BRA", "BRK", "BVC", 
                 "BVS", "CLC", "CLD", "CLI", "CLV", "CMP", "CPX", "CPY", "DEC", "DEX", "DEY", "EOR", "INC", "INX", "INY",
@@ -177,7 +179,8 @@ for line in file:
 
         # Check if the line is in instruction dictionary
         elif words[0] in instruction_dict:
-
+            
+            addressing_dict = instruction_dict[words[0]]
             argument = ""
 
             if (words.__len__() == 2):
@@ -225,8 +228,8 @@ for line in file:
                     if valid_dec(argument[1:]):
                         dec = argument[1:]
                         hex = dec_to_2hex(dec)
-                        addressing_mode = 7
                         check_length(dec, hex, 2, line, linenum)
+                        addressing_mode = 7
                         print(f"Immediate Dec: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -270,9 +273,11 @@ for line in file:
                     if valid_hex(argument[1:5]):
                         if argument[5:8].__eq__(", X"):
                             hex = argument[1:5]
+                            addressing_mode = 3
                             print(f"Absolute, X: {hex}") 
                         elif argument[5:8].__eq__(", Y"):
                             hex = argument[1:5]
+                            addressing_mode = 4
                             print(f"Absolute, Y: {hex}")
                         else:
                             print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -293,6 +298,7 @@ for line in file:
                     if (len(argument[2:]) == 3):
                         if (valid_hex(argument[2:4]) and argument[4] == ")"):
                             hex = argument[2:4]
+                            addressing_mode = 15
                             print(f"Zero Page Indirect: {hex}")
                         else:
                             print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -301,9 +307,11 @@ for line in file:
                     elif (len(argument[2:]) == 6):
                         if (valid_hex(argument[2:4]) and argument[4:].__eq__(", X)")):
                             hex = argument[2:4]
+                            addressing_mode = 12
                             print(f"Zero Page Indirect, X: {hex}")
                         elif (valid_hex(argument[2:4]) and argument[4:].__eq__("), Y")):
                             hex = argument[2:4]
+                            addressing_mode = 16
                             print(f"Zero Page Indirect, Y: {hex}")
                         else:
                             print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -319,6 +327,7 @@ for line in file:
                         dec = argument[1:4]
                         hex = dec_to_2hex(dec)
                         check_length(dec, hex, 2, line, linenum)
+                        addressing_mode = 15
                         print(f"Zero Page Indirect: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -329,11 +338,13 @@ for line in file:
                         dec = argument[1:4]
                         hex = dec_to_2hex(dec)
                         check_length(dec, hex, 2, line, linenum)
+                        addressing_mode = 12
                         print(f"Zero Page Indirect, X: {hex}")
                     elif (valid_dec(argument[1:4]) and argument[4:].__eq__("), Y")):
                         dec = argument[1:4]
                         hex = dec_to_2hex(dec)
                         check_length(dec, hex, 2, line, linenum)
+                        addressing_mode = 16
                         print(f"Zero Page Indirect, Y: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -351,6 +362,7 @@ for line in file:
                     dec = argument
                     hex = dec_to_2hex(dec)
                     check_length(dec, hex, 2, line, linenum)
+                    addressing_mode = 11
                     print(f"Zero Page: {hex}")
                 else:
                     print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -362,6 +374,7 @@ for line in file:
                     dec = argument[0:3]
                     hex = dec_to_2hex(dec)
                     check_length(dec, hex, 2, line, linenum)
+                    addressing_mode = 13
                     print(f"Zero Page, X: {hex}")
                 else:
                     print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -373,6 +386,7 @@ for line in file:
                     dec = argument
                     hex = dec_to_4hex(dec)
                     check_length(dec, hex, 4, line, linenum)
+                    addressing_mode = 1
                     print(f"Absolute: {hex}")
                 else:
                     print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -385,11 +399,13 @@ for line in file:
                         dec = argument[0:5]
                         hex = dec_to_4hex(dec)
                         check_length(dec, hex, 4, line, linenum)
+                        addressing_mode = 3
                         print(f"Absolute, X: {hex}")
                     elif (argument[5:].__eq__(", Y")):
                         dec = argument[0:5]
                         hex = dec_to_4hex(dec)
                         check_length(dec, hex, 4, line, linenum)
+                        addressing_mode = 4
                         print(f"Absolute, Y: {hex}")
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
@@ -401,6 +417,21 @@ for line in file:
             else:
                 print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                 exit(2)
+
+            # Check if addressing mode exists in addressing_dict
+            if (addressing_mode in addressing_dict):
+                opcode = addressing_dict[addressing_mode]
+
+            else:
+                print(f"**Syntax Error Line ({linenum}): {line}**\nInstruction {words[0]} does not support addressing mode {addressing_mode}")
+                exit(2)
+
+            # Print opcode and hex in little-endian
+            if (len(hex) == 2):
+                print(f"{opcode} {hex}")
+            elif (len(hex) == 4):
+                print(f"{opcode} {hex[2:4]} {hex[0:2]}")
+            
             
 
 
