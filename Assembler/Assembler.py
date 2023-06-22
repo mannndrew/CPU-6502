@@ -44,7 +44,7 @@ def clean_words(line):
     words = list(filter(None, words))
     return words
 
-def valid_operand(letter):
+def valid_hex(letter):
     if '0' <= letter or letter <= '9':
         return True
     elif 'A' <= letter or letter <= 'F':
@@ -54,7 +54,13 @@ def valid_operand(letter):
     else:
         return False
     
-def dec_to_hex(operand):
+def valid_dec(operand):
+    if '0' <= operand or operand <= '9':
+        return True
+    else:
+        return False
+    
+def dec_to_2hex(operand):
     conversion_table = ['0', '1', '2', '3', 
                         '4', '5', '6', '7', 
                         '8', '9','A', 'B', 
@@ -64,13 +70,41 @@ def dec_to_hex(operand):
     remainder = 0
     hex = ""
     
-
     while 0 < dec:
         remainder = dec % 16
         hex = conversion_table[remainder] + hex
         dec = dec // 16
 
+    while len(hex) < 2:
+        hex = "0" + hex
+
     return hex
+
+def dec_to_4hex(operand):
+    conversion_table = ['0', '1', '2', '3', 
+                        '4', '5', '6', '7', 
+                        '8', '9','A', 'B', 
+                        'C', 'D', 'E', 'F']
+    
+    dec = int(operand)
+    remainder = 0
+    hex = ""
+    
+    while 0 < dec:
+        remainder = dec % 16
+        hex = conversion_table[remainder] + hex
+        dec = dec // 16
+
+    while len(hex) < 4:
+        hex = "0" + hex
+
+    return hex
+
+def check_length(dec, hex, num, line, linenum):
+    if len(hex) != num:
+        print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({dec})")
+        exit(2)
+
 
 
 
@@ -106,65 +140,76 @@ for line in file:
         # Check if the line is an instruction
         elif words[0] in instructions:
 
-            # Parse the instruction
-            for word in range(1, len(words)):
+            argument = ""
+
+            if (words.__len__() == 2):
+                argument = words[1]
                 
+            elif (words.__len__() == 3):
+                argument = words[1] + words[2]
 
+            else:
+                print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid number of arguments")
+                exit(2)
 
+            
+            
+            # Parse argument
 
-                # Create list of blank arguments
-                args = [""] * 5
-                operand_in = [""] * 100
-                operand_hex = ""
-                operand_count = 0
+            # Immediate
+            if (argument[0] == "#"):
                 
-                hex = False
-                operand_pass = True
-
-                # Read the instruction
-                for word in range(1, len(words)):
-
-                
-
-
-                    for letter in words[word]:
-
-                        # Check if the operand is together
-
-                        if letter == '#':
-                            args[0] = '#'
-                        elif letter == 'X':
-                            args[1] = 'X'
-                        elif letter == 'Y':
-                            args[2] = 'Y'
-                        elif letter == '(':
-                            args[3] = '('
-                        elif letter == ')':
-                            args[4] = ')'
-                        elif letter == '$':
-                            hex = True
-                        elif valid_operand(letter) and operand_pass:
-                            operand_in[operand_count] = letter
-                            operand_count += 1
-                            
-                            if operand_count == words[word].__len__():
-                                operand_pass = False
-
+                # Immediate Hex
+                if (argument[1] == "$"):
                     
-                            
-                            
-
+                    if (len(argument[2:]) == 2):
+                        if (valid_hex(argument[2]) and valid_hex(argument[3])):
+                            hex = argument[2:]
+                            print(f"Immediate Hex: {hex}")
                         else:
-                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid character ({letter})")
+                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[2:]})")
                             exit(2)
-                
-                # if (hex == False):
-                #     # Convert operand to hex
-                #     operand_hex = dec_to_hex(''.join(operand_in))
-                # else:
-                #     operand_hex = ''.join(operand_in)
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[2:]})")
+                        exit(2)
 
-                # print(operand_hex)
+                # Immediate Dec
+                elif (len(argument[1:]) == 3):
+                    for letter in argument[1:]:
+                        if (valid_dec(letter)):
+                            continue
+                        else:
+                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[1:]})")
+                            exit(2)
+
+                    dec = argument[1:]
+                    hex = dec_to_2hex(dec)
+                    check_length(dec, hex, 2, line, linenum)
+                    print(f"Immediate Dec: {hex}")
+            
+
+                
+    
+
+                
+                # if (words[word][0] == "#"):
+                #     # Immediate
+                #     if (words[word][1] == "$"):
+                #         # Immediate Hex
+                #         if (len(words[word][2:]) == 2):
+                #             if (valid_operand(words[word][2]) and valid_operand(words[word][3])):
+                #                 print(f"Immediate Hex: {words[word][2:]}")
+                #             else:
+                #                 print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({words[word][2:]})")
+                #                 exit(2)
+                #     # Immediate Dec
+                #     elif (len(words[word][1:]) <= 5):
+                #         if (valid_operand(words[word][1])):
+                #             print(f"Immediate Dec: {words[word][1:]}")
+                #         else:
+                #             print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({words[word][1:]})")
+                #             exit(2)
+
 
             
                 
@@ -179,7 +224,7 @@ for line in file:
 
         
         
-    print(words)
+    # print(words)
     linenum += 1
 
 #print(f'{defines}\n\n')
