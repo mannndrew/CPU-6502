@@ -200,17 +200,19 @@ for line in file:
 
                 # Immediate Dec
                 elif (len(argument[1:]) == 3):
-                    for letter in argument[1:]:
-                        if (valid_dec(letter)):
-                            continue
-                        else:
-                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                            exit(2)
+                    
+                    if valid_dec(argument[1:]):
+                        dec = argument[1:]
+                        hex = dec_to_2hex(dec)
+                        check_length(dec, hex, 2, line, linenum)
+                        print(f"Immediate Dec: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
 
-                    dec = argument[1:]
-                    hex = dec_to_2hex(dec)
-                    check_length(dec, hex, 2, line, linenum)
-                    print(f"Immediate Dec: {hex}")
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
 
 
             # Direct Addressing Hex
@@ -260,6 +262,7 @@ for line in file:
             
             # Indirect Addressing
             elif (argument[0] == "("):
+
                 # Indirect Addressing Hex
                 if (argument[1] == "$"):
                     if (len(argument[2:]) == 3):
@@ -284,6 +287,9 @@ for line in file:
                     else:
                         print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                         exit(2)
+
+                # Indirect Addressing Dec
+                # elif (argument.__len__() == 6):
 
                     
 
