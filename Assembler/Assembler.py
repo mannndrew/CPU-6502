@@ -1,4 +1,5 @@
 import sys
+import re
 
 # Variables
 linenum = 1
@@ -104,53 +105,66 @@ for line in file:
 
         # Check if the line is an instruction
         elif words[0] in instructions:
-            # Create list of blank arguments
-            args = [""] * 5
-            operand_in = [""] * 100
-            operand_hex = ""
-            operand_count = 0
-            
-            hex = False
 
-            operand_first = True
-            operand_last = False
-
-            # Read the instruction
+            # Parse the instruction
             for word in range(1, len(words)):
-                for letter in words[word]:
+                
 
-                    # Check if the operand is together
 
-                    if letter == '#':
-                        args[0] = '#'
-                    elif letter == 'X':
-                        args[1] = 'X'
-                    elif letter == 'Y':
-                        args[2] = 'Y'
-                    elif letter == '(':
-                        args[3] = '('
-                    elif letter == ')':
-                        args[4] = ')'
-                    elif letter == '$':
-                        hex = True
-                    elif operand_last or operand_first:
-                        operand_in[operand_count] = letter
-                        operand_count += 1
-                        operand_first = False
-                        
-                        
 
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid character ({letter})")
-                        exit(2)
+                # Create list of blank arguments
+                args = [""] * 5
+                operand_in = [""] * 100
+                operand_hex = ""
+                operand_count = 0
+                
+                hex = False
+                operand_pass = True
 
-                    operand_last = valid_operand(letter)
-            
-            if (hex == False):
-                # Convert operand to hex
-                operand_hex = dec_to_hex(''.join(operand_in))
-            else:
-                operand_hex = ''.join(operand_in)
+                # Read the instruction
+                for word in range(1, len(words)):
+
+                
+
+
+                    for letter in words[word]:
+
+                        # Check if the operand is together
+
+                        if letter == '#':
+                            args[0] = '#'
+                        elif letter == 'X':
+                            args[1] = 'X'
+                        elif letter == 'Y':
+                            args[2] = 'Y'
+                        elif letter == '(':
+                            args[3] = '('
+                        elif letter == ')':
+                            args[4] = ')'
+                        elif letter == '$':
+                            hex = True
+                        elif valid_operand(letter) and operand_pass:
+                            operand_in[operand_count] = letter
+                            operand_count += 1
+                            
+                            if operand_count == words[word].__len__():
+                                operand_pass = False
+
+                    
+                            
+                            
+
+                        else:
+                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid character ({letter})")
+                            exit(2)
+                
+                # if (hex == False):
+                #     # Convert operand to hex
+                #     operand_hex = dec_to_hex(''.join(operand_in))
+                # else:
+                #     operand_hex = ''.join(operand_in)
+
+                # print(operand_hex)
 
             
                 
@@ -158,8 +172,7 @@ for line in file:
 
 
 
-            print(args)
-            print(operand_hex)
+            
 
 
 
