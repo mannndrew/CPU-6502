@@ -3,6 +3,6 @@ define appleL $00 ;awdwadwadwa
 define movingUp      1 ;awdwadwad
 
 main:
-   ADC #256
-   
+   ADC ($12), Y
+
 

@@ -44,21 +44,31 @@ def clean_words(line):
     words = list(filter(None, words))
     return words
 
-def valid_hex(letter):
-    if '0' <= letter or letter <= '9':
+def valid_hex_char(letter):
+    if '0' <= letter and letter <= '9':
         return True
-    elif 'A' <= letter or letter <= 'F':
+    elif 'A' <= letter and letter <= 'F':
         return True
-    elif 'a' <= letter or letter <= 'f':
+    else:
+        return False
+    
+def valid_hex(operand):
+    for letter in operand:
+        if not valid_hex_char(letter):
+            return False
+    return True
+    
+def valid_dec_char(operand):
+    if '0' <= operand and operand <= '9':
         return True
     else:
         return False
     
 def valid_dec(operand):
-    if '0' <= operand or operand <= '9':
-        return True
-    else:
-        return False
+    for letter in operand:
+        if not valid_dec_char(letter):
+            return False
+    return True
     
 def dec_to_2hex(operand):
     conversion_table = ['0', '1', '2', '3', 
@@ -146,14 +156,29 @@ for line in file:
                 argument = words[1]
                 
             elif (words.__len__() == 3):
-                argument = words[1] + words[2]
+                argument = words[1] + " " + words[2]
 
             else:
                 print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid number of arguments")
                 exit(2)
 
+
+            #print(argument)
             
-            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             # Parse argument
 
             # Immediate
@@ -163,14 +188,14 @@ for line in file:
                 if (argument[1] == "$"):
                     
                     if (len(argument[2:]) == 2):
-                        if (valid_hex(argument[2]) and valid_hex(argument[3])):
+                        if (valid_hex(argument[2:])):
                             hex = argument[2:]
                             print(f"Immediate Hex: {hex}")
                         else:
-                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[2:]})")
+                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                             exit(2)
                     else:
-                        print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[2:]})")
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                         exit(2)
 
                 # Immediate Dec
@@ -179,37 +204,95 @@ for line in file:
                         if (valid_dec(letter)):
                             continue
                         else:
-                            print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({argument[1:]})")
+                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
                             exit(2)
 
                     dec = argument[1:]
                     hex = dec_to_2hex(dec)
                     check_length(dec, hex, 2, line, linenum)
                     print(f"Immediate Dec: {hex}")
+
+
+            # Direct Addressing Hex
+            elif (argument[0] == "$"):
+                if (len(argument[1:]) == 2):
+                    if (valid_hex(argument[1:3])):
+                        hex = argument[1:3]
+                        print(f"Zero Page: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+
+                elif (len(argument[1:]) == 5):
+                    if (valid_hex(argument[1:3]) and argument[3:6].__eq__(", X")):
+                        hex = argument[1:3]
+                        print(f"Zero Page, X: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+
+                elif (len(argument[1:]) == 4):
+                    if (valid_hex(argument[1:5])):
+                        hex = argument[1:5]
+                        print(f"Absolute: {hex}")
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+
+                elif (len(argument[1:]) == 7):
+                    if valid_hex(argument[1:5]):
+                        if argument[5:8].__eq__(", X"):
+                            hex = argument[1:5]
+                            print(f"Absolute, X: {hex}") 
+                        elif argument[5:8].__eq__(", Y"):
+                            hex = argument[1:5]
+                            print(f"Absolute, Y: {hex}")
+                        else:
+                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                            exit(2)
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+                
+                else:
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                    exit(2)
             
+            # Indirect Addressing
+            elif (argument[0] == "("):
+                # Indirect Addressing Hex
+                if (argument[1] == "$"):
+                    if (len(argument[2:]) == 3):
+                        if (valid_hex(argument[2:4]) and argument[4] == ")"):
+                            hex = argument[2:4]
+                            print(f"Zero Page Indirect: {hex}")
+                        else:
+                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                            exit(2)
+
+                    elif (len(argument[2:]) == 6):
+                        if (valid_hex(argument[2:4]) and argument[4:].__eq__(", X)")):
+                            hex = argument[2:4]
+                            print(f"Zero Page Indirect, X: {hex}")
+                        elif (valid_hex(argument[2:4]) and argument[4:].__eq__("), Y")):
+                            hex = argument[2:4]
+                            print(f"Zero Page Indirect, Y: {hex}")
+                        else:
+                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                            exit(2)
+
+                    else:
+                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
+                        exit(2)
+
+                    
+
 
                 
-    
 
-                
-                # if (words[word][0] == "#"):
-                #     # Immediate
-                #     if (words[word][1] == "$"):
-                #         # Immediate Hex
-                #         if (len(words[word][2:]) == 2):
-                #             if (valid_operand(words[word][2]) and valid_operand(words[word][3])):
-                #                 print(f"Immediate Hex: {words[word][2:]}")
-                #             else:
-                #                 print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({words[word][2:]})")
-                #                 exit(2)
-                #     # Immediate Dec
-                #     elif (len(words[word][1:]) <= 5):
-                #         if (valid_operand(words[word][1])):
-                #             print(f"Immediate Dec: {words[word][1:]}")
-                #         else:
-                #             print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({words[word][1:]})")
-                #             exit(2)
+                        
 
+            
 
             
                 
@@ -217,12 +300,34 @@ for line in file:
 
 
 
-            
 
 
 
 
-        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
     # print(words)
     linenum += 1
