@@ -16,7 +16,7 @@
 # 15 = Zero Page Indirect                 (zp)
 # 16 = Zero Page Indirect with Indexed    (zp), y
 
-Instruction - ADC
+1. ADC Instruction - Add Memory to Accumulator with Carry
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               ADC $1234                          6D    3     ?
@@ -29,7 +29,7 @@ Instruction - ADC
 #15  Zero Page Indirect                    (zp)             ADC ($12)                          72    2     ?
 #16  Zero Page Indirect with Indexed       (zp), y          ADC ($12), Y                       71    2     ?
 
-Instruction - AND
+2. AND Instruction - AND Memory with Accumulator
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               AND $1234                          2D    3     ?
@@ -42,17 +42,104 @@ Instruction - AND
 #15  Zero Page Indirect                    (zp)             AND ($12)                          32    2     ?
 #16  Zero Page Indirect with Indexed       (zp), y          AND ($12), Y                       31    2     ?
 
-Instruction - ASL
+3. ASL Instruction - Arithmetic Shift Memory or Accumulator one bit Left
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               ASL $1234                          0E    3     ?
 #3   Absolute Indexed with X                a, x            ASL $1234, X                       1E    3     ?
-#6   Accumulator                            A               ASL #$12                           0A    1     ?
+#6   Accumulator                            A               ASL A                              0A    1     ?
 #11  Zero Page                              zp              ASL $12                            06    2     ?
 #13  Zero Page Indexed with X               zp, x           ASL $12, X                         16    2     ?
 
-Instruction - BBR
+4. BBR Instruction - Branch on Bit Reset (0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BBR {0-7}, $12, {Branch Name}      0E    3     ?
+#9   Program Counter Relative               r               BBR {0}, $12, {Branch Name}        0F    2     ?
+#9   Program Counter Relative               r               BBR {1}, $12, {Branch Name}        1F    2     ?
+#9   Program Counter Relative               r               BBR {2}, $12, {Branch Name}        2F    2     ?
+#9   Program Counter Relative               r               BBR {3}, $12, {Branch Name}        3F    2     ?
+#9   Program Counter Relative               r               BBR {4}, $12, {Branch Name}        4F    2     ?
+#9   Program Counter Relative               r               BBR {5}, $12, {Branch Name}        5F    2     ?
+#9   Program Counter Relative               r               BBR {6}, $12, {Branch Name}        6F    2     ?
+#9   Program Counter Relative               r               BBR {7}, $12, {Branch Name}        7F    2     ?
+
+5. BBS Instruction - Branch on Bit Set (1)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BBS {0}, $12, {Branch Name}        8F    2     ?
+#9   Program Counter Relative               r               BBS {1}, $12, {Branch Name}        9F    2     ?
+#9   Program Counter Relative               r               BBS {2}, $12, {Branch Name}        AF    2     ?
+#9   Program Counter Relative               r               BBS {3}, $12, {Branch Name}        BF    2     ?
+#9   Program Counter Relative               r               BBS {4}, $12, {Branch Name}        CF    2     ?
+#9   Program Counter Relative               r               BBS {5}, $12, {Branch Name}        DF    2     ?
+#9   Program Counter Relative               r               BBS {6}, $12, {Branch Name}        EF    2     ?
+#9   Program Counter Relative               r               BBS {7}, $12, {Branch Name}        FF    2     ?
+
+6. BBC Inustruction - Branch on Carry Clear (Pc=0)
+7. BCS Instruction - Branch on Carry Set (Pc=1)
+8. BEQ Instruction - Branch if Equal (Pz=1)
+9. BIT Instruction - Bit Test
+10. BMI Instruction - Branch if result Minus (Pn=1)
+11. BNE Instruction - Branch if Not Equal (Pz=0)
+12. BPL Instruction - Branch if result Plus (Pn=0)
+13. BRA Instruction - Branch Always
+14. BRK Instruction - Break Instruction
+15. BVC Instruction - Branch on Overflow Clear (Pv=0)
+16. BVS Instruction - Branch on Overflow Set (Pv=1)
+17. CLC Instruction - Cleary Carry Flag
+18. CLD Instruction - Clear Decimal Mode
+19. CLI Instruction - Clear Interrupt Disable Bit
+20. CLV Instruction - Clear Overflow Flag
+21. CMP Instruction - Compare Memory and Accumulator
+22. CPX Instruction - Compare Memory and X Register
+23. CPY Instruction - Compare Memory and Y Register
+24. DEC Instruction - Decrement Memory or Accumulator by One
+25. DEX Instruction - Decrement X by one
+26. DEY Instruction - Decrement Y by one
+27. EOR Instruction - XOR Memory with Accumulator
+28. INC Instruction - Increment Memory or Accumulator by One
+29. INX Instruction - Increment X Register by One
+30. INY Instruction - Increment Y Register by One
+31. JMP Instruction - Jump to a new Location
+32. JSR Instruction - Jump to a new Location (Saving Return)
+33. LDA Instruction - Load Accumulator with Memory
+34. LDX Instruction - Load X Register with Memory
+35. LDY Instruction - Load Y Register with Memory
+36. LSR Instruction - Logical Shift Memory or Accumulator one bit Right
+37. NOP Instruction - No Operation
+38. ORA Instruction - OR Memory with Accumulator
+39. PHA Instruction - Push Accumulator on Stack
+40. PHP Instruction - Push Processor status on Stack
+41. PHX Instruction - Push X Register on Stack
+42. PHY Instruction - Push Y Register on Stack
+43. PLA Instruction - Pull Accumulator from Stack
+44. PLP Instruction - Pull Processor status from Stack
+45. PLX Instruction - Pull X Register from Stack
+46. PLY Instruction - Pull Y Register from Stack
+47. RMB Instruction - Reset Memory Bit
+48. ROL Instruction - Rotate Memory or Accumulator Bit Left
+49. ROR Instruction - Rotate Memory or Accumulator Bit Right
+50. RTI Instruction - Return from Interrupt
+51. RTS Instruction - Return from Subroutine
+52. SBC Instruction - Subtract Memory from Accumulator with Carry Bit
+53. SEC Instruction - Set Carry
+54. SED Instruction - Set Decimal Mode
+55. SEI Instruction - Set Interrupt Disable Status
+56. SMB Instruction - Set Memory Bit
+57. STA Instruction - Store Accumulator in Memory
+58. STP Instruction - Stop Mode
+59. STX Instruction - Store the X Register in Memory
+60. STY Instruction - Store the Y Register in Memory
+61. STZ Instruction - Store Zero in Memory
+62. TAX Instruction - Transfer Accumulator to X Register
+63. TAY Instruction - Transfer Accumulator to Y Register
+64. TRB Instruction - Test and Reset Memory Bit
+65. TSB Instruction - Test and Set Memory Bit
+66. TSX Instruction - Transfer Stack Pointer to X Register
+67. TXA Instruction - Transfer X Register to Accumulator
+68. TXS Instruction - Transfer X Register to Stack Pointer Register
+69. TYA Instruction - Transfer Y Register to Accumulator
+70. WAI Instruction - Wait for Interrupt
+
+
 
