@@ -1,46 +1,34 @@
-$ - Used to represent hexadecimal values
-
-LDA (zp,x)    - A1      EX: LDA ($12, X)                ~ Indirect + X
-LDA zp        - A5      EX: LDA $12                     ~ Zero Page
-LDA #         - A9      EX: LDA #$12                    ~ Immediate
-LDA a         - AD      EX: LDA $1234                   ~ Absolute
-LDA (zp), y   - B1      EX: LDA ($12), Y                ~ Indirect + Y
-LDA (zp)      - B2      EX: NOT FOUND
-LDA zp,x      - B5      EX: LDA $12, X                  ~ Zero Page + X
-LDA a,y       - B9      EX: LDA $1234, Y                ~ Absolute + Y
-LDA a,x       - BD      EX: LDA $1234, X                ~ Absolute + X
-
-
-
-
-LDA #         - A9      EX: LDA #$12                    ~ Immediate         1 Decode 1 Operand
-LDA zp        - A5      EX: LDA $12                     ~ Zero Page         1
-
-
-
-
 Instruction - ADC
 
-MODE                        SYNTAX             HEX   LEN   TIM
-Immediate                   ADC #$12           69    2     ?
-Zero Page                   ADC $12            65    2     ?
-Zero Page, X                ADC $12, X         75    2     ?
-Zero Page Indirect          ADC ($12)          72    2     ?
-Zero Page Indirect, X       ADC ($12, X)       61    2     ?
-Zero Page Indirect, Y       ADC ($12), Y       71    2     ?
-Absolute                    ADC $1234          6D    3     ?
-Absolute, X                 ADC $1234, X       7D    3     ?
-Absolute, Y                 ADC $1234, Y       79    3     ?
+#    MODE                                   SYNTAX          USAGE               HEX   LEN   TIM
+#1   Absolute                               a               ADC $1234           6D    3     ?
+#3   Absolute Indexed with X                a, x            ADC $1234, X        7D    3     ?
+#4   Absolute Indexed with Y                a, y            ADC $1234, Y        79    3     ?
+#7   Immediate Addressing                   #               ADC #$12            69    2     ?
+#11  Zero Page                              zp              ADC $12             65    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          ADC ($12, X)        61    2     ?
+#13  Zero Page Indexed with X               zp, x           ADC $12, X          75    2     ?
+#15  Zero Page Indirect                    (zp)             ADC ($12)           72    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          ADC ($12), Y        71    2     ?
 
 Instruction - AND
 
-MODE                        SYNTAX             HEX   LEN   TIM
-Immediate                   AND #$12           69    2     ?
-Zero Page                   ADC $12            65    2     ?
-Zero Page, X                ADC $12, X         75    2     ?
-Zero Page Indirect          ADC ($12)          72    2     ?
-Zero Page Indirect, X       ADC ($12, X)       61    2     ?
-Zero Page Indirect, Y       ADC ($12), Y       71    2     ?
-Absolute                    ADC $1234          6D    3     ?
-Absolute, X                 ADC $1234, X       7D    3     ?
-Absolute, Y                 ADC $1234, Y       79    3     ?
+#    MODE                                   SYNTAX          USAGE               HEX   LEN   TIM
+#1   Absolute                               a               AND $1234           2D    3     ?
+#3   Absolute Indexed with X                a, x            AND $1234, X        3D    3     ?
+#4   Absolute Indexed with Y                a, y            AND $1234, Y        39    3     ?
+#7   Immediate Addressing                   #               AND #$12            29    2     ?
+#11  Zero Page                              zp              AND $12             25    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          AND ($12, X)        21    2     ?
+#13  Zero Page Indexed with X               zp, x           AND $12, X          35    2     ?
+#15  Zero Page Indirect                    (zp)             AND ($12)           32    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          AND ($12), Y        31    2     ?
+
+Instruction - ASL
+
+#    MODE                                   SYNTAX          USAGE               HEX   LEN   TIM
+#1   Absolute                               a               ASL $1234           0E    3     ?     X
+#3   Absolute Indexed with X                a, x            ASL $1234, X        1E    3     ?     X
+#6   Accumulator                            A               ASL #$12            0A    1     ?     X
+#11  Zero Page                              zp              ASL $12             06    2     ?     X
+#13  Zero Page Indexed with X               zp, x           ASL $12, X          16    2     ?     X
