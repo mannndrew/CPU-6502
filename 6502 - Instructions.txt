@@ -19,15 +19,28 @@ LDA zp        - A5      EX: LDA $12                     ~ Zero Page         1
 
 
 
-ADC
+Instruction - ADC
 
-MODE                        SYNTAX             COMMON        HEX   LEN   TIM
-Immediate                   ADC #$12           1    $        69    2     ?
-Zero Page                   ADC $12            1             65    2     ?
-Zero Page, X                ADC $12, X         1X            75    2     ?
-Zero Page Indirect          ADC ($12)          1  ()         72    2     ?
-Zero Page Indirect, X       ADC ($12, X)       1X ()         61    2     ?
-Zero Page Indirect, Y       ADC ($12), Y       1 Y()         71    2     ?
-Absolute                    ADC $1234          2             6D    3     ?
-Absolute, X                 ADC $1234, X       2X            7D    3     ?
-Absolute, Y                 ADC $1234, Y       2 Y           79    3     ?
+MODE                        SYNTAX             HEX   LEN   TIM
+Immediate                   ADC #$12           69    2     ?
+Zero Page                   ADC $12            65    2     ?
+Zero Page, X                ADC $12, X         75    2     ?
+Zero Page Indirect          ADC ($12)          72    2     ?
+Zero Page Indirect, X       ADC ($12, X)       61    2     ?
+Zero Page Indirect, Y       ADC ($12), Y       71    2     ?
+Absolute                    ADC $1234          6D    3     ?
+Absolute, X                 ADC $1234, X       7D    3     ?
+Absolute, Y                 ADC $1234, Y       79    3     ?
+
+Instruction - AND
+
+MODE                        SYNTAX             HEX   LEN   TIM
+Immediate                   AND #$12           69    2     ?
+Zero Page                   ADC $12            65    2     ?
+Zero Page, X                ADC $12, X         75    2     ?
+Zero Page Indirect          ADC ($12)          72    2     ?
+Zero Page Indirect, X       ADC ($12, X)       61    2     ?
+Zero Page Indirect, Y       ADC ($12), Y       71    2     ?
+Absolute                    ADC $1234          6D    3     ?
+Absolute, X                 ADC $1234, X       7D    3     ?
+Absolute, Y                 ADC $1234, Y       79    3     ?
