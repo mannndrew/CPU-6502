@@ -177,9 +177,9 @@
 23. CPY Instruction - Compare Memory and Y Register
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               CPX $1234                          CC    3     ?
-#7   Immediate Addressing                   #               CPX #$12                           C0    2     ?
-#11  Zero Page                              zp              CPX $12                            C4    2     ?
+#1   Absolute                               a               CPY $1234                          CC    3     ?
+#7   Immediate Addressing                   #               CPY #$12                           C0    2     ?
+#11  Zero Page                              zp              CPY $12                            C4    2     ?
 
 24. DEC Instruction - Decrement Memory or Accumulator by One
 
@@ -230,7 +230,7 @@
 30. INY Instruction - Increment Y Register by One
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               INX                                C8    1     ?
+#8   Implied Addressing                     i               INY                                C8    1     ?
 
 31. JMP Instruction - Jump to a new Location
 
@@ -287,41 +287,227 @@
 37. NOP Instruction - No Operation
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               INX                                EA    1     ?
+#8   Implied Addressing                     i               NOP                                EA    1     ?
 
 38. ORA Instruction - OR Memory with Accumulator
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               ORA $1234                          0D    3     ?
+#3   Absolute Indexed with X                a, x            ORA $1234, X                       1D    3     ?
+#4   Absolute Indexed with Y                a, y            ORA $1234, Y                       19    3     ?
+#7   Immediate Addressing                   #               ORA #$12                           09    2     ?
+#11  Zero Page                              zp              ORA $12                            05    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          ORA ($12, X)                       01    2     ?
+#13  Zero Page Indexed with X               zp, x           ORA $12, X                         15    2     ?
+#15  Zero Page Indirect                    (zp)             ORA ($12)                          12    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          ORA ($12), Y                       11    2     ?
+
 39. PHA Instruction - Push Accumulator on Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PHA                                48    1     ?
+
 40. PHP Instruction - Push Processor status on Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PHP                                D8    1     ?
+
 41. PHX Instruction - Push X Register on Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PHX                                DA    1     ?
+
 42. PHY Instruction - Push Y Register on Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PHY                                5A    1     ?
+
 43. PLA Instruction - Pull Accumulator from Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PLA                                68    1     ?
+
 44. PLP Instruction - Pull Processor status from Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PLP                                28    1     ?
+
 45. PLX Instruction - Pull X Register from Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PLX                                FA    1     ?
+
 46. PLY Instruction - Pull Y Register from Stack
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               PLY                                7A    1     ?
+
 47. RMB Instruction - Reset Memory Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#11  Zero Page                              zp              RMB {0}, #12                       07    2     ?
+#11  Zero Page                              zp              RMB {1}, #12                       17    2     ?
+#11  Zero Page                              zp              RMB {2}, #12                       27    2     ?
+#11  Zero Page                              zp              RMB {3}, #12                       37    2     ?
+#11  Zero Page                              zp              RMB {4}, #12                       47    2     ?
+#11  Zero Page                              zp              RMB {5}, #12                       57    2     ?
+#11  Zero Page                              zp              RMB {6}, #12                       67    2     ?
+#11  Zero Page                              zp              RMB {7}, #12                       77    2     ?
+
 48. ROL Instruction - Rotate Memory or Accumulator Bit Left
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               ROL $1234                          2E    3     ?
+#3   Absolute Indexed with X                a, x            ROL $1234, X                       3E    3     ?
+#6 = Accumulator                            A               ROL A                              2A    1     ?
+#11  Zero Page                              zp              ROL $12                            26    2     ?
+#13 = Zero Page Indexed with X              zp, x           ROL $12, X                         36    2     ?
+
 49. ROR Instruction - Rotate Memory or Accumulator Bit Right
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               ROR $1234                          6E    3     ?
+#3   Absolute Indexed with X                a, x            ROR $1234, X                       7E    3     ?
+#6 = Accumulator                            A               ROR A                              6A    1     ?
+#11  Zero Page                              zp              ROR $12                            66    2     ?
+#13 = Zero Page Indexed with X              zp, x           ROR $12, X                         76    2     ?
+
 50. RTI Instruction - Return from Interrupt
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               RTI                                40    1     ?
+
 51. RTS Instruction - Return from Subroutine
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               RTS                                60    1     ?
+
 52. SBC Instruction - Subtract Memory from Accumulator with Carry Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               SBC $1234                          ED    3     ?
+#3   Absolute Indexed with X                a, x            SBC $1234, X                       FD    3     ?
+#4   Absolute Indexed with Y                a, y            SBC $1234, Y                       F9    3     ?
+#7   Immediate Addressing                   #               SBC #$12                           E9    2     ?
+#11  Zero Page                              zp              SBC $12                            E5    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          SBC ($12, X)                       E1    2     ?
+#13  Zero Page Indexed with X               zp, x           SBC $12, X                         F5    2     ?
+#15  Zero Page Indirect                    (zp)             SBC ($12)                          F2    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          SBC ($12), Y                       F1    2     ?
+
 53. SEC Instruction - Set Carry
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               SEC                                38    1     ?
+
 54. SED Instruction - Set Decimal Mode
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               SED                                F8    1     ?
+
 55. SEI Instruction - Set Interrupt Disable Status
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               SEI                                78    1     ?
+
 56. SMB Instruction - Set Memory Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#11  Zero Page                              zp              SMB {0}, #12                       87    2     ?
+#11  Zero Page                              zp              SMB {1}, #12                       97    2     ?
+#11  Zero Page                              zp              SMB {2}, #12                       A7    2     ?
+#11  Zero Page                              zp              SMB {3}, #12                       B7    2     ?
+#11  Zero Page                              zp              SMB {4}, #12                       C7    2     ?
+#11  Zero Page                              zp              SMB {5}, #12                       D7    2     ?
+#11  Zero Page                              zp              SMB {6}, #12                       E7    2     ?
+#11  Zero Page                              zp              SMB {7}, #12                       F7    2     ?
+
 57. STA Instruction - Store Accumulator in Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               STA $1234                          8D    3     ?
+#3   Absolute Indexed with X                a, x            STA $1234, X                       9D    3     ?
+#4   Absolute Indexed with Y                a, y            STA $1234, Y                       99    3     ?
+#11  Zero Page                              zp              STA $12                            85    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          STA ($12, X)                       81    2     ?
+#13  Zero Page Indexed with X               zp, x           STA $12, X                         95    2     ?
+#15  Zero Page Indirect                    (zp)             STA ($12)                          92    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          STA ($12), Y                       91    2     ?
+
 58. STP Instruction - Stop Mode
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               STP                                DB    1     ?
+
 59. STX Instruction - Store the X Register in Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               STX $1234                          8E    3     ?
+#11  Zero Page                              zp              STX $12                            86    2     ?
+#14  Zero Page Indexed with Y               zp, y           STX $12, Y                         96    2     ?
+
 60. STY Instruction - Store the Y Register in Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               STY $1234                          8C    3     ?
+#11  Zero Page                              zp              STY $12                            84    2     ?
+#13  Zero Page Indexed with X               zp, x           STY $12, X                         94    2     ?
+
 61. STZ Instruction - Store Zero in Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               STZ $1234                          9C    3     ?
+#3   Absolute Indexed with X                a, x            STZ $1234, X                       9E    3     ?
+#11  Zero Page                              zp              STZ $12                            64    2     ?
+#13  Zero Page Indexed with X               zp, x           STZ $12, X                         74    2     ?
+
 62. TAX Instruction - Transfer Accumulator to X Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TAX                                AA    1     ?
+
 63. TAY Instruction - Transfer Accumulator to Y Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TAY                                A8    1     ?
+
 64. TRB Instruction - Test and Reset Memory Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               TRB $1234                          1C    3     ?
+#11  Zero Page                              zp              TRB $12                            14    2     ?
+
 65. TSB Instruction - Test and Set Memory Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               TSB $1234                          0C    3     ?
+#11  Zero Page                              zp              TSB $12                            04    2     ?
+
 66. TSX Instruction - Transfer Stack Pointer to X Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TSX                                BA    1     ?
+
 67. TXA Instruction - Transfer X Register to Accumulator
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TXA                                8A    1     ?
+
 68. TXS Instruction - Transfer X Register to Stack Pointer Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TXS                                9A    1     ?
+
 69. TYA Instruction - Transfer Y Register to Accumulator
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               TYA                                98    1     ?
+
 70. WAI Instruction - Wait for Interrupt
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               WAI                                CB    1     ?
+
 
 
 
