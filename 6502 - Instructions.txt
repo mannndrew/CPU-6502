@@ -1,20 +1,20 @@
-# Addressing Modes
-# 1 = Absolute                             a
-# 2 = Absolute Indexed Indirect           (a, x)
-# 3 = Absolute Indexed with X              a, x
-# 4 = Absolute Indexed with Y              a, y
-# 5 = Absolute Indirect                   (a)
-# 6 = Accumulator                          A
-# 7 = Immediate Addressing                 #
-# 8 = Implied Addressing                   i
-# 9 = Program Counter Relative             r
-# 10 = Stack                               s
-# 11 = Zero Page                           zp
-# 12 = Zero Page Indexed Indirect         (zp, x)
-# 13 = Zero Page Indexed with X            zp, x
-# 14 = Zero Page Indexed with Y            zp, y
-# 15 = Zero Page Indirect                 (zp)
-# 16 = Zero Page Indirect with Indexed    (zp), y
+#Addressing Modes
+#1 = Absolute                             a
+#2 = Absolute Indexed Indirect           (a, x)
+#3 = Absolute Indexed with X              a, x
+#4 = Absolute Indexed with Y              a, y
+#5 = Absolute Indirect                   (a)
+#6 = Accumulator                          A
+#7 = Immediate Addressing                 #
+#8 = Implied Addressing                   i
+#9 = Program Counter Relative             r
+#10 = Stack                               s
+#11 = Zero Page                           zp
+#12 = Zero Page Indexed Indirect         (zp, x)
+#13 = Zero Page Indexed with X            zp, x
+#14 = Zero Page Indexed with Y            zp, y
+#15 = Zero Page Indirect                 (zp)
+#16 = Zero Page Indirect with Indexed    (zp), y
 
 1. ADC Instruction - Add Memory to Accumulator with Carry
 
@@ -76,45 +76,219 @@
 #9   Program Counter Relative               r               BBS {7}, {Branch Name}             FF    2     ?
 
 6. BCC Inustruction - Branch on Carry Clear (Pc=0)
+
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BCC, {Branch Name}                 90    2     ?
 
 7. BCS Instruction - Branch on Carry Set (Pc=1)
+
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BCS, {Branch Name}                 B0    2     ?
 
 8. BEQ Instruction - Branch if Equal (Pz=1)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BEQ, {Branch Name}                 F0    2     ?
 
 9. BIT Instruction - Bit Test
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               BIT $1234                          2C    3     ?
+#3   Absolute Indexed with X                a, x            BIT $1234, X                       3C    3     ?
+#7   Immediate Addressing                   #               BIT #$12                           89    2     ?
+#11  Zero Page                              zp              BIT $12                            24    2     ?
+#13  Zero Page Indexed with X               zp, x           BIT $12, X                         34    2     ?
+
 10. BMI Instruction - Branch if result Minus (Pn=1)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BMI, {Branch Name}                 30    2     ?
+
 11. BNE Instruction - Branch if Not Equal (Pz=0)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BNE, {Branch Name}                 D0    2     ?
+
 12. BPL Instruction - Branch if result Plus (Pn=0)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BPL, {Branch Name}                 10    2     ?
+
 13. BRA Instruction - Branch Always
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BRA, {Branch Name}                 80    2     ?
+
 14. BRK Instruction - Break Instruction
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#10  Stack                                  s               BRK                                00    1     ?
+
 15. BVC Instruction - Branch on Overflow Clear (Pv=0)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BVC, {Branch Name}                 50    2     ?
+
 16. BVS Instruction - Branch on Overflow Set (Pv=1)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#9   Program Counter Relative               r               BVS, {Branch Name}                 70    2     ?
+
 17. CLC Instruction - Cleary Carry Flag
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               CLC                                18    1     ?
+
 18. CLD Instruction - Clear Decimal Mode
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               CLD                                D8    1     ?
+
 19. CLI Instruction - Clear Interrupt Disable Bit
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               CLI                                58    1     ?
+
 20. CLV Instruction - Clear Overflow Flag
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               CLV                                B8    1     ?
+
 21. CMP Instruction - Compare Memory and Accumulator
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               CMP $1234                          CD    3     ?
+#3   Absolute Indexed with X                a, x            CMP $1234, X                       DD    3     ?
+#4   Absolute Indexed with Y                a, y            CMP $1234, Y                       D9    3     ?
+#7   Immediate Addressing                   #               CMP #$12                           C9    2     ?
+#11  Zero Page                              zp              CMP $12                            C5    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          CMP ($12, X)                       C1    2     ?
+#13  Zero Page Indexed with X               zp, x           CMP $12, X                         D5    2     ?
+#15  Zero Page Indirect                    (zp)             CMP ($12)                          D2    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          CMP ($12), Y                       D1    2     ?
+
 22. CPX Instruction - Compare Memory and X Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               CPX $1234                          EC    3     ?
+#7   Immediate Addressing                   #               CPX #$12                           E0    2     ?
+#11  Zero Page                              zp              CPX $12                            E4    2     ?
+
 23. CPY Instruction - Compare Memory and Y Register
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               CPX $1234                          CC    3     ?
+#7   Immediate Addressing                   #               CPX #$12                           C0    2     ?
+#11  Zero Page                              zp              CPX $12                            C4    2     ?
+
 24. DEC Instruction - Decrement Memory or Accumulator by One
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               DEC $1234                          CE    3     ?
+#3   Absolute Indexed with X                a, x            DEC $1234, X                       DE    3     ?
+#6 = Accumulator                            A               DEC A                              3A    1     ?
+#11  Zero Page                              zp              DEC $12                            C6    2     ?
+#13 = Zero Page Indexed with X              zp, x           DEC $12, X                         D6    2     ?
+
 25. DEX Instruction - Decrement X by one
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               DEX                                CA    1     ?
+
 26. DEY Instruction - Decrement Y by one
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               DEY                                88    1     ?
+
 27. EOR Instruction - XOR Memory with Accumulator
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               EOR $1234                          4D    3     ?
+#3   Absolute Indexed with X                a, x            EOR $1234, X                       5D    3     ?
+#4   Absolute Indexed with Y                a, y            EOR $1234, Y                       59    3     ?
+#7   Immediate Addressing                   #               EOR #$12                           49    2     ?
+#11  Zero Page                              zp              EOR $12                            45    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          EOR ($12, X)                       41    2     ?
+#13  Zero Page Indexed with X               zp, x           EOR $12, X                         55    2     ?
+#15  Zero Page Indirect                    (zp)             EOR ($12)                          52    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          EOR ($12), Y                       51    2     ?
+
 28. INC Instruction - Increment Memory or Accumulator by One
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               INC $1234                          EE    3     ?
+#3   Absolute Indexed with X                a, x            INC $1234, X                       FE    3     ?
+#6 = Accumulator                            A               INC A                              1A    1     ?
+#11  Zero Page                              zp              INC $12                            E6    2     ?
+#13 = Zero Page Indexed with X              zp, x           INC $12, X                         F6    2     ?
+
 29. INX Instruction - Increment X Register by One
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               INX                                E8    1     ?
+
 30. INY Instruction - Increment Y Register by One
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               INX                                C8    1     ?
+
 31. JMP Instruction - Jump to a new Location
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               JMP $1234                          4C    3     ?
+#2   Absolute Indexed Indirect             (a, x)           JMP ($1234, X)                     7C    3     ?
+#5   Absolute Indirect                     (a)              JMP ($1234)                        6C    3     ?
+
 32. JSR Instruction - Jump to a new Location (Saving Return)
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               JSR $1234                          20    3     ?
+
 33. LDA Instruction - Load Accumulator with Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               LDA $1234                          AD    3     ?
+#3   Absolute Indexed with X                a, x            LDA $1234, X                       BD    3     ?
+#4   Absolute Indexed with Y                a, y            LDA $1234, Y                       B9    3     ?
+#7   Immediate Addressing                   #               LDA #$12                           A9    2     ?
+#11  Zero Page                              zp              LDA $12                            A5    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          LDA ($12, X)                       A1    2     ?
+#13  Zero Page Indexed with X               zp, x           LDA $12, X                         B5    2     ?
+#15  Zero Page Indirect                    (zp)             LDA ($12)                          B2    2     ?
+#16  Zero Page Indirect with Indexed       (zp), y          LDA ($12), Y                       B1    2     ?
+
 34. LDX Instruction - Load X Register with Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               LDX $1234                          AE    3     ?
+#4   Absolute Indexed with Y                a, y            LDX $1234, Y                       BE    3     ?
+#7   Immediate Addressing                   #               LDX #$12                           A2    2     ?
+#11  Zero Page                              zp              LDX $12                            A6    2     ?
+#14  Zero Page Indexed with Y               zp, y           LDX $12, Y                         B6    2     ?
+
 35. LDY Instruction - Load Y Register with Memory
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               LDY $1234                          AC    3     ?
+#3   Absolute Indexed with X                a, x            LDY $1234, X                       BC    3     ?
+#7   Immediate Addressing                   #               LDY #$12                           A0    2     ?
+#11  Zero Page                              zp              LDY $12                            A4    2     ?
+#13  Zero Page Indexed with X               zp, x           LDY $12, X                         B4    2     ?
+
 36. LSR Instruction - Logical Shift Memory or Accumulator one bit Right
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#1   Absolute                               a               LSR $1234                          4E    3     ?
+#3   Absolute Indexed with X                a, x            LSR $1234, X                       5E    3     ?
+#6 = Accumulator                            A               LSR A                              4A    1     ?
+#11  Zero Page                              zp              LSR $12                            46    2     ?
+#13 = Zero Page Indexed with X              zp, x           LSR $12, X                         56    2     ?
+
 37. NOP Instruction - No Operation
+
+#    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
+#8   Implied Addressing                     i               INX                                EA    1     ?
+
 38. ORA Instruction - OR Memory with Accumulator
 39. PHA Instruction - Push Accumulator on Stack
 40. PHP Instruction - Push Processor status on Stack
