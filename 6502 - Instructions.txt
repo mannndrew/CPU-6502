@@ -186,9 +186,9 @@
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               DEC $1234                          CE    3     ?
 #3   Absolute Indexed with X                a, x            DEC $1234, X                       DE    3     ?
-#6 = Accumulator                            A               DEC A                              3A    1     ?
+#6   Accumulator                            A               DEC A                              3A    1     ?
 #11  Zero Page                              zp              DEC $12                            C6    2     ?
-#13 = Zero Page Indexed with X              zp, x           DEC $12, X                         D6    2     ?
+#13  Zero Page Indexed with X               zp, x           DEC $12, X                         D6    2     ?
 
 25. DEX Instruction - Decrement X by one
 
@@ -218,9 +218,9 @@
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               INC $1234                          EE    3     ?
 #3   Absolute Indexed with X                a, x            INC $1234, X                       FE    3     ?
-#6 = Accumulator                            A               INC A                              1A    1     ?
+#6   Accumulator                            A               INC A                              1A    1     ?
 #11  Zero Page                              zp              INC $12                            E6    2     ?
-#13 = Zero Page Indexed with X              zp, x           INC $12, X                         F6    2     ?
+#13  Zero Page Indexed with X               zp, x           INC $12, X                         F6    2     ?
 
 29. INX Instruction - Increment X Register by One
 
@@ -235,9 +235,9 @@
 31. JMP Instruction - Jump to a new Location
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               JMP $1234                          4C    3     ?
-#2   Absolute Indexed Indirect             (a, x)           JMP ($1234, X)                     7C    3     ?
-#5   Absolute Indirect                     (a)              JMP ($1234)                        6C    3     ?
+#1   Absolute                               a               JMP {Jump Name}                    4C    3     ?
+#2   Absolute Indexed Indirect             (a, x)           JMP ({{Jump Name}, X)              7C    3     ?
+#5   Absolute Indirect                     (a)              JMP ({Jump Name})                  6C    3     ?
 
 32. JSR Instruction - Jump to a new Location (Saving Return)
 
@@ -280,9 +280,9 @@
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               LSR $1234                          4E    3     ?
 #3   Absolute Indexed with X                a, x            LSR $1234, X                       5E    3     ?
-#6 = Accumulator                            A               LSR A                              4A    1     ?
+#6   Accumulator                            A               LSR A                              4A    1     ?
 #11  Zero Page                              zp              LSR $12                            46    2     ?
-#13 = Zero Page Indexed with X              zp, x           LSR $12, X                         56    2     ?
+#13  Zero Page Indexed with X               zp, x           LSR $12, X                         56    2     ?
 
 37. NOP Instruction - No Operation
 
@@ -359,18 +359,18 @@
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               ROL $1234                          2E    3     ?
 #3   Absolute Indexed with X                a, x            ROL $1234, X                       3E    3     ?
-#6 = Accumulator                            A               ROL A                              2A    1     ?
+#6   Accumulator                            A               ROL A                              2A    1     ?
 #11  Zero Page                              zp              ROL $12                            26    2     ?
-#13 = Zero Page Indexed with X              zp, x           ROL $12, X                         36    2     ?
+#13  Zero Page Indexed with X               zp, x           ROL $12, X                         36    2     ?
 
 49. ROR Instruction - Rotate Memory or Accumulator Bit Right
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               ROR $1234                          6E    3     ?
 #3   Absolute Indexed with X                a, x            ROR $1234, X                       7E    3     ?
-#6 = Accumulator                            A               ROR A                              6A    1     ?
+#6   Accumulator                            A               ROR A                              6A    1     ?
 #11  Zero Page                              zp              ROR $12                            66    2     ?
-#13 = Zero Page Indexed with X              zp, x           ROR $12, X                         76    2     ?
+#13  Zero Page Indexed with X               zp, x           ROR $12, X                         76    2     ?
 
 50. RTI Instruction - Return from Interrupt
 
