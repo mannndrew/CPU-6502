@@ -28,7 +28,7 @@ filename = ""
 defines = {}
 checkpoints = {}
 checkpoint_count = 0
-addressing_mode = 0
+addressing_mode = [0]
 addressing_dict = {}
 opcode = ""
 
@@ -163,6 +163,39 @@ def clean_words(line):
     words = list(filter(None, words))
     return words
 
+def valid_dec_char(operand):
+    if '0' <= operand and operand <= '9':
+        return True
+    else:
+        return False
+    
+def valid_dec(operand):
+    count = 0
+    for letter in operand:
+        if not valid_dec_char(letter):
+            return count
+        count += 1
+    return count
+
+def dec_to_hex(operand):
+    conversion_table = ['0', '1', '2', '3', 
+                        '4', '5', '6', '7', 
+                        '8', '9','A', 'B', 
+                        'C', 'D', 'E', 'F']
+    
+    dec = int(operand)
+    remainder = 0
+    hex = ""
+
+    if dec == 0: return "0"
+    
+    while 0 < dec:
+        remainder = dec % 16
+        hex = conversion_table[remainder] + hex
+        dec = dec // 16
+
+    return hex
+
 def valid_hex_char(letter):
     if '0' <= letter and letter <= '9':
         return True
@@ -172,71 +205,18 @@ def valid_hex_char(letter):
         return False
     
 def valid_hex(operand):
+    count = 0
     for letter in operand:
         if not valid_hex_char(letter):
-            return False
-    return True
-    
-def valid_dec_char(operand):
-    if '0' <= operand and operand <= '9':
-        return True
+            return count
+        count += 1
+    return count
+
+def fix_hex(operand):
+    if len(operand) % 2 == 1:
+        return "0" + operand
     else:
-        return False
-    
-def valid_dec(operand):
-    for letter in operand:
-        if not valid_dec_char(letter):
-            return False
-    return True
-    
-def dec_to_2hex(operand):
-    conversion_table = ['0', '1', '2', '3', 
-                        '4', '5', '6', '7', 
-                        '8', '9','A', 'B', 
-                        'C', 'D', 'E', 'F']
-    
-    dec = int(operand)
-    remainder = 0
-    hex = ""
-    
-    while 0 < dec:
-        remainder = dec % 16
-        hex = conversion_table[remainder] + hex
-        dec = dec // 16
-
-    while len(hex) < 2:
-        hex = "0" + hex
-
-    return hex
-
-def dec_to_4hex(operand):
-    conversion_table = ['0', '1', '2', '3', 
-                        '4', '5', '6', '7', 
-                        '8', '9','A', 'B', 
-                        'C', 'D', 'E', 'F']
-    
-    dec = int(operand)
-    remainder = 0
-    hex = ""
-    
-    while 0 < dec:
-        remainder = dec % 16
-        hex = conversion_table[remainder] + hex
-        dec = dec // 16
-
-    while len(hex) < 4:
-        hex = "0" + hex
-
-    return hex
-
-def check_length(dec, hex, num, line, linenum):
-    if len(hex) != num:
-        print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid operand ({dec})")
-        exit(2)
-
-
-
-
+        return operand
 
 
 # Process file
@@ -272,6 +252,9 @@ for line in file:
             addressing_dict = instruction_dict[words[0]]
             argument = ""
 
+            if words.__len__() == 1:
+                argument = ""
+
             if (words.__len__() == 2):
                 argument = words[1]
                 
@@ -293,224 +276,128 @@ for line in file:
 
             # Parse argument
 
-            # Immediate
-            if (argument[0] == "#"):
-                
-                # Immediate Hex
-                if (argument[1] == "$"):
-                    
-                    if (len(argument) == 4):
-                        if (valid_hex(argument[2:])):
-                            hex = argument[2:]
-                            addressing_mode = 7 # Immediate Addressing
-                            print(f"Immediate Hex: {hex}")
-                        else:
-                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                            exit(2)
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+            if argument == "":
+                addressing_mode = [8, 10] # Implied Addressing / Stack
 
-                # Immediate Dec
-                elif (len(argument) == 4):
-                    
-                    if valid_dec(argument[1:]):
-                        dec = argument[1:]
-                        hex = dec_to_2hex(dec)
-                        check_length(dec, hex, 2, line, linenum)
-                        addressing_mode = 7 # Immediate Addressing
-                        print(f"Immediate Dec: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+            elif argument[0] == "A" and len(argument) == 1:
+                addressing_mode = [6] # Accumulator
 
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
+            elif valid_dec_char(argument[0]):
+                count = valid_dec(argument)
+                hex = dec_to_hex(argument[0:count])
+                rest = argument[count:]
+                count = len(hex)
 
+                if (1 <= count and count <= 2):
+                    if rest == "":
+                        addressing_mode = [9, 11] # Program Counter Relative / Zero Page
+                    elif rest == ", X":
+                        addressing_mode = [13] # Zero Page Indexed with X
+                    elif rest == ", Y":
+                        addressing_mode = [14] # Zero Page Indexed with Y
 
-            # Direct Addressing Hex
-            elif (argument[0] == "$"):
-                if (len(argument) == 3):
-                    if (valid_hex(argument[1:3])):
-                        hex = argument[1:3]
-                        addressing_mode = 11 # Zero Page
-                        print(f"Zero Page: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+                elif (3 <= count and count <= 4):
+                    if rest == "":
+                        addressing_mode = [1] # Absolute
+                    elif rest == ", X":
+                        addressing_mode = [3] # Absolute Indexed with X
+                    elif rest == ", Y":
+                        addressing_mode = [4] # Absolute Indexed with Y
 
-                elif (len(argument) == 6):
-                    if (valid_hex(argument[1:3]) and argument[3:6].__eq__(", X")):
-                        hex = argument[1:3]
-                        addressing_mode = 13 # Zero Page Indexed with X
-                        print(f"Zero Page, X: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+            elif argument[0] == "$":
+                count = valid_hex(argument[1:])
+                hex = argument[1:count+1]
+                rest = argument[count+1:]
 
-                elif (len(argument) == 5):
-                    if (valid_hex(argument[1:5])):
-                        hex = argument[1:5]
-                        addressing_mode = 1 # Absolute
-                        print(f"Absolute: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+                if (1 <= count and count <= 2):
+                    if rest == "":
+                        addressing_mode = [9, 11] # Program Counter Relative / Zero Page
+                    elif rest == ", X":
+                        addressing_mode = [13] # Zero Page Indexed with X
+                    elif rest == ", Y":
+                        addressing_mode = [14] # Zero Page Indexed with Y
 
-                elif (len(argument) == 8):
-                    if valid_hex(argument[1:5]):
-                        if argument[5:8].__eq__(", X"):
-                            hex = argument[1:5]
-                            addressing_mode = 3 # Absolute Indexed with X
-                            print(f"Absolute, X: {hex}") 
-                        elif argument[5:8].__eq__(", Y"):
-                            hex = argument[1:5]
-                            addressing_mode = 4 # Absolute Indexed with Y
-                            print(f"Absolute, Y: {hex}")
-                        else:
-                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                            exit(2)
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
-                
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
-            
-            # Indirect Addressing
-            elif (argument[0] == "("):
+                elif (3 <= count and count <= 4):
+                    if rest == "":
+                        addressing_mode = [1] # Absolute
+                    elif rest == ", X":
+                        addressing_mode = [3] # Absolute Indexed with X
+                    elif rest == ", Y":
+                        addressing_mode = [4] # Absolute Indexed with Y
 
-                # Indirect Addressing Hex
-                if (argument[1] == "$"):
-                    if (len(argument[2:]) == 3):
-                        if (valid_hex(argument[2:4]) and argument[4] == ")"):
-                            hex = argument[2:4]
-                            addressing_mode = 15 # Zero Page Indirect
-                            print(f"Zero Page Indirect: {hex}")
-                        else:
-                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                            exit(2)
+            elif argument[0] == "(":
+                if valid_dec_char(argument[1]):
+                    count = valid_dec(argument[1:])
+                    hex = dec_to_hex(argument[1:count+1])
+                    rest = argument[count+1:]
+                    count = len(hex)
 
-                    elif (len(argument[2:]) == 6):
-                        if (valid_hex(argument[2:4]) and argument[4:].__eq__(", X)")):
-                            hex = argument[2:4]
-                            addressing_mode = 12 # Zero Page Indexed Indirect
-                            print(f"Zero Page Indirect, X: {hex}")
-                        elif (valid_hex(argument[2:4]) and argument[4:].__eq__("), Y")):
-                            hex = argument[2:4]
-                            addressing_mode = 16 # Zero Page Indirect with Indexed
-                            print(f"Zero Page Indirect, Y: {hex}")
-                        else:
-                            print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                            exit(2)
+                    if (1 <= count and count <= 2):
+                        if rest == ")":
+                            addressing_mode = [15] # Zero Page Indirect
+                        elif rest == ", X)":
+                            addressing_mode = [12] # Zero Page Indexed Indirect
+                        elif rest == "), Y":
+                            addressing_mode = [16] # Zero Page Indirect with Indexed
 
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+                    elif (3 <= count and count <= 4):
+                        if rest == ")":
+                            addressing_mode = [5] # Absolute Indirect
+                        elif rest == ", X)":
+                            addressing_mode = [2] # Absolute Indexed Indirect
 
-                # Indirect Addressing Dec
-                elif (len(argument)== 5):
-                    if (valid_dec(argument[1:4]) and argument[4] == ")"):
-                        dec = argument[1:4]
-                        hex = dec_to_2hex(dec)
-                        check_length(dec, hex, 2, line, linenum)
-                        addressing_mode = 15 # Zero Page Indirect
-                        print(f"Zero Page Indirect: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
+                elif argument[1] == "$":
+                    count = valid_hex(argument[2:])
+                    hex = argument[2:count+2]
+                    rest = argument[count+2:]
 
-                elif (len(argument) == 8):
-                    if (valid_dec(argument[1:4]) and argument[4:].__eq__(", X)")):
-                        dec = argument[1:4]
-                        hex = dec_to_2hex(dec)
-                        check_length(dec, hex, 2, line, linenum)
-                        addressing_mode = 12 # Zero Page Indexed Indirect
-                        print(f"Zero Page Indirect, X: {hex}")
-                    elif (valid_dec(argument[1:4]) and argument[4:].__eq__("), Y")):
-                        dec = argument[1:4]
-                        hex = dec_to_2hex(dec)
-                        check_length(dec, hex, 2, line, linenum)
-                        addressing_mode = 16 # Zero Page Indirect with Indexed
-                        print(f"Zero Page Indirect, Y: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
+                    if (1 <= count and count <= 2):
+                        if rest == ")":
+                            addressing_mode = [15] # Zero Page Indirect
+                        elif rest == ", X)":
+                            addressing_mode = [12] # Zero Page Indexed Indirect
+                        elif rest == "), Y":
+                            addressing_mode = [16] # Zero Page Indirect with Indexed
 
-            # Zero Page Dec
-            elif (len(argument) == 3):
-                if (valid_dec(argument)):
-                    dec = argument
-                    hex = dec_to_2hex(dec)
-                    check_length(dec, hex, 2, line, linenum)
-                    addressing_mode = 11 # Zero Page
-                    print(f"Zero Page: {hex}")
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
+                    elif (3 <= count and count <= 4):
+                        if rest == ")":
+                            addressing_mode = [5] # Absolute Indirect
+                        elif rest == ", X)":
+                            addressing_mode = [2] # Absolute Indexed Indirect
 
-            # Zero Page, X Dec
-            elif (len(argument) == 6):
-                if (valid_dec(argument[0:3]) and argument[3:].__eq__(", X")):
-                    dec = argument[0:3]
-                    hex = dec_to_2hex(dec)
-                    check_length(dec, hex, 2, line, linenum)
-                    addressing_mode = 13 # Zero Page Indexed with X
-                    print(f"Zero Page, X: {hex}")
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
-            
-            # Absolute Dec
-            elif (len(argument) == 5):
-                if (valid_dec(argument)):
-                    dec = argument
-                    hex = dec_to_4hex(dec)
-                    check_length(dec, hex, 4, line, linenum)
-                    addressing_mode = 1 # Absolute
-                    print(f"Absolute: {hex}")
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
-            
-            # Absolute, X and Y Dec
-            elif (len(argument) == 8):
-                if (valid_dec(argument[0:5])):
-                    if (argument[5:].__eq__(", X")):
-                        dec = argument[0:5]
-                        hex = dec_to_4hex(dec)
-                        check_length(dec, hex, 4, line, linenum)
-                        addressing_mode = 3 # Absolute Indexed with X
-                        print(f"Absolute, X: {hex}")
-                    elif (argument[5:].__eq__(", Y")):
-                        dec = argument[0:5]
-                        hex = dec_to_4hex(dec)
-                        check_length(dec, hex, 4, line, linenum)
-                        addressing_mode = 4 # Absolute Indexed with Y
-                        print(f"Absolute, Y: {hex}")
-                    else:
-                        print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                        exit(2)
-                else:
-                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                    exit(2)
+            elif argument[0] == "#":
+                if valid_dec_char(argument[1]):
+                    count = valid_dec(argument[1:])
+                    hex = dec_to_hex(argument[1:count+1])
+                    rest = argument[count+1:]
+                    count = len(hex)
 
-            else:
-                print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid operand {argument}")
-                exit(2)
+                    if (1 <= count and count <= 2):
+                        addressing_mode = [7] # Immediate Addressing
+
+                elif argument[1] == "$":
+                    count = valid_hex(argument[2:])
+                    hex = argument[2:count+2]
+                    rest = argument[count+2:]
+
+                    if (1 <= count and count <= 2):
+                        addressing_mode = [7] # Immediate Addressing
 
             # Check if addressing mode exists in addressing_dict
-            if (addressing_mode in addressing_dict):
-                opcode = addressing_dict[addressing_mode]
 
-            else:
+            if (addressing_mode[0] == 0):
+                print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid argument {argument}")
+                exit(2)
+            
+            for num in addressing_mode:
+                if num in addressing_dict:
+                    opcode = addressing_dict[num]
+
+            if (opcode == ""):
                 print(f"**Syntax Error Line ({linenum}): {line}**\nInstruction {words[0]} does not support addressing mode {addressing_mode}")
                 exit(2)
+
+            hex = fix_hex(hex)
 
             # Print opcode and hex in little-endian
             if (len(hex) == 2):

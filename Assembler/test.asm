@@ -4,5 +4,5 @@ define movingUp      1 ;awdwadwad
 
 main:
    ADC $2500, X
-   AND $20, X
+   AND 020, X
 
