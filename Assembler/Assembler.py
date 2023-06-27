@@ -1,7 +1,4 @@
 import sys
-import re
-
-
 
 # Addressing Modes
 # 1 = Absolute                             a
@@ -21,7 +18,6 @@ import re
 # 15 = Zero Page Indirect                 (zp)
 # 16 = Zero Page Indirect with Indexed    (zp), y
 
-
 # Variables
 linenum = 1
 filename = ""
@@ -31,6 +27,7 @@ checkpoint_count = 0
 addressing_mode = [0]
 addressing_dict = {}
 opcode = ""
+
 
 instruction_dict = {
     "ADC":  {1: "6D", 3: "7D", 4: "79", 7: "69", 11: "65", 12: "61", 13: "75", 15: "72", 16: "71"},
@@ -133,6 +130,36 @@ instruction_dict = {
     "WAI":  {8: "CB"}
 }
 
+jumping_dict = {
+    "BBR0": 1,
+    "BBR1": 1,
+    "BBR2": 1,
+    "BBR3": 1,
+    "BBR4": 1,
+    "BBR5": 1,
+    "BBR6": 1,
+    "BBR7": 1,
+    "BBS0": 1,
+    "BBS1": 1,
+    "BBS2": 1,
+    "BBS3": 1,
+    "BBS4": 1,
+    "BBS5": 1,
+    "BBS6": 1,
+    "BBS7": 1,
+    "BCC": 1,
+    "BCS": 1,
+    "BEQ": 1,
+    "BMI": 1,
+    "BNE": 1,
+    "BPL": 1,
+    "BRA": 1,
+    "BVC": 1,
+    "BVS": 1,
+    "JMP": 2,
+    "JSR": 2
+}
+
 
 
 # Check if the user has provided a file name
@@ -158,9 +185,8 @@ def clean_line(line):
     line = line.strip()
     return line
 
-def clean_words(line):
-    words = line.split(" ")
-    words = list(filter(None, words))
+def split_instruction(line):
+    words = line.split(maxsplit=1)
     return words
 
 def valid_dec_char(operand):
@@ -222,24 +248,31 @@ def fix_hex(operand):
 # Process file
 for line in file:
     line = clean_line(line)
-    words = clean_words(line)
+    words = split_instruction(line)
+
 
     if len(words) != 0:
 
         # Check if the line is a define
         if words[0].__eq__("define"):
-            if len(words) != 3:
+            argument = words[1].split(" ")
+            argument = list(filter(None, argument))
+
+            if len(words) != 2:
                 print(f"**Syntax Error Line ({linenum}): ({line})**\nDefine only takes 2 arguments")
                 exit(2)
-            elif words[1] in defines:
-                print(f"**Syntax Error Line ({linenum}): ({line})**\nDefine ({words[1]}) already exists")
+            elif argument[0] in defines:
+                print(f"**Syntax Error Line ({linenum}): ({line})**\nDefine ({argument[0]}) already exists")
                 exit(2)
             else:
-                defines[words[1]] = words[2]
+                defines[argument[0]] = argument[1]
 
         # Check if the line is a checkpoint
         elif words[0][-1:] == ":":
-            if words[0][:-1] in checkpoints:
+            if len(words) != 1:
+                print(f"**Syntax Error Line ({linenum}): ({line})**\nCheckpoint only takes 1 argument")
+                exit(2)
+            elif words[0][:-1] in checkpoints:
                 print(f"**Syntax Error Line ({linenum}): ({line})**\nCheckpoint ({words[0][:-1]}) already exists")
                 exit(2)
             else:
@@ -253,27 +286,11 @@ for line in file:
             argument = ""
             hex = ""
 
-            if words.__len__() == 1:
-                argument = ""
-
-            elif (words.__len__() == 2):
+            if len(words) == 2:
                 argument = words[1]
-                
-            elif (words.__len__() == 3):
-                argument = words[1] + " " + words[2]
 
-            else:
-                print(f"**Syntax Error Line ({linenum}): ({line})**\nInvalid number of arguments")
-                exit(2)
-
-
-
-
-
-
-
-
-
+                for name in defines:
+                    argument = argument.replace(name, defines[name])
 
             # Parse argument
 
