@@ -251,11 +251,12 @@ for line in file:
             
             addressing_dict = instruction_dict[words[0]]
             argument = ""
+            hex = ""
 
             if words.__len__() == 1:
                 argument = ""
 
-            if (words.__len__() == 2):
+            elif (words.__len__() == 2):
                 argument = words[1]
                 
             elif (words.__len__() == 3):
@@ -400,12 +401,13 @@ for line in file:
             hex = fix_hex(hex)
 
             # Print opcode and hex in little-endian
-            if (len(hex) == 2):
+            if (len(hex) == 0):
+                print(f"{opcode}")
+            elif (len(hex) == 2):
                 print(f"{opcode} {hex}")
             elif (len(hex) == 4):
                 print(f"{opcode} {hex[2:4]} {hex[0:2]}")
             
-
     linenum += 1
 
 # Close file

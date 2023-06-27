@@ -17,36 +17,6 @@
 #16 = Zero Page Indirect with Indexed    (zp), y          INS ($12), Y
 
 
-1, 2, 3, 4, 5, 9, 11, 12, 13, 14, 15, 16
-
- 8, 10
-
-if $
-   Count Valid Hex Until Not Hex
-
-   str = argument[count+1:strlen(argument)]
-
-   if (1 <= count && count <= 2)
-      if (str.__eq__(""))
-      elif (str.__eq__(", X"))
-      elif (str.__eq__(", Y"))
-   elif (3 <= count && count <= 4)
-      if (str.__eq__(""))
-      elif (str.__eq__(", X"))
-      elif (str.__eq__(", Y"))
-
-elif (
-
-elif A
-
-elif #
-
-elif Space
-
-elif Num
-
-else
-   Error
 
 1. ADC Instruction - Add Memory to Accumulator with Carry
 
