@@ -161,26 +161,6 @@ jump_dict = {
     "JSR": 2
 }
 
-
-
-# Check if the user has provided a file name
-if len(sys.argv) != 2:
-    print("Usage: python Assembler.py <filename>")
-    exit(2)
-
-# Check if the file exists
-try:
-    filename = sys.argv[1]
-    file = open(filename, "r")
-except FileNotFoundError:
-    print(f"File ({filename}) not found")
-    exit(2)
-
-# Check if the file is asm
-if filename[-4:] != ".asm":
-    print(f"File ({filename}) is not an asm file")
-    exit(2)
-
 def clean_line(line):
     line = line.split(";")[0]
     line = line.strip()
@@ -360,6 +340,24 @@ def parse_argument(argument):
 
 ################################################################################################################################
 
+# Check if the user has provided a file name
+if len(sys.argv) != 2:
+    print("Usage: python Assembler.py <filename>")
+    exit(2)
+
+# Check if the file exists
+try:
+    filename = sys.argv[1]
+    file = open(filename, "r")
+except FileNotFoundError:
+    print(f"File ({filename}) not found")
+    exit(2)
+
+# Check if the file is asm
+if filename[-4:] != ".asm":
+    print(f"File ({filename}) is not an asm file")
+    exit(2)
+
 
 # Process file
 for line in file:
@@ -454,22 +452,25 @@ address = starting_address
 for i in range(len(hexdump)):
     
     if type(hexdump[i]) == list:
-        if hexdump[i][1] in labels:
-            jump_instruction = hexdump[i][0]
-            jump_address = labels[hexdump[i][1]]
-            jump_type = hexdump[i][2]
-            hex = ""
+        for label in labels:
+            if label in hexdump[i][1]:
+                jump_address = labels[label]
+                jump_instruction = hexdump[i][0]
+                jump_argument = hexdump[i][1]
+                jump_type = hexdump[i][2]
+                hex = ""
 
-            # Relative
-            if jump_type == 1:
-                jump_address = ((jump_address - address - 2) % 256)
-                hex, addressing_mode = parse_argument(f"{jump_address}")
-                print(hex, addressing_mode)
-                address += 2
+                # Relative
+                if jump_type == 1:
+                    relative_address = ((jump_address - address - 2) % 256)
+                    new_arg = jump_argument.replace(label, str(relative_address))
+                    hex, addressing_mode = parse_argument(new_arg)
+                    print(hex, addressing_mode)
+                    address += 2
 
-            # Absolute
-            elif jump_type == 2:
-                pass
+                # Absolute
+                elif jump_type == 2:
+                    pass
     else:
         
         address += 1

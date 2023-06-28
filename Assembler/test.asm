@@ -1,4 +1,4 @@
-BNE main
+BNE {main}
 ADC #100
 ADC #100
 
