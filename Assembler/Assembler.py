@@ -20,14 +20,15 @@ import sys
 
 # Variables
 linenum = 1
+starting_address = 1536
+address = starting_address
 filename = ""
 defines = {}
-checkpoints = {}
-checkpoint_count = 0
+labels = {}
 addressing_mode = [0]
 addressing_dict = {}
 opcode = ""
-
+hexdump = []
 
 instruction_dict = {
     "ADC":  {1: "6D", 3: "7D", 4: "79", 7: "69", 11: "65", 12: "61", 13: "75", 15: "72", 16: "71"},
@@ -130,7 +131,7 @@ instruction_dict = {
     "WAI":  {8: "CB"}
 }
 
-jumping_dict = {
+jump_dict = {
     "BBR0": 1,
     "BBR1": 1,
     "BBR2": 1,
@@ -243,6 +244,121 @@ def fix_hex(operand):
         return "0" + operand
     else:
         return operand
+    
+def parse_argument(argument):
+    hex = ""
+    addressing_mode = [0]
+
+    if argument == "":
+        addressing_mode = [8, 10] # Implied Addressing / Stack
+
+    elif argument[0] == "A" and len(argument) == 1:
+        addressing_mode = [6] # Accumulator
+
+    elif valid_dec_char(argument[0]):
+        count = valid_dec(argument)
+        hex = dec_to_hex(argument[0:count])
+        rest = argument[count:]
+        count = len(hex)
+
+        if (1 <= count and count <= 2):
+            if rest == "":
+                addressing_mode = [9, 11] # Program Counter Relative / Zero Page
+            elif rest == ", X":
+                addressing_mode = [13] # Zero Page Indexed with X
+            elif rest == ", Y":
+                addressing_mode = [14] # Zero Page Indexed with Y
+
+        elif (3 <= count and count <= 4):
+            if rest == "":
+                addressing_mode = [1] # Absolute
+            elif rest == ", X":
+                addressing_mode = [3] # Absolute Indexed with X
+            elif rest == ", Y":
+                addressing_mode = [4] # Absolute Indexed with Y
+
+    elif argument[0] == "$":
+        count = valid_hex(argument[1:])
+        hex = argument[1:count+1]
+        rest = argument[count+1:]
+
+        if (1 <= count and count <= 2):
+            if rest == "":
+                addressing_mode = [9, 11] # Program Counter Relative / Zero Page
+            elif rest == ", X":
+                addressing_mode = [13] # Zero Page Indexed with X
+            elif rest == ", Y":
+                addressing_mode = [14] # Zero Page Indexed with Y
+
+        elif (3 <= count and count <= 4):
+            if rest == "":
+                addressing_mode = [1] # Absolute
+            elif rest == ", X":
+                addressing_mode = [3] # Absolute Indexed with X
+            elif rest == ", Y":
+                addressing_mode = [4] # Absolute Indexed with Y
+
+    elif argument[0] == "(":
+        if valid_dec_char(argument[1]):
+            count = valid_dec(argument[1:])
+            hex = dec_to_hex(argument[1:count+1])
+            rest = argument[count+1:]
+            count = len(hex)
+
+            if (1 <= count and count <= 2):
+                if rest == ")":
+                    addressing_mode = [15] # Zero Page Indirect
+                elif rest == ", X)":
+                    addressing_mode = [12] # Zero Page Indexed Indirect
+                elif rest == "), Y":
+                    addressing_mode = [16] # Zero Page Indirect with Indexed
+
+            elif (3 <= count and count <= 4):
+                if rest == ")":
+                    addressing_mode = [5] # Absolute Indirect
+                elif rest == ", X)":
+                    addressing_mode = [2] # Absolute Indexed Indirect
+
+        elif argument[1] == "$":
+            count = valid_hex(argument[2:])
+            hex = argument[2:count+2]
+            rest = argument[count+2:]
+
+            if (1 <= count and count <= 2):
+                if rest == ")":
+                    addressing_mode = [15] # Zero Page Indirect
+                elif rest == ", X)":
+                    addressing_mode = [12] # Zero Page Indexed Indirect
+                elif rest == "), Y":
+                    addressing_mode = [16] # Zero Page Indirect with Indexed
+
+            elif (3 <= count and count <= 4):
+                if rest == ")":
+                    addressing_mode = [5] # Absolute Indirect
+                elif rest == ", X)":
+                    addressing_mode = [2] # Absolute Indexed Indirect
+
+    elif argument[0] == "#":
+        if valid_dec_char(argument[1]):
+            count = valid_dec(argument[1:])
+            hex = dec_to_hex(argument[1:count+1])
+            rest = argument[count+1:]
+            count = len(hex)
+
+            if (1 <= count and count <= 2 and rest == ""):
+                addressing_mode = [7] # Immediate Addressing
+
+        elif argument[1] == "$":
+            count = valid_hex(argument[2:])
+            hex = argument[2:count+2]
+            rest = argument[count+2:]
+
+            if (1 <= count and count <= 2 and rest == ""):
+                addressing_mode = [7] # Immediate Addressing
+    return hex, addressing_mode
+
+
+################################################################################################################################
 
 
 # Process file
@@ -267,165 +383,100 @@ for line in file:
             else:
                 defines[argument[0]] = argument[1]
 
-        # Check if the line is a checkpoint
+        # Check if the line is a label
         elif words[0][-1:] == ":":
             if len(words) != 1:
-                print(f"**Syntax Error Line ({linenum}): ({line})**\nCheckpoint only takes 1 argument")
+                print(f"**Syntax Error Line ({linenum}): ({line})**\Label only takes 1 argument")
                 exit(2)
-            elif words[0][:-1] in checkpoints:
-                print(f"**Syntax Error Line ({linenum}): ({line})**\nCheckpoint ({words[0][:-1]}) already exists")
+            elif words[0][:-1] in labels:
+                print(f"**Syntax Error Line ({linenum}): ({line})**\Label ({words[0][:-1]}) already exists")
                 exit(2)
             else:
-                checkpoints[words[0][:-1]] = checkpoint_count
-                checkpoint_count += 1
+                labels[words[0][:-1]] = address
 
         # Check if the line is in instruction dictionary
         elif words[0] in instruction_dict:
             
-            addressing_dict = instruction_dict[words[0]]
-            argument = ""
-            hex = ""
+            # Check if the instruction is a jump instruction
+            if words[0] in jump_dict:
+                jump_instruction = jump_dict[words[0]]
+                jump_info = [words[0], words[1], jump_instruction]
+                hexdump.append(jump_info)
+                address += jump_instruction + 1
 
-            if len(words) == 2:
-                argument = words[1]
+            else:
+                addressing_dict = instruction_dict[words[0]]
+                addressing_mode = []
+                argument = ""
+                hex = ""
 
-                for name in defines:
-                    argument = argument.replace(name, defines[name])
+                if len(words) == 2:
+                    argument = words[1]
+                    for name in defines:
+                        argument = argument.replace(name, defines[name])
 
-            # Parse argument
+                # Parse argument
+                hex, addressing_mode = parse_argument(argument)
 
-            if argument == "":
-                addressing_mode = [8, 10] # Implied Addressing / Stack
+                # Check if addressing mode exists in addressing_dict
+                if (addressing_mode[0] == 0):
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid argument {argument}")
+                    exit(2)
+                
+                for num in addressing_mode:
+                    if num in addressing_dict:
+                        opcode = addressing_dict[num]
 
-            elif argument[0] == "A" and len(argument) == 1:
-                addressing_mode = [6] # Accumulator
+                if (opcode == ""):
+                    print(f"**Syntax Error Line ({linenum}): {line}**\nInstruction {words[0]} does not support addressing mode {addressing_mode}")
+                    exit(2)
 
-            elif valid_dec_char(argument[0]):
-                count = valid_dec(argument)
-                hex = dec_to_hex(argument[0:count])
-                rest = argument[count:]
-                count = len(hex)
+                hex = fix_hex(hex)
 
-                if (1 <= count and count <= 2):
-                    if rest == "":
-                        addressing_mode = [9, 11] # Program Counter Relative / Zero Page
-                    elif rest == ", X":
-                        addressing_mode = [13] # Zero Page Indexed with X
-                    elif rest == ", Y":
-                        addressing_mode = [14] # Zero Page Indexed with Y
-
-                elif (3 <= count and count <= 4):
-                    if rest == "":
-                        addressing_mode = [1] # Absolute
-                    elif rest == ", X":
-                        addressing_mode = [3] # Absolute Indexed with X
-                    elif rest == ", Y":
-                        addressing_mode = [4] # Absolute Indexed with Y
-
-            elif argument[0] == "$":
-                count = valid_hex(argument[1:])
-                hex = argument[1:count+1]
-                rest = argument[count+1:]
-
-                if (1 <= count and count <= 2):
-                    if rest == "":
-                        addressing_mode = [9, 11] # Program Counter Relative / Zero Page
-                    elif rest == ", X":
-                        addressing_mode = [13] # Zero Page Indexed with X
-                    elif rest == ", Y":
-                        addressing_mode = [14] # Zero Page Indexed with Y
-
-                elif (3 <= count and count <= 4):
-                    if rest == "":
-                        addressing_mode = [1] # Absolute
-                    elif rest == ", X":
-                        addressing_mode = [3] # Absolute Indexed with X
-                    elif rest == ", Y":
-                        addressing_mode = [4] # Absolute Indexed with Y
-
-            elif argument[0] == "(":
-                if valid_dec_char(argument[1]):
-                    count = valid_dec(argument[1:])
-                    hex = dec_to_hex(argument[1:count+1])
-                    rest = argument[count+1:]
-                    count = len(hex)
-
-                    if (1 <= count and count <= 2):
-                        if rest == ")":
-                            addressing_mode = [15] # Zero Page Indirect
-                        elif rest == ", X)":
-                            addressing_mode = [12] # Zero Page Indexed Indirect
-                        elif rest == "), Y":
-                            addressing_mode = [16] # Zero Page Indirect with Indexed
-
-                    elif (3 <= count and count <= 4):
-                        if rest == ")":
-                            addressing_mode = [5] # Absolute Indirect
-                        elif rest == ", X)":
-                            addressing_mode = [2] # Absolute Indexed Indirect
-
-                elif argument[1] == "$":
-                    count = valid_hex(argument[2:])
-                    hex = argument[2:count+2]
-                    rest = argument[count+2:]
-
-                    if (1 <= count and count <= 2):
-                        if rest == ")":
-                            addressing_mode = [15] # Zero Page Indirect
-                        elif rest == ", X)":
-                            addressing_mode = [12] # Zero Page Indexed Indirect
-                        elif rest == "), Y":
-                            addressing_mode = [16] # Zero Page Indirect with Indexed
-
-                    elif (3 <= count and count <= 4):
-                        if rest == ")":
-                            addressing_mode = [5] # Absolute Indirect
-                        elif rest == ", X)":
-                            addressing_mode = [2] # Absolute Indexed Indirect
-
-            elif argument[0] == "#":
-                if valid_dec_char(argument[1]):
-                    count = valid_dec(argument[1:])
-                    hex = dec_to_hex(argument[1:count+1])
-                    rest = argument[count+1:]
-                    count = len(hex)
-
-                    if (1 <= count and count <= 2):
-                        addressing_mode = [7] # Immediate Addressing
-
-                elif argument[1] == "$":
-                    count = valid_hex(argument[2:])
-                    hex = argument[2:count+2]
-                    rest = argument[count+2:]
-
-                    if (1 <= count and count <= 2):
-                        addressing_mode = [7] # Immediate Addressing
-
-            # Check if addressing mode exists in addressing_dict
-
-            if (addressing_mode[0] == 0):
-                print(f"**Syntax Error Line ({linenum}): {line}**\nInvalid argument {argument}")
-                exit(2)
-            
-            for num in addressing_mode:
-                if num in addressing_dict:
-                    opcode = addressing_dict[num]
-
-            if (opcode == ""):
-                print(f"**Syntax Error Line ({linenum}): {line}**\nInstruction {words[0]} does not support addressing mode {addressing_mode}")
-                exit(2)
-
-            hex = fix_hex(hex)
-
-            # Print opcode and hex in little-endian
-            if (len(hex) == 0):
-                print(f"{opcode}")
-            elif (len(hex) == 2):
-                print(f"{opcode} {hex}")
-            elif (len(hex) == 4):
-                print(f"{opcode} {hex[2:4]} {hex[0:2]}")
+                # Print opcode and hex in little-endian
+                if (len(hex) == 0):
+                    hexdump.append(f"{opcode}")
+                    address += 1
+                elif (len(hex) == 2):
+                    hexdump.append(f"{opcode}")
+                    hexdump.append(f"{hex[0:2]}")
+                    address += 2
+                elif (len(hex) == 4):
+                    hexdump.append(f"{opcode}")
+                    hexdump.append(f"{hex[2:4]}")
+                    hexdump.append(f"{hex[0:2]}")
+                    address += 3
             
     linenum += 1
 
+# Reiterate through hexdump to replace labels
+address = starting_address
+for i in range(len(hexdump)):
+    
+    if type(hexdump[i]) == list:
+        if hexdump[i][1] in labels:
+            jump_instruction = hexdump[i][0]
+            jump_address = labels[hexdump[i][1]]
+            jump_type = hexdump[i][2]
+            hex = ""
+
+            # Relative
+            if jump_type == 1:
+                jump_address = ((jump_address - address - 2) % 256)
+                hex, addressing_mode = parse_argument(f"{jump_address}")
+                print(hex, addressing_mode)
+                address += 2
+
+            # Absolute
+            elif jump_type == 2:
+                pass
+    else:
+        
+        address += 1
+
+        
+
+print(hexdump)
+print(labels)
 # Close file
 file.close()

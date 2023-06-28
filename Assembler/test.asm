@@ -1,5 +1,6 @@
-define appleL $00    ;awdwadwadwa
-define appleD 12 ;awdwadwad
+BNE main
+ADC #100
+ADC #100
 
 main:
-   BBR0 $12
+
