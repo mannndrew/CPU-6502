@@ -16,21 +16,6 @@
 #15 = Zero Page Indirect                 (zp)             INS ($12)
 #16 = Zero Page Indirect with Indexed    (zp), y          INS ($12), Y
 
-BBR -2
-BBS -2
-BCC -2
-BCS -2
-BEQ -2
-BMI -2
-BNE -2
-BPL -2
-BRA -2
-BVC -2
-BVS -2
-
-JMP -3
-JSR -3
-
 1. ADC Instruction - Add Memory to Accumulator with Carry
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
