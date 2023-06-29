@@ -452,8 +452,6 @@ for line in file:
                     hexdump.append(f"{hex[2:4]}")
                     hexdump.append(f"{hex[0:2]}")
                     address += 3
-
-                print(hexdump)
             
     linenum += 1
 

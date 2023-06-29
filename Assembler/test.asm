@@ -26,8 +26,8 @@ define ASCII_s      $73
 define ASCII_d      $64
 
 ; System variables
-define sysRandom    $fe
-define sysLastKey   $ff
+define sysRandom    $FE
+define sysLastKey   $FF
 
 
   JSR init
@@ -52,7 +52,7 @@ initSnake:
   LDA #$10
   STA snakeBodyStart
   
-  LDA #$0f
+  LDA #$0F
   STA $14 ; body segment 1
   
   LDA #$04
@@ -159,12 +159,12 @@ doneCheckingAppleCollision:
 checkSnakeCollision:
   LDX #2 ;start with second segment
 snakeCollisionLoop:
-  LDA snakeHeadL,x
+  LDA snakeHeadL, X
   CMP snakeHeadL
   BNE continueCollisionLoop
 
 maybeCollided:
-  LDA snakeHeadH,x
+  LDA snakeHeadH, X
   CMP snakeHeadH
   BEQ didCollide
 
@@ -186,8 +186,8 @@ updateSnake:
   DEX
   TXA
 updateloop:
-  LDA snakeHeadL,x
-  STA snakeBodyStart,x
+  LDA snakeHeadL, X
+  STA snakeBodyStart, X
   DEX
   BPL updateloop
 
@@ -215,7 +215,7 @@ upup:
   RTS
 right:
   INC snakeHeadL
-  LDA #$1f
+  LDA #$1F
   BIT snakeHeadL
   BEQ collision
   RTS
@@ -235,8 +235,8 @@ downdown:
 left:
   DEC snakeHeadL
   LDA snakeHeadL
-  AND #$1f
-  CMP #$1f
+  AND #$1F
+  CMP #$1F
   BEQ collision
   RTS
 collision:
@@ -246,18 +246,18 @@ collision:
 drawApple:
   LDY #0
   LDA sysRandom
-  STA (appleL),y
+  STA (appleL), Y
   RTS
 
 
 drawSnake:
   LDX snakeLength
   LDA #0
-  STA (snakeHeadL,x) ; erase end of tail
+  STA (snakeHeadL, X) ; erase end of tail
 
   LDX #0
   LDA #1
-  STA (snakeHeadL,x) ; paint head
+  STA (snakeHeadL, X) ; paint head
   RTS
 
 
