@@ -365,12 +365,13 @@ if filename[-4:] != ".asm":
 for line in file:
     line = clean_line(line)
     words = split_instruction(line)
+    
 
 
     if len(words) != 0:
 
         # Check if the line is a define
-        if words[0].__eq__("define"):
+        if words[0].__eq__("define") or words[0].__eq__("DEFINE"):
             argument = words[1].split(" ")
             argument = list(filter(None, argument))
 
@@ -451,9 +452,14 @@ for line in file:
                     hexdump.append(f"{hex[2:4]}")
                     hexdump.append(f"{hex[0:2]}")
                     address += 3
+
+                print(hexdump)
             
     linenum += 1
 
+
+# Sort labels longest to shortest
+labels = dict(sorted(labels.items(), key=lambda item: len(item[0]), reverse=True))
 
 
 # Reiterate through hexdump to replace labels
