@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 
 # Addressing Modes
@@ -397,10 +399,15 @@ for line in file:
             
             # Check if the instruction is a jump instruction
             if words[0] in jump_dict:
-                jump_instruction = jump_dict[words[0]]
-                jump_info = [words[0], words[1], jump_instruction]
-                hexdump.append(jump_info)
-                address += jump_instruction + 1
+                if (len(words) != 2):
+                    print(f"**Syntax Error Line ({linenum}): ({line})**\nJump instruction takes 1 argument")
+                    exit(2)
+
+                hexdump.append([words[0], words[1], jump_dict[words[0]]])
+                for i in range(jump_dict[words[0]]):
+                    hexdump.append([])
+
+                address += jump_dict[words[0]] + 1
 
             else:
                 addressing_dict = instruction_dict[words[0]]
@@ -447,37 +454,99 @@ for line in file:
             
     linenum += 1
 
+
+
 # Reiterate through hexdump to replace labels
 address = starting_address
+count = len(hexdump)
+
 for i in range(len(hexdump)):
+
     
-    if type(hexdump[i]) == list:
+    if type(hexdump[i]) == list and hexdump[i] != []:
+
+        # hexdump[i][0] = instruction
+        # hexdump[i][1] = argument
+        # hexdump[i][2] = jump type
+        
+        addressing_dict = instruction_dict[hexdump[i][0]]
+        addressing_mode = [0]
+        opcode = ""
+        hex = ""
+
         for label in labels:
             if label in hexdump[i][1]:
-                jump_address = labels[label]
-                jump_instruction = hexdump[i][0]
-                jump_argument = hexdump[i][1]
-                jump_type = hexdump[i][2]
-                hex = ""
-
+                
                 # Relative
-                if jump_type == 1:
-                    relative_address = ((jump_address - address - 2) % 256)
-                    new_arg = jump_argument.replace(label, str(relative_address))
-                    hex, addressing_mode = parse_argument(new_arg)
-                    print(hex, addressing_mode)
-                    address += 2
+                if hexdump[i][2] == 1:
+                    relative_address = ((labels[label] - address - 2) % 256)
+                    hexdump[i][1] = hexdump[i][1].replace(label, str(relative_address))
+                    # address += 1
 
                 # Absolute
-                elif jump_type == 2:
-                    pass
-    else:
+                elif hexdump[i][2] == 2:
+                    absolute_address = labels[label]
+                    hexdump[i][1] = hexdump[i][1].replace(label, str(absolute_address))
+                    # address += 2
+                
+        # Parse argument
+        hex, addressing_mode = parse_argument(hexdump[i][1])
         
-        address += 1
-
+        # Check if addressing mode exists in addressing_dict
+        if (addressing_mode[0] == 0):
+            print(f"**Invalid argument {hexdump[i][1]}**")
+            exit(2)
         
+        for num in addressing_mode:
+            if num in addressing_dict:
+                opcode = addressing_dict[num]
 
-print(hexdump)
-print(labels)
-# Close file
+        if (opcode == ""):
+            print(f"**Addressing mode {addressing_mode} not supported by instruction {hexdump[i][0]}**")
+            exit(2)
+
+        hex = fix_hex(hex)
+
+        # Print opcode and hex in little-endian
+        if (len(hex) == 2):
+            hexdump[i] = (f"{opcode}")
+            hexdump[i+1] = (f"{hex[0:2]}")
+        elif (len(hex) == 4):
+            hexdump[i] = (f"{opcode}")
+            hexdump[i+1] = (f"{hex[2:4]}")
+            hexdump[i+2] = (f"{hex[0:2]}")
+        else:
+            print(f"**Invalid hex {hex}**")
+            exit(2)
+
+    address += 1
+        
+# Close read file
 file.close()
+
+
+
+# Open write file
+file = open(filename[:-4] + ".hex", "w")
+
+# Write hexdump to file
+address = starting_address
+
+for i in range(len(hexdump)):
+    if i % 16 == 0:
+        file.write(f"{address:04x}: ")
+        address += 16
+
+    file.write(f"{hexdump[i]} ")
+
+    if i % 16 == 15:
+        file.write("\n")
+
+
+# Close write file
+file.close()
+
+
+
+# Exit program
+exit(0)
