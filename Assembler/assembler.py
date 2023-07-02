@@ -22,7 +22,7 @@ from helper import *
 
 # Variables
 linenum = 1
-starting_address = 1536
+starting_address = 0x8000
 address = starting_address
 filename = ""
 defines = {}

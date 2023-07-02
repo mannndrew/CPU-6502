@@ -1,13 +1,9 @@
 import sys
 import time
 
-# Print welcome message
-print(f"Welcome to the W65C02S simulator!\n")
+
 
 ########################################################### File IO ###########################################################
-
-# Print loading message
-print("Loading in hexdump...")
 
 # Check if the user has provided a file name
 if len(sys.argv) != 2:
@@ -29,8 +25,14 @@ except FileNotFoundError:
     print(f"File ({filename}) not found")
     exit(2)
 
+# Print welcome message
+print(f"Welcome to the W65C02S simulator!\n")
+
 # Store hex file in memory
 memory = []
+
+# Print loading message
+print("Loading in hexdump...")
 
 for line in file:
     clean_line = line[6:].strip()
@@ -46,6 +48,7 @@ print(f"Hexdump loaded successfully!\n")
 
 ########################################################### Simulator ###########################################################
 
+
 def inc_pc(reg_pch, reg_pcl):
     if reg_pch == 0xFF and reg_pcl == 0xFF:
         reg_pch = 0x00
@@ -60,6 +63,16 @@ def inc_pc(reg_pch, reg_pcl):
 
     return reg_pch, reg_pcl
 
+# Default addresses
+zero_page_begin = 0x0000
+zero_page_end = 0x00FF
+stack_pointer_end = 0x0100
+stack_pointer_begin = 0x01FF
+data_begin = 0x0200
+data_end = 0x07FF
+program_begin = 0x8000
+program_end = 0xFFFF
+
 # Default vectors
 nonmaskable_interupt_vector_high = 0xFFFA
 nonmaskable_interupt_vector_low = 0xFFFB
@@ -67,9 +80,6 @@ reset_vector_high = 0xFFFC
 reset_vector_low = 0xFFFD
 interupt_vector_high = 0xFFFE
 interupt_vector_low = 0xFFFF
-    
-# Stack (256 bytes)
-stack = [] * 256
 
 # Registers
 reg_x = 0x00
@@ -93,17 +103,17 @@ while reg_inst != None:
 
             # Push PCH to stack
             time.sleep(1)
-            stack[reg_sp] = reg_pch
+            memory[reg_sp] = reg_pch
             reg_sp -= 0x01
 
             # Push PCL to stack
             time.sleep(1)
-            stack[reg_sp] = reg_pcl
+            memory[reg_sp] = reg_pcl
             reg_sp -= 0x01
 
             # Push flags to stack & set break/interupt flag
             time.sleep(1)
-            stack[reg_sp] = reg_flags
+            memory[reg_sp] = reg_flags
             reg_sp -= 0x01
             reg_flags |= 0b00010100
 
