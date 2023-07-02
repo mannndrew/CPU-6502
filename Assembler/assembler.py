@@ -233,17 +233,37 @@ file.close()
 file = open(filename[:-4] + ".hex", "w")
 
 # Write hexdump to file
-address = starting_address
+# address = starting_address
 
-for i in range(len(hexdump)):
-    if i % 16 == 0:
-        file.write(f"{address:04x}: ")
-        address += 16
+for address in range(0x10000):
+    if (address < starting_address):
+        if address % 16 == 0:
+            file.write(f"{address:04x}: ")
+            
+        file.write(f"00 ")
 
-    file.write(f"{hexdump[i]} ")
+        if address % 16 == 15:
+            file.write("\n")
 
-    if i % 16 == 15:
-        file.write("\n")
+    elif (starting_address <= address and 
+          address < starting_address + len(hexdump)):
+
+            if address % 16 == 0:
+                file.write(f"{address:04x}: ")
+
+            file.write(f"{hexdump[address - starting_address]} ")
+
+            if address % 16 == 15:
+                file.write("\n")
+
+    else:
+        if address % 16 == 0:
+            file.write(f"{address:04x}: ")
+            
+        file.write(f"00 ")
+
+        if address % 16 == 15:
+            file.write("\n")
 
 
 # Close write file
