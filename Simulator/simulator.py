@@ -1,5 +1,6 @@
 import sys
 import time
+import readchar
 
 
 
@@ -42,12 +43,49 @@ for line in file:
 # Close file
 file.close()
 
+# Convert char to int
+for i in range(len(memory)):
+    memory[i] = int(memory[i], 16)
+
 # Print loading message
 print(f"Hexdump loaded successfully!\n")
 
 
 ########################################################### Simulator ###########################################################
 
+def cycle():
+    readchar.readkey()
+
+def hex_value(dec):
+    conversion_table = ['0', '1', '2', '3',
+                        '4', '5', '6', '7',
+                        '8', '9','A', 'B',
+                        'C', 'D', 'E', 'F']
+    
+    remainder = 0
+    hex = ""
+
+    if dec == 0:
+        return "00"
+
+    while 0 < dec:
+        remainder = dec % 16
+        hex = conversion_table[remainder] + hex
+        dec = dec // 16
+
+    if len(hex) == 1:
+        hex = "0" + hex
+    
+    return hex
+
+def print_registers(message, offset, reg):
+
+    print(f"{message:<{offset}}"
+          f"A: {hex_value(reg['reg_a'])}\t"
+          f"X: {hex_value(reg['reg_x'])}\t"
+          f"Y: {hex_value(reg['reg_y'])}\t"
+          f"SP: {hex_value(reg['reg_sp'])}\t"
+          f"PC: {hex_value(reg['reg_pch'])}{hex_value(reg['reg_pcl'])}")
 
 def inc_pc(reg_pch, reg_pcl):
     if reg_pch == 0xFF and reg_pcl == 0xFF:
@@ -82,48 +120,65 @@ interupt_vector_high = 0xFFFE
 interupt_vector_low = 0xFFFF
 
 # Registers
-reg_x = 0x00
-reg_y = 0x00
-reg_sp = 0xFF
-reg_a = 0x00
-reg_pch  = 0x00
-reg_pcl = 0x00
-reg_flags = 0x00
-reg_inst = 0x00
+reg = {
+    "reg_x": 0x00,
+    "reg_y": 0x00,
+    "reg_sp": 0xFF,
+    "reg_a": 0x00,
+    "reg_pch": 0x00,
+    "reg_pcl": 0x00,
+    "reg_flags": 0x00,
+    "reg_inst": 0x00
+}
+
+print(f"Beginning simulation...\n")
 
 # Fetch instruction: 1 cycle
-time.sleep(1)
-reg_inst = memory[0]
-reg_pch, reg_pcl = inc_pc(reg_pch, reg_pcl)
 
-while reg_inst != None:
-    match reg_inst:
-        case "00":
+reg["reg_pch"] = program_begin >> 8
+reg["reg_pcl"] = program_begin & 0xFF
+# address = reg["reg_pch"] << 8 | reg["reg_pcl"]
+address = 0x00
+
+while True:
+    match address:
+        case 0x00:
             # BRK: 6 cycles
+            print(f"---BRK Instruction at address {hex(address)}---")
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction BRK", 50, reg)
+            cycle()
+            reg["reg_pch"], reg["reg_pcl"] = inc_pc(reg["reg_pch"], reg["reg_pcl"])
 
             # Push PCH to stack
-            time.sleep(1)
-            memory[reg_sp] = reg_pch
-            reg_sp -= 0x01
+            print_registers("2. Pushing PCH to stack", 50, reg)
+            cycle()
+            memory[reg["reg_sp"]] = reg["reg_pch"]
+            reg["reg_sp"] -= 0x01
 
             # Push PCL to stack
-            time.sleep(1)
-            memory[reg_sp] = reg_pcl
-            reg_sp -= 0x01
+            print_registers("3. Pushing PCL to stack", 50, reg)
+            cycle()
+            memory[reg["reg_sp"]] = reg["reg_pcl"]
+            reg["reg_sp"] -= 0x01
 
             # Push flags to stack & set break/interupt flag
-            time.sleep(1)
-            memory[reg_sp] = reg_flags
-            reg_sp -= 0x01
-            reg_flags |= 0b00010100
+            print_registers("4. Pushing flags to stack & setting flags", 50, reg)
+            cycle()
+            memory[reg["reg_sp"]] = reg["reg_flags"]
+            reg["reg_sp"] -= 0x01
+            reg["reg_flags"] |= 0b00010100
 
             # Load interrupt vector low byte
-            time.sleep(1)
-            reg_pcl = memory[nonmaskable_interupt_vector_low]
+            print_registers("5. Loading interrupt vector low byte", 50, reg)
+            cycle()
+            reg["reg_pcl"] = memory[nonmaskable_interupt_vector_low]
 
             # Load interrupt vector high byte
-            time.sleep(1)
-            reg_pch = memory[nonmaskable_interupt_vector_high]
+            print_registers(f"6. Loading interrupt vector high byte", 50, reg)
+            cycle()
+            reg["reg_pch"] = memory[nonmaskable_interupt_vector_high]
+            print()
 
-
-# print(memory)
+    address = reg["reg_pch"] << 8 | reg["reg_pcl"]
