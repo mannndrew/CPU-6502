@@ -3,8 +3,8 @@ import time
 import readchar
 
 
-
 ########################################################### File IO ###########################################################
+
 
 # Check if the user has provided a file name
 if len(sys.argv) != 2:
@@ -51,7 +51,8 @@ for i in range(len(memory)):
 print(f"Hexdump loaded successfully!\n")
 
 
-########################################################### Simulator ###########################################################
+########################################################### Functions #########################################################
+
 
 def cycle():
     readchar.readkey()
@@ -87,19 +88,26 @@ def print_registers(message, offset, reg):
           f"SP: {hex_value(reg['reg_sp'])}\t"
           f"PC: {hex_value(reg['reg_pch'])}{hex_value(reg['reg_pcl'])}")
 
-def inc_pc(reg_pch, reg_pcl):
-    if reg_pch == 0xFF and reg_pcl == 0xFF:
-        reg_pch = 0x00
-        reg_pcl = 0x00
+def inc_pc(reg):
+    if reg["reg_pch"] == 0xFF and reg["reg_pcl"] == 0xFF:
+        reg["reg_pch"] = 0x00
+        reg["reg_pcl"] = 0x00
 
-    elif reg_pcl == 0xFF:
-        reg_pch += 0x01
-        reg_pcl = 0x00
+    elif reg["reg_pcl"] == 0xFF:
+        reg["reg_pch"] += 0x01
+        reg["reg_pcl"] = 0x00
     
     else:
-        reg_pcl += 0x01
+        reg["reg_pcl"] += 0x01
 
-    return reg_pch, reg_pcl
+    return reg
+
+def add(a, b):
+    return (a + b) & 0xFF
+
+
+########################################################### Simulation ########################################################
+
 
 # Default addresses
 zero_page_begin = 0x0000
@@ -127,6 +135,10 @@ reg = {
     "reg_a": 0x00,
     "reg_pch": 0x00,
     "reg_pcl": 0x00,
+    "reg_indirh": 0x00,
+    "reg_indirl": 0x00,
+    "reg_dirh": 0x00,
+    "reg_dirl": 0x00,
     "reg_flags": 0x00,
     "reg_inst": 0x00
 }
@@ -137,19 +149,18 @@ print(f"Beginning simulation...\n")
 
 reg["reg_pch"] = program_begin >> 8
 reg["reg_pcl"] = program_begin & 0xFF
-# address = reg["reg_pch"] << 8 | reg["reg_pcl"]
 address = 0x00
 
 while True:
     match address:
         case 0x00:
             # BRK: 6 cycles
-            print(f"---BRK Instruction at address {hex(address)}---")
+            print(f"---BRK s Instruction at address {hex(address)}---")
 
             # Fetch instruction: 1 cycle
             print_registers("1. Fetching instruction BRK", 50, reg)
             cycle()
-            reg["reg_pch"], reg["reg_pcl"] = inc_pc(reg["reg_pch"], reg["reg_pcl"])
+            reg = inc_pc(reg)
 
             # Push PCH to stack
             print_registers("2. Pushing PCH to stack", 50, reg)
@@ -181,4 +192,37 @@ while True:
             reg["reg_pch"] = memory[nonmaskable_interupt_vector_high]
             print()
 
+        case 0x01:
+            # ORA (zp, x): 5 cycles
+            print(f"---ORA (zp, x) Instruction at address {hex(address)}---")
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ORA", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand: 1 cycle
+            print_registers("2. Fetching operand", 50, reg)
+            cycle()
+            reg["reg_indirl"] = memory[add(reg["reg_pcl"], reg["reg_x"])]
+            reg = inc_pc(reg)
+
+            # Fetch real address low byte: 1 cycle
+            print_registers("3. Fetching real address low byte", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_indirl"]]
+
+            # Fetch real address high byte: 1 cycle
+            print_registers("4. Fetching real address high byte", 50, reg)
+            cycle()
+            reg["reg_dirh"] = memory[add(reg["reg_indirl"], 0x01)]
+
+            # Execute instruction: 1 cycle
+            print_registers("5. Executing instruction", 50, reg)
+            cycle()
+            reg["reg_a"] |= memory[reg["reg_dirh"]] << 8 | memory[reg["reg_dirl"]]
+
+
+
+    # Fetch next instruction
     address = reg["reg_pch"] << 8 | reg["reg_pcl"]
