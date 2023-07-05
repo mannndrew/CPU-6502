@@ -140,7 +140,8 @@ reg = {
     "reg_dirh": 0x00,
     "reg_dirl": 0x00,
     "reg_flags": 0x00,
-    "reg_inst": 0x00
+    "reg_inst": 0x00,
+    "reg_data": 0x00
 }
 
 print(f"Beginning simulation...\n")
@@ -154,7 +155,7 @@ address = 0x00
 while True:
     match address:
         case 0x00:
-            # BRK: 6 cycles
+            # BRK: 7 cycles
             print(f"---BRK s Instruction at address {hex(address)}---")
 
             # Fetch instruction: 1 cycle
@@ -174,20 +175,25 @@ while True:
             memory[reg["reg_sp"]] = reg["reg_pcl"]
             reg["reg_sp"] -= 0x01
 
-            # Push flags to stack & set break/interupt flag
-            print_registers("4. Pushing flags to stack & setting flags", 50, reg)
+            # Push flags to stack with break set
+            print_registers("4. Pushing flags to stack with break set", 50, reg)
             cycle()
+            reg["reg_flags"] |= 0b00010000
             memory[reg["reg_sp"]] = reg["reg_flags"]
             reg["reg_sp"] -= 0x01
-            reg["reg_flags"] |= 0b00010100
+
+            # Set interrupt disable flag
+            print_registers("5. Setting interrupt disable flag", 50, reg)
+            cycle()
+            reg["reg_flags"] |= 0b00000100
 
             # Load interrupt vector low byte
-            print_registers("5. Loading interrupt vector low byte", 50, reg)
+            print_registers("6. Loading interrupt vector low byte", 50, reg)
             cycle()
             reg["reg_pcl"] = memory[nonmaskable_interupt_vector_low]
 
             # Load interrupt vector high byte
-            print_registers(f"6. Loading interrupt vector high byte", 50, reg)
+            print_registers(f"7. Loading interrupt vector high byte", 50, reg)
             cycle()
             reg["reg_pch"] = memory[nonmaskable_interupt_vector_high]
             print()
@@ -201,8 +207,8 @@ while True:
             cycle()
             reg = inc_pc(reg)
 
-            # Fetch operand: 1 cycle
-            print_registers("2. Fetching operand", 50, reg)
+            # Fetch operand indir low byte: 1 cycle
+            print_registers("2. Fetching operand indir low byte", 50, reg)
             cycle()
             reg["reg_indirl"] = memory[add(reg["reg_pcl"], reg["reg_x"])]
             reg = inc_pc(reg)
@@ -221,6 +227,106 @@ while True:
             print_registers("5. Executing instruction", 50, reg)
             cycle()
             reg["reg_a"] |= memory[reg["reg_dirh"]] << 8 | memory[reg["reg_dirl"]]
+
+        case 0x04:
+            # TSB zp: 4 cycles
+            print(f"---TSB zp Instruction at address {hex(address)}---")
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction TSB", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand: 1 cycle
+            print_registers("2. Fetching operand", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycle
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            reg["reg_data"] |= memory[reg["reg_dirl"]]
+
+            # Store data: 1 cycle
+            print_registers("4. Executing instruction", 50, reg)
+            cycle()
+            memory[reg["reg_dirl"]] = reg["reg_data"]
+
+        case 0x05:
+            # ORA zp: ? cycles
+            pass
+        case 0x06:
+            # ASL zp: ? cycles
+            pass
+        case 0x07:
+            # RMB0 zp: ? cycles
+            pass
+        case 0x08:
+            # PHP s: ? cycles
+            pass
+        case 0x09:
+            # ORA #: ? cycles
+            pass
+        case 0x0A:
+            # ASL A: ? cycles
+            pass
+        case 0x0C:
+            # TSB a: ? cycles
+            pass
+        case 0x0D:
+            # ORA a: ? cycles
+            pass
+        case 0x0E:
+            # ASL a: ? cycles
+            pass
+        case 0x0F:
+            # BBR0 r: ? cycles
+            pass
+        case 0x10:
+            # BPL r: ? cycles
+            pass
+        case 0x11:
+            # ORA (zp), y: ? cycles
+            pass
+        case 0x12:
+            # ORA (zp): ? cycles
+            pass
+        case 0x14:
+            # TRB zp: ? cycles
+            pass
+        case 0x15:
+            # ORA zp, x: ? cycles
+            pass
+        case 0x16:
+            # ASL zp, x: ? cycles
+            pass
+        case 0x17:
+            # RMB1 zp: ? cycles
+            pass
+        case 0x18:
+            # CLC i: ? cycles
+            pass
+        case 0x19:
+            # ORA a, y: ? cycles
+            pass
+        case 0x1A:
+            # INC A: ? cycles
+            pass
+        case 0x1C:
+            # TRB a: ? cycles
+            pass
+        case 0x1D:
+            # ORA a, x: ? cycles
+            pass
+        case 0x1E:
+            # ASL a, x: ? cycles
+            pass
+        case 0x1F:
+            # BBR1 r: ? cycles
+            pass
+        
+
 
 
 
