@@ -258,15 +258,64 @@ while True:
             cycle()
             memory[reg["reg_dirl"]] = reg["reg_data"]
 
+            # Print newspace
+            print()
+
         case 0x05:
-            # ORA zp: ? cycles
+            # ORA zp: 3 cycles
             print(f"---ORA zp Instruction at address {hex(address)}---")
-            pass
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ORA", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand: 1 cycle
+            print_registers("2. Fetching operand", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycle
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            reg["reg_a"] = (memory[reg["reg_dirl"]] | reg["reg_a"])
+            if ((memory[reg["reg_dirl"]] | reg["reg_a"]) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
+            if ((memory[reg["reg_dirl"]] | reg["reg_a"]) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            
+            # Print newspace
+            print()
 
         case 0x06:
             # ASL zp: ? cycles
             print(f"---ASL zp Instruction at address {hex(address)}---")
-            pass
+            
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ASL", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand: 1 cycle
+            print_registers("2. Fetching operand", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycle
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            reg["reg_data"] = (memory[reg["reg_dirl"]] << 1) & 0b11111110
+            if (memory[reg["reg_dirl"]] & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
+            if (memory[reg["reg_dirl"]] & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
+            if (memory[reg["reg_dirl"]] & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
+            
+            # Store data: 1 cycle
+            print_registers("4. Storing result", 50, reg)
+            cycle()
+            memory[reg["reg_dirl"]] = reg["reg_data"]
+
+            
+
         case 0x07:
             # RMB0 zp: ? cycles
             print(f"---RMB0 zp Instruction at address {hex(address)}---")
