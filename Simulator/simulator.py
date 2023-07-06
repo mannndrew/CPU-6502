@@ -150,10 +150,10 @@ print(f"Beginning simulation...\n")
 
 reg["reg_pch"] = program_begin >> 8
 reg["reg_pcl"] = program_begin & 0xFF
-address = 0x8000
+address = (reg["reg_pch"] << 8) | reg["reg_pcl"]
 
 while True:
-    match address:
+    match memory[address]:
         case 0x00:
             # BRK: 7 cycles
             print(f"---BRK s Instruction at address {hex(address)}---")
@@ -1093,4 +1093,4 @@ while True:
 
 
     # Fetch next instruction
-    address = reg["reg_pch"] << 8 | reg["reg_pcl"]
+    address = (reg["reg_pch"] << 8) | reg["reg_pcl"]
