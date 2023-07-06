@@ -228,8 +228,11 @@ while True:
             # Execute instruction: 1 cycle
             print_registers("5. Executing instruction", 50, reg)
             cycle()
-            reg["reg_a"] |= memory[reg["reg_dirh"]] << 8 | memory[reg["reg_dirl"]]
-
+            tmp = (memory[reg["reg_dirh"]] << 8) | (memory[reg["reg_dirl"]])
+            reg["reg_a"] = reg["reg_a"] | tmp
+            if ((reg["reg_a"] | tmp) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
+            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            
             # Print newspace
             print()
 
@@ -251,7 +254,9 @@ while True:
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
-            reg["reg_data"] |= memory[reg["reg_dirl"]]
+            tmp = memory[reg["reg_dirl"]]
+            reg["reg_data"] = reg["reg_a"] | tmp
+            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
 
             # Store data: 1 cycle
             print_registers("4. Storing result", 50, reg)
@@ -279,15 +284,16 @@ while True:
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
-            reg["reg_a"] = (memory[reg["reg_dirl"]] | reg["reg_a"])
-            if ((memory[reg["reg_dirl"]] | reg["reg_a"]) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
-            if ((memory[reg["reg_dirl"]] | reg["reg_a"]) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            tmp = memory[reg["reg_dirl"]]
+            reg["reg_a"] = reg["reg_a"] | tmp
+            if ((reg["reg_a"] | tmp) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
+            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
             
             # Print newspace
             print()
 
         case 0x06:
-            # ASL zp: ? cycles
+            # ASL zp: 4 cycles
             print(f"---ASL zp Instruction at address {hex(address)}---")
             
             # Fetch instruction: 1 cycle
@@ -304,17 +310,19 @@ while True:
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
+            tmp = memory[reg["reg_dirl"]]
             reg["reg_data"] = (memory[reg["reg_dirl"]] << 1) & 0b11111110
-            if (memory[reg["reg_dirl"]] & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
-            if (memory[reg["reg_dirl"]] & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
-            if (memory[reg["reg_dirl"]] & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
+            if (tmp & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
+            if (tmp & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
+            if (tmp & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
             
             # Store data: 1 cycle
             print_registers("4. Storing result", 50, reg)
             cycle()
             memory[reg["reg_dirl"]] = reg["reg_data"]
 
-            
+            # Print newspace
+            print()
 
         case 0x07:
             # RMB0 zp: ? cycles
