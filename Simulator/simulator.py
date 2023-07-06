@@ -196,6 +196,8 @@ while True:
             print_registers(f"7. Loading interrupt vector high byte", 50, reg)
             cycle()
             reg["reg_pch"] = memory[nonmaskable_interupt_vector_high]
+
+            # Print newspace
             print()
 
         case 0x01:
@@ -210,7 +212,7 @@ while True:
             # Fetch operand indir low byte: 1 cycle
             print_registers("2. Fetching operand indir low byte", 50, reg)
             cycle()
-            reg["reg_indirl"] = memory[add(reg["reg_pcl"], reg["reg_x"])]
+            reg["reg_indirl"] = add(memory[reg["reg_pcl"]], reg["reg_x"])
             reg = inc_pc(reg)
 
             # Fetch real address low byte: 1 cycle
@@ -227,6 +229,9 @@ while True:
             print_registers("5. Executing instruction", 50, reg)
             cycle()
             reg["reg_a"] |= memory[reg["reg_dirh"]] << 8 | memory[reg["reg_dirl"]]
+
+            # Print newspace
+            print()
 
         case 0x04:
             # TSB zp: 4 cycles
@@ -257,6 +262,7 @@ while True:
             # ORA zp: ? cycles
             print(f"---ORA zp Instruction at address {hex(address)}---")
             pass
+
         case 0x06:
             # ASL zp: ? cycles
             print(f"---ASL zp Instruction at address {hex(address)}---")
