@@ -696,8 +696,8 @@ while True:
             cycle()
             reg = inc_pc(reg)
 
-            # Fetch operand: 1 cycle
-            print_registers("2. Fetching operand", 50, reg)
+            # Fetch zero page address: 1 cycle
+            print_registers("2. Fetching zero page address", 50, reg)
             cycle()
             reg["reg_dirl"] = memory[reg["reg_pcl"]]
             reg = inc_pc(reg)
@@ -757,10 +757,40 @@ while True:
             # JMP (a): ? cycles
             print(f"---JMP (a) Instruction at address {hex(address)}---")
             pass
+
         case 0x6D:
-            # ADC a: ? cycles
+            # ADC a: 4 cycles
             print(f"---ADC a Instruction at address {hex(address)}---")
-            pass
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ADC", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch absolute page low address: 1 cycle
+            print_registers("2. Fetching absolute page low address", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Fetch absolute page high address: 1 cycle
+            print_registers("2. Fetching absolute page high address", 50, reg)
+            cycle()
+            reg["reg_dirh"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycles
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            a, b, c = reg["reg_a"], memory[reg["dirh"] << 8 | reg["dirl"]], get_carry(reg["reg_flags"])
+            result = (a + b + c) & 0b11111111
+            reg["reg_a"] = result
+
+            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
+            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
+            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
+            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+
         case 0x6E:
             # ROR a: ? cycles
             print(f"---ROR a Instruction at address {hex(address)}---")
@@ -801,10 +831,41 @@ while True:
             # SEI i: ? cycles
             print(f"---SEI i Instruction at address {hex(address)}---")
             pass
+
         case 0x79:
-            # ADC a, y: ? cycles
+            # ADC a, y: 4 cycles
             print(f"---ADC a, y Instruction at address {hex(address)}---")
-            pass
+            
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ADC", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch absolute page low address: 1 cycle
+            print_registers("2. Fetching absolute page low address", 50, reg)
+            cycle()
+            reg["reg_dirl"] = add(memory[reg["reg_pcl"], reg["reg_y"]])
+            carry = check_carry_add(memory[reg["reg_pcl"]], reg["reg_y"])
+            reg = inc_pc(reg)
+
+            # Fetch absolute page high address: 1 cycle
+            print_registers("2. Fetching absolute page high address", 50, reg)
+            cycle()
+            reg["reg_dirh"] = memory[add(reg["reg_pcl"], carry)]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycles
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            a, b, c = reg["reg_a"], memory[reg["dirh"] << 8 | reg["dirl"]], get_carry(reg["reg_flags"])
+            result = (a + b + c) & 0b11111111
+            reg["reg_a"] = result
+
+            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
+            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
+            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
+            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+
         case 0x7A:
             # PLY s: ? cycles
             print(f"---PLY s Instruction at address {hex(address)}---")
@@ -813,10 +874,41 @@ while True:
             # JMP (a, x): ? cycles
             print(f"---JMP (a, x) Instruction at address {hex(address)}---")
             pass
+
         case 0x7D:
-            # ADC a, x: ? cycles
+            # ADC a, x: 4 cycles
             print(f"---ADC a, x Instruction at address {hex(address)}---")
-            pass
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ADC", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch absolute page low address: 1 cycle
+            print_registers("2. Fetching absolute page low address", 50, reg)
+            cycle()
+            reg["reg_dirl"] = add(memory[reg["reg_pcl"], reg["reg_x"]])
+            carry = check_carry_add(memory[reg["reg_pcl"]], reg["reg_x"])
+            reg = inc_pc(reg)
+
+            # Fetch absolute page high address: 1 cycle
+            print_registers("2. Fetching absolute page high address", 50, reg)
+            cycle()
+            reg["reg_dirh"] = memory[add(reg["reg_pcl"], carry)]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycles
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            a, b, c = reg["reg_a"], memory[reg["dirh"] << 8 | reg["dirl"]], get_carry(reg["reg_flags"])
+            result = (a + b + c) & 0b11111111
+            reg["reg_a"] = result
+
+            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
+            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
+            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
+            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+
         case 0x7E:
             # ROR a, x: ? cycles
             print(f"---ROR a, x Instruction at address {hex(address)}---")
