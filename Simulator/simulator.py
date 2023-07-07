@@ -106,6 +106,65 @@ def add(a, b):
     return (a + b) & 0xFF
 
 
+
+
+
+
+
+
+
+########################################################### Flag Functions ####################################################
+
+# Getters
+def get_negative(flags):
+    if (flags & 0b10000000 != 0): return 1
+    else: return 0
+
+def get_overflow(flags):
+    if (flags & 0b01000000 != 0): return 1
+    else: return 0
+
+def get_break(flags):
+    if (flags & 0b00010000 != 0): return 1
+    else: return 0
+
+def get_decimal(flags):
+    if (flags & 0b00001000 != 0): return 1
+    else: return 0
+
+def get_interrupt(flags):
+    if (flags & 0b00000100 != 0): return 1
+    else: return 0
+
+def get_zero(flags):
+    if (flags & 0b00000010 != 0): return 1
+    else: return 0
+
+def get_carry(flags):
+    if (flags & 0b00000001 != 0): return 1
+    else: return 0
+
+# Check for possible flag changes
+def check_negative(result):
+    if (result & 0b10000000 != 0): return True
+    else: return False
+
+def check_overflow_add(a, b, cin):
+    c6 = ((a & 0b1111111) + (b & 0b1111111) + cin) >> 7 
+    c7 = (a + b + cin) >> 8
+    if (c6 ^ c7 == 1): return True
+    else: return False
+            
+def check_zero(result):
+    if (result & 0b11111111 == 0): return True
+    else: return False
+            
+def check_carry_add(a, b, cin):
+    c7 = (a + b + cin) >> 8
+    if (c7 == 1): return True
+    else: return False
+
+
 ########################################################### Simulation ########################################################
 
 
@@ -629,9 +688,32 @@ while True:
             print(f"---STZ zp Instruction at address {hex(address)}---")
             pass
         case 0x65:
-            # ADC zp: ? cycles
+            # ADC zp: 3 cycles
             print(f"---ADC zp Instruction at address {hex(address)}---")
-            pass
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ADC", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand: 1 cycle
+            print_registers("2. Fetching operand", 50, reg)
+            cycle()
+            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg = inc_pc(reg)
+
+            # Execute instruction: 1 cycles
+            print_registers("3. Executing instruction", 50, reg)
+            cycle()
+            a, b, c = reg["reg_a"], memory[reg["dirl"]], get_carry(reg["reg_flags"])
+            result = (a + b + c) & 0b11111111
+            reg["reg_a"] = result
+
+            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
+            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
+            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
+            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+
         case 0x66:
             # ROR zp: ? cycles
             print(f"---ROR zp Instruction at address {hex(address)}---")
@@ -645,7 +727,7 @@ while True:
             print(f"---PLA s Instruction at address {hex(address)}---")
             pass
         case 0x69:
-            # ADC #: ? cycles
+            # ADC #: 2 cycles
             print(f"---ADC # Instruction at address {hex(address)}---")
 
             # Fetch instruction: 1 cycle
@@ -656,13 +738,16 @@ while True:
             # Fetch operand and execute: 1 cycle
             print_registers("2. Fetching operand and executing ADC", 50, reg)
             cycle()
-            carry_bit = (reg["reg_flags"] & 0b00000001)
-            tmp = reg["reg_a"] + memory[reg["reg_pc"]] + carry_bit
-            reg["reg_a"] = (tmp & 0b11111111)
-            # Overflow flag WORK IN PROGRESS
-            if (tmp & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
-            if (tmp & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
-            if (tmp & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
+            a, b, c = reg["reg_a"], memory[reg["reg_pc"]], get_carry(reg["reg_flags"])
+            result = (a + b + c) & 0b11111111
+            reg["reg_a"] = result
+
+            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
+            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
+            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
+            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+
+            reg = inc_pc(reg)
             
         case 0x6A:
             # ROR A: ? cycles

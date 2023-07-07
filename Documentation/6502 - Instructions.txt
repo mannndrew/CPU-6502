@@ -23,8 +23,8 @@
 #1   Absolute                               a               ADC $1234                          6D    3     ?
 #3   Absolute Indexed with X                a, x            ADC $1234, X                       7D    3     ?
 #4   Absolute Indexed with Y                a, y            ADC $1234, Y                       79    3     ?
-#7   Immediate Addressing                   #               ADC #$12                           69    2     ?
-#11  Zero Page                              zp              ADC $12                            65    2     ?
+#7   Immediate Addressing                   #               ADC #$12                           69    2     2
+#11  Zero Page                              zp              ADC $12                            65    2     3
 #12  Zero Page Indexed Indirect            (zp, x)          ADC ($12, X)                       61    2     ?
 #13  Zero Page Indexed with X               zp, x           ADC $12, X                         75    2     ?
 #15  Zero Page Indirect                    (zp)             ADC ($12)                          72    2     ?
