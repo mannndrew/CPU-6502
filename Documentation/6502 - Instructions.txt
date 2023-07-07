@@ -17,6 +17,7 @@
 #16 = Zero Page Indirect with Indexed    (zp), y          INS ($12), Y
 
 1. ADC Instruction - Add Memory to Accumulator with Carry
+   Flags Affected: N V Z C
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #1   Absolute                               a               ADC $1234                          6D    3     ?

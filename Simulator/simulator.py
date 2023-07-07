@@ -647,7 +647,23 @@ while True:
         case 0x69:
             # ADC #: ? cycles
             print(f"---ADC # Instruction at address {hex(address)}---")
-            pass
+
+            # Fetch instruction: 1 cycle
+            print_registers("1. Fetching instruction ADC", 50, reg)
+            cycle()
+            reg = inc_pc(reg)
+
+            # Fetch operand and execute: 1 cycle
+            print_registers("2. Fetching operand and executing ADC", 50, reg)
+            cycle()
+            carry_bit = (reg["reg_flags"] & 0b00000001)
+            tmp = reg["reg_a"] + memory[reg["reg_pc"]] + carry_bit
+            reg["reg_a"] = (tmp & 0b11111111)
+            # Overflow flag WORK IN PROGRESS
+            if (tmp & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
+            if (tmp & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
+            if (tmp & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
+            
         case 0x6A:
             # ROR A: ? cycles
             print(f"---ROR A Instruction at address {hex(address)}---")
