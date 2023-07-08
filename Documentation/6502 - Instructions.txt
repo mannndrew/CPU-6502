@@ -25,10 +25,10 @@
 #4   Absolute Indexed with Y                a, y            ADC $1234, Y                       79    3     4
 #7   Immediate Addressing                   #               ADC #$12                           69    2     2
 #11  Zero Page                              zp              ADC $12                            65    2     3
-#12  Zero Page Indexed Indirect            (zp, x)          ADC ($12, X)                       61    2     ?
-#13  Zero Page Indexed with X               zp, x           ADC $12, X                         75    2     ?
-#15  Zero Page Indirect                    (zp)             ADC ($12)                          72    2     ?
-#16  Zero Page Indirect with Indexed       (zp), y          ADC ($12), Y                       71    2     ?
+#12  Zero Page Indexed Indirect            (zp, x)          ADC ($12, X)                       61    2     5
+#13  Zero Page Indexed with X               zp, x           ADC $12, X                         75    2     3
+#15  Zero Page Indirect                    (zp)             ADC ($12)                          72    2     5
+#16  Zero Page Indirect with Indexed       (zp), y          ADC ($12), Y                       71    2     5
 
 2. AND Instruction - AND Memory with Accumulator
 
