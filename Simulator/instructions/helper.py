@@ -30,23 +30,23 @@ def hex_value(dec):
 def print_registers(message, offset, reg):
 
     print(f"{message:<{offset}}"
-          f"A: {hex_value(reg['reg_a'])}\t"
-          f"X: {hex_value(reg['reg_x'])}\t"
-          f"Y: {hex_value(reg['reg_y'])}\t"
-          f"SP: {hex_value(reg['reg_sp'])}\t"
-          f"PC: {hex_value(reg['reg_pch'])}{hex_value(reg['reg_pcl'])}")
+          f"A: {hex_value(reg['a'])}\t"
+          f"X: {hex_value(reg['x'])}\t"
+          f"Y: {hex_value(reg['y'])}\t"
+          f"SP: {hex_value(reg['sp'])}\t"
+          f"PC: {hex_value(reg['pch'])}{hex_value(reg['pcl'])}")
 
 def inc_pc(reg):
-    if reg["reg_pch"] == 0xFF and reg["reg_pcl"] == 0xFF:
-        reg["reg_pch"] = 0x00
-        reg["reg_pcl"] = 0x00
+    if reg["pch"] == 0xFF and reg["pcl"] == 0xFF:
+        reg["pch"] = 0x00
+        reg["pcl"] = 0x00
 
-    elif reg["reg_pcl"] == 0xFF:
-        reg["reg_pch"] += 0x01
-        reg["reg_pcl"] = 0x00
+    elif reg["pcl"] == 0xFF:
+        reg["pch"] += 0x01
+        reg["pcl"] = 0x00
     
     else:
-        reg["reg_pcl"] += 0x01
+        reg["pcl"] += 0x01
 
     return reg
 
@@ -54,10 +54,10 @@ def add(a, b):
     return (a + b) & 0xFF
 
 def get_pc(reg):
-    return reg["reg_pch"] << 8 | reg["reg_pcl"]
+    return reg["pch"] << 8 | reg["pcl"]
 
 def get_dir(reg):
-    return reg["reg_dirh"] << 8 | reg["reg_dirl"]
+    return reg["dirh"] << 8 | reg["dirl"]
 
 ########################################################### Flag Functions ####################################################
 

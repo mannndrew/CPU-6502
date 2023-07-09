@@ -74,28 +74,28 @@ interupt_vector_low = 0xFFFF
 
 # Registers
 reg = {
-    "reg_x": 0x00,
-    "reg_y": 0x00,
-    "reg_sp": 0xFF,
-    "reg_a": 0x00,
-    "reg_pch": 0x00,
-    "reg_pcl": 0x00,
-    "reg_indirh": 0x00,
-    "reg_indirl": 0x00,
-    "reg_dirh": 0x00,
-    "reg_dirl": 0x00,
-    "reg_flags": 0x00,
-    "reg_inst": 0x00,
-    "reg_data": 0x00
+    "x": 0x00,
+    "y": 0x00,
+    "sp": 0xFF,
+    "a": 0x00,
+    "pch": 0x00,
+    "pcl": 0x00,
+    "indirh": 0x00,
+    "indirl": 0x00,
+    "dirh": 0x00,
+    "dirl": 0x00,
+    "flags": 0x00,
+    "inst": 0x00,
+    "data": 0x00
 }
 
 print(f"Beginning simulation...\n")
 
 # Fetch instruction: 1 cycle
 
-reg["reg_pch"] = program_begin >> 8
-reg["reg_pcl"] = program_begin & 0xFF
-address = (reg["reg_pch"] << 8) | reg["reg_pcl"]
+reg["pch"] = program_begin >> 8
+reg["pcl"] = program_begin & 0xFF
+address = get_pc(reg)
 
 while True:
     match memory[address]:
@@ -111,36 +111,36 @@ while True:
             # Push PCH to stack
             print_registers("2. Pushing PCH to stack", 50, reg)
             cycle()
-            memory[reg["reg_sp"]] = reg["reg_pch"]
-            reg["reg_sp"] -= 0x01
+            memory[reg["sp"]] = reg["pch"]
+            reg["sp"] -= 0x01
 
             # Push PCL to stack
             print_registers("3. Pushing PCL to stack", 50, reg)
             cycle()
-            memory[reg["reg_sp"]] = reg["reg_pcl"]
-            reg["reg_sp"] -= 0x01
+            memory[reg["sp"]] = reg["pcl"]
+            reg["sp"] -= 0x01
 
             # Push flags to stack with break set
             print_registers("4. Pushing flags to stack with break set", 50, reg)
             cycle()
-            reg["reg_flags"] |= 0b00010000
-            memory[reg["reg_sp"]] = reg["reg_flags"]
-            reg["reg_sp"] -= 0x01
+            reg["flags"] |= 0b00010000
+            memory[reg["sp"]] = reg["flags"]
+            reg["sp"] -= 0x01
 
             # Set interrupt disable flag
             print_registers("5. Setting interrupt disable flag", 50, reg)
             cycle()
-            reg["reg_flags"] |= 0b00000100
+            reg["flags"] |= 0b00000100
 
             # Load interrupt vector low byte
             print_registers("6. Loading interrupt vector low byte", 50, reg)
             cycle()
-            reg["reg_pcl"] = memory[nonmaskable_interupt_vector_low]
+            reg["pcl"] = memory[nonmaskable_interupt_vector_low]
 
             # Load interrupt vector high byte
             print_registers(f"7. Loading interrupt vector high byte", 50, reg)
             cycle()
-            reg["reg_pch"] = memory[nonmaskable_interupt_vector_high]
+            reg["pch"] = memory[nonmaskable_interupt_vector_high]
 
             # Print newspace
             print()
@@ -157,26 +157,26 @@ while True:
             # Fetch operand indir low byte: 1 cycle
             print_registers("2. Fetching operand indir low byte", 50, reg)
             cycle()
-            reg["reg_indirl"] = add(memory[reg["reg_pcl"]], reg["reg_x"])
+            reg["indirl"] = add(memory[reg["pcl"]], reg["x"])
             reg = inc_pc(reg)
 
             # Fetch real address low byte: 1 cycle
             print_registers("3. Fetching real address low byte", 50, reg)
             cycle()
-            reg["reg_dirl"] = memory[reg["reg_indirl"]]
+            reg["dirl"] = memory[reg["indirl"]]
 
             # Fetch real address high byte: 1 cycle
             print_registers("4. Fetching real address high byte", 50, reg)
             cycle()
-            reg["reg_dirh"] = memory[add(reg["reg_indirl"], 0x01)]
+            reg["dirh"] = memory[add(reg["indirl"], 0x01)]
 
             # Execute instruction: 1 cycle
             print_registers("5. Executing instruction", 50, reg)
             cycle()
-            tmp = (memory[reg["reg_dirh"]] << 8) | (memory[reg["reg_dirl"]])
-            reg["reg_a"] = reg["reg_a"] | tmp
-            if ((reg["reg_a"] | tmp) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
-            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            tmp = (memory[reg["dirh"]] << 8) | (memory[reg["dirl"]])
+            reg["a"] = reg["a"] | tmp
+            if ((reg["a"] | tmp) & 0b10000000 != 0): reg["flags"] |= 0b10000000
+            if ((reg["a"] | tmp) & 0b11111111 == 0): reg["flags"] |= 0b00000010
             
             # Print newspace
             print()
@@ -193,20 +193,20 @@ while True:
             # Fetch operand: 1 cycle
             print_registers("2. Fetching operand", 50, reg)
             cycle()
-            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg["dirl"] = memory[reg["pcl"]]
             reg = inc_pc(reg)
 
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
-            tmp = memory[reg["reg_dirl"]]
-            reg["reg_data"] = reg["reg_a"] | tmp
-            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            tmp = memory[reg["dirl"]]
+            reg["data"] = reg["a"] | tmp
+            if ((reg["a"] | tmp) & 0b11111111 == 0): reg["flags"] |= 0b00000010
 
             # Store data: 1 cycle
             print_registers("4. Storing result", 50, reg)
             cycle()
-            memory[reg["reg_dirl"]] = reg["reg_data"]
+            memory[reg["dirl"]] = reg["data"]
 
             # Print newspace
             print()
@@ -223,16 +223,16 @@ while True:
             # Fetch operand: 1 cycle
             print_registers("2. Fetching operand", 50, reg)
             cycle()
-            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg["dirl"] = memory[reg["pcl"]]
             reg = inc_pc(reg)
 
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
-            tmp = memory[reg["reg_dirl"]]
-            reg["reg_a"] = reg["reg_a"] | tmp
-            if ((reg["reg_a"] | tmp) & 0b10000000 != 0): reg["reg_flags"] |= 0b10000000
-            if ((reg["reg_a"] | tmp) & 0b11111111 == 0): reg["reg_flags"] |= 0b00000010
+            tmp = memory[reg["dirl"]]
+            reg["a"] = reg["a"] | tmp
+            if ((reg["a"] | tmp) & 0b10000000 != 0): reg["flags"] |= 0b10000000
+            if ((reg["a"] | tmp) & 0b11111111 == 0): reg["flags"] |= 0b00000010
             
             # Print newspace
             print()
@@ -249,22 +249,22 @@ while True:
             # Fetch operand: 1 cycle
             print_registers("2. Fetching operand", 50, reg)
             cycle()
-            reg["reg_dirl"] = memory[reg["reg_pcl"]]
+            reg["dirl"] = memory[reg["pcl"]]
             reg = inc_pc(reg)
 
             # Execute instruction: 1 cycle
             print_registers("3. Executing instruction", 50, reg)
             cycle()
-            tmp = memory[reg["reg_dirl"]]
-            reg["reg_data"] = (memory[reg["reg_dirl"]] << 1) & 0b11111110
-            if (tmp & 0b01000000 != 0): reg["reg_flags"] |= 0b10000000
-            if (tmp & 0b01111111 == 0): reg["reg_flags"] |= 0b00000010
-            if (tmp & 0b10000000 != 0): reg["reg_flags"] |= 0b00000001
+            tmp = memory[reg["dirl"]]
+            reg["data"] = (memory[reg["dirl"]] << 1) & 0b11111110
+            if (tmp & 0b01000000 != 0): reg["flags"] |= 0b10000000
+            if (tmp & 0b01111111 == 0): reg["flags"] |= 0b00000010
+            if (tmp & 0b10000000 != 0): reg["flags"] |= 0b00000001
             
             # Store data: 1 cycle
             print_registers("4. Storing result", 50, reg)
             cycle()
-            memory[reg["reg_dirl"]] = reg["reg_data"]
+            memory[reg["dirl"]] = reg["data"]
 
             # Print newspace
             print()
@@ -610,28 +610,9 @@ while True:
         case 0x65:
             # ADC zp: 3 cycles
             print(f"---ADC zp Instruction at address {hex(address)}---")
-
-            # Fetch instruction: 1 cycle
-            print_registers("1. Fetching instruction ADC", 50, reg)
-            cycle()
-            reg = inc_pc(reg)
-
-            # Fetch zero page address: 1 cycle
-            print_registers("2. Fetching zero page address", 50, reg)
-            cycle()
-            reg["reg_dirl"] = memory[reg["reg_pcl"]]
-            reg = inc_pc(reg)
-
-            # Execute instruction: 1 cycles
-            print_registers("3. Executing instruction", 50, reg)
-            cycle()
-            a, b, c = reg["reg_a"], memory[reg["dirl"]], get_carry(reg["reg_flags"])
-            result = (a + b + c) & 0b11111111
-            reg["reg_a"] = result
-            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
-            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
-            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
-            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
+            adc_fetch_instruction(reg, step=1, inc=True)
+            adc_fetch_absolute_low(reg, memory, step=2, inc=True)
+            adc_execute(reg, memory[reg["dirl"]], step=3, inc=False)
 
         case 0x66:
             # ROR zp: ? cycles
@@ -764,27 +745,6 @@ while True:
             # ADC zp, x: 3 cycles
             print(f"---ADC zp, x Instruction at address {hex(address)}---")
             
-            # Fetch instruction: 1 cycle
-            print_registers("1. Fetching instruction ADC", 50, reg)
-            cycle()
-            reg = inc_pc(reg)
-
-            # Fetch zero page address: 1 cycle
-            print_registers("2. Fetch zero page address + x", 50, reg)
-            cycle()
-            reg["reg_dirl"] = add(memory[reg["reg_pcl"], reg["reg_x"]])
-            reg = inc_pc(reg)
-
-            # Execute instruction: 1 cycles
-            print_registers("3. Executing instruction", 50, reg)
-            cycle()
-            a, b, c = reg["reg_a"], reg["dirl"], get_carry(reg["reg_flags"])
-            result = (a + b + c) & 0b11111111
-            reg["reg_a"] = result
-            if (check_negative(result) == 1): reg["reg_flags"] |= 0b10000000
-            if (check_overflow_add(a, b, c) == 1): reg["reg_flags"] |= 0b01000000
-            if (check_zero(result) == 1): reg["reg_flags"] |= 0b00000010
-            if (check_carry_add(a, b, c) == 1): reg["reg_flags"] |= 0b00000001
 
         case 0x76:
             # ROR zp, x: ? cycles
@@ -1314,4 +1274,4 @@ while True:
 
 
     # Fetch next instruction
-    address = (reg["reg_pch"] << 8) | reg["reg_pcl"]
+    address = get_pc(reg)
