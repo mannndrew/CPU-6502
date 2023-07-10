@@ -1,12 +1,12 @@
 from instructions.helper import *
 
-def adc_fetch_instruction(reg, step, inc=False):
-    print_registers(f"{step}. Fetching instruction ADC", 50, reg)
+def fetch_instruction(reg, step, name, inc=False):
+    print_registers(f"{step}. Fetching instruction {name}", 50, reg)
     cycle()
     
     if inc: inc_pc(reg)
 
-def adc_fetch_zero(reg, address, step, mode, plus="", inc=False):
+def fetch_zero(reg, address, step, mode, plus="", inc=False):
     print_registers(f"{step}. Fetching zero page address", 50, reg)
     cycle()
     reg[mode] = address
@@ -18,7 +18,7 @@ def adc_fetch_zero(reg, address, step, mode, plus="", inc=False):
 
     if inc: inc_pc(reg)
 
-def adc_fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
+def fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
     print_registers(f"{step}. Fetching absolute page low address", 50, reg)
     cycle()
     
@@ -33,7 +33,7 @@ def adc_fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
 
     if inc: inc_pc(reg)
 
-def adc_fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
+def fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
     print_registers(f"{step}. Fetching absolute page high address", 50, reg)
     cycle()
 
@@ -62,5 +62,21 @@ def adc_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000010
     if check_carry_add(a, b, c):
         reg["flags"] |= 0b00000001
+    
+    if inc: inc_pc(reg)
+
+def and_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing AND", 50, reg)
+    print()
+    cycle()
+
+    a = reg["a"]
+    b = operand
+    result = a & b
+    reg["a"] = result
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
     
     if inc: inc_pc(reg)
