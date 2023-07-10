@@ -640,7 +640,6 @@ while True:
         case 0x71:
             # ADC (zp), y: 5 cycles
             print(f"---ADC (zp), y Instruction at address {hex(address)}---")
-
             adc_fetch_instruction(reg, step=1, inc=True)
             adc_fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
             adc_fetch_absolute_low(reg, memory[reg["indirl"]], step=3, plus="y", mode="dirl")
