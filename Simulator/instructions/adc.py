@@ -1,27 +1,52 @@
 from instructions.helper import *
 
-def adc_fetch_instruction(reg, step, inc):
+def adc_fetch_instruction(reg, step, inc=False):
     print_registers(f"{step}. Fetching instruction ADC", 50, reg)
     cycle()
     
     if inc: inc_pc(reg)
 
-def adc_fetch_absolute_low(reg, memory, step, inc):
+def adc_fetch_zero(reg, address, step, mode, plus="", inc=False):
+    print_registers(f"{step}. Fetching zero page address", 50, reg)
+    cycle()
+    reg[mode] = address
+
+    if plus == "":
+        reg[mode] = address
+    elif plus == "x":
+        reg[mode] = add(address, reg["x"])
+
+    if inc: inc_pc(reg)
+
+def adc_fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
     print_registers(f"{step}. Fetching absolute page low address", 50, reg)
     cycle()
-    reg["dirl"] = memory[get_pc(reg)]
+    
+    if plus == "":
+        reg[mode] = address
+    elif plus == "x":
+        reg[mode] = add(address, reg["x"])
+        reg["carry"] = check_carry_add(address, reg["x"], 0)
+    elif plus == "y":
+        reg[mode] = add(address, reg["y"])
+        reg["carry"] = check_carry_add(address, reg["y"], 0)
 
     if inc: inc_pc(reg)
 
-def adc_fetch_absolute_high(reg, memory, step, inc):
+def adc_fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
     print_registers(f"{step}. Fetching absolute page high address", 50, reg)
     cycle()
-    reg["dirh"] = memory[get_pc(reg)]
 
+    if plus == "":
+        reg[mode] = address
+    elif (plus == "x" or plus == "y") and reg["carry"] == 1:
+        reg[mode] = add(address, reg["carry"])
+        
     if inc: inc_pc(reg)
 
-def adc_execute(reg, operand, step, inc):
+def adc_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing ADC", 50, reg)
+    print()
     cycle()
 
     a = reg["a"]

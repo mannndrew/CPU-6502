@@ -54,10 +54,10 @@ def add(a, b):
     return (a + b) & 0xFF
 
 def get_pc(reg):
-    return reg["pch"] << 8 | reg["pcl"]
+    return (reg["pch"] << 8) | reg["pcl"]
 
 def get_dir(reg):
-    return reg["dirh"] << 8 | reg["dirl"]
+    return (reg["dirh"] << 8) | reg["dirl"]
 
 ########################################################### Flag Functions ####################################################
 
