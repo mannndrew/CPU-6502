@@ -77,14 +77,14 @@ reg = {
     "x": 0x01,
     "y": 0x02,
     "sp": 0xFF,
-    "a": 0x00,
+    "a": 0x01,
     "pch": 0x00,
     "pcl": 0x00,
     "indirh": 0x00,
     "indirl": 0x00,
     "dirh": 0x00,
     "dirl": 0x00,
-    "flags": 0x00,
+    "flags": 0x01,
     "inst": 0x00,
     "data": 0x00,
     "carry": 0x00
@@ -701,8 +701,8 @@ while True:
             # ADC a, x: 4 cycles
             print(f"---ADC a, x Instruction at address {hex(address)}---")
             adc_fetch_instruction(reg, step=1, inc=True)
-            adc_fetch_absolute_low(reg, memory, step=2, plus="x", inc=True)
-            adc_fetch_absolute_high(reg, memory, step=3, plus="x", inc=True)
+            adc_fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            adc_fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
             adc_execute(reg, memory[get_dir(reg)], step=4)
 
         case 0x7E:
