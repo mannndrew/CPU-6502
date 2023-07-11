@@ -87,7 +87,8 @@ reg = {
     "flags": 0x01,
     "inst": 0x00,
     "data": 0x00,
-    "carry": 0x00
+    "carry": 0x00,
+    "result": 0x00
 }
 
 print(f"Beginning simulation...\n")
@@ -241,34 +242,10 @@ while True:
         case 0x06:
             # ASL zp: 4 cycles
             print(f"---ASL zp Instruction at address {hex(address)}---")
-            
-            # Fetch instruction: 1 cycle
-            print_registers("1. Fetching instruction ASL", 50, reg)
-            cycle()
-            reg = inc_pc(reg)
-
-            # Fetch operand: 1 cycle
-            print_registers("2. Fetching operand", 50, reg)
-            cycle()
-            reg["dirl"] = memory[reg["pcl"]]
-            reg = inc_pc(reg)
-
-            # Execute instruction: 1 cycle
-            print_registers("3. Executing instruction", 50, reg)
-            cycle()
-            tmp = memory[reg["dirl"]]
-            reg["data"] = (memory[reg["dirl"]] << 1) & 0b11111110
-            if (tmp & 0b01000000 != 0): reg["flags"] |= 0b10000000
-            if (tmp & 0b01111111 == 0): reg["flags"] |= 0b00000010
-            if (tmp & 0b10000000 != 0): reg["flags"] |= 0b00000001
-            
-            # Store data: 1 cycle
-            print_registers("4. Storing result", 50, reg)
-            cycle()
-            memory[reg["dirl"]] = reg["data"]
-
-            # Print newspace
-            print()
+            fetch_instruction(reg, step=1, name="ASL", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            asl_execute(reg, memory[reg["dirl"]], step=3, mode="result")
+            store(reg, memory, reg["dirl"], step=4)
 
         case 0x07:
             # RMB0 zp: ? cycles
@@ -282,10 +259,18 @@ while True:
             # ORA #: ? cycles
             print(f"---ORA # Instruction at address {hex(address)}---")
             pass
+
         case 0x0A:
-            # ASL A: ? cycles
+            # ASL A: 2 cycles
             print(f"---ASL A Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="ASL", inc=True)
+            asl_execute(reg, reg["a"], step=2, mode="a")
+
+            # fetch_instruction(reg, step=1, name="AND", inc=True)
+            # fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            # fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            # and_execute(reg, memory[get_dir(reg)], step=4)
+
         case 0x0C:
             # TSB a: ? cycles
             print(f"---TSB a Instruction at address {hex(address)}---")
@@ -294,10 +279,16 @@ while True:
             # ORA a: ? cycles
             print(f"---ORA a Instruction at address {hex(address)}---")
             pass
+
         case 0x0E:
-            # ASL a: ? cycles
+            # ASL a: 5 cycles
             print(f"---ASL a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="ASL", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            asl_execute(reg, memory[get_dir(reg)], step=4, mode="result")
+            store(reg, memory, get_dir(reg), step=5)
+
         case 0x0F:
             # BBR0 r: ? cycles
             print(f"---BBR0 r Instruction at address {hex(address)}---")
@@ -322,10 +313,15 @@ while True:
             # ORA zp, x: ? cycles
             print(f"---ORA zp, x Instruction at address {hex(address)}---")
             pass
+
         case 0x16:
-            # ASL zp, x: ? cycles
+            # ASL zp, x: 4 cycles
             print(f"---ASL zp, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="ASL", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            asl_execute(reg, memory[reg["dirl"]], step=3, mode="result")
+            store(reg, memory, reg["dirl"], step=4)
+
         case 0x17:
             # RMB1 zp: ? cycles
             print(f"---RMB1 zp Instruction at address {hex(address)}---")
@@ -350,10 +346,16 @@ while True:
             # ORA a, x: ? cycles
             print(f"---ORA a, x Instruction at address {hex(address)}---")
             pass
+
         case 0x1E:
-            # ASL a, x: ? cycles
+            # ASL a, x: 5 cycles
             print(f"---ASL a, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="ASL", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="y", inc=True)
+            asl_execute(reg, memory[get_dir(reg)], step=4, mode="result")
+            store(reg, memory, get_dir(reg), step=5)
+
         case 0x1F:
             # BBR1 r: ? cycles
             print(f"---BBR1 r Instruction at address {hex(address)}---")

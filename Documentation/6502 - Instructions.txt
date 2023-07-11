@@ -46,9 +46,9 @@
 3. ASL Instruction - Arithmetic Shift Memory or Accumulator one bit Left
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               ASL $1234                          0E    3     ?
+#1   Absolute                               a               ASL $1234                          0E    3     5
 #3   Absolute Indexed with X                a, x            ASL $1234, X                       1E    3     ?
-#6   Accumulator                            A               ASL A                              0A    1     ?
+#6   Accumulator                            A               ASL A                              0A    1     2
 #11  Zero Page                              zp              ASL $12                            06    2     ?
 #13  Zero Page Indexed with X               zp, x           ASL $12, X                         16    2     ?
 

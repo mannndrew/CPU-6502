@@ -26,10 +26,10 @@ def fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
         reg[mode] = address
     elif plus == "x":
         reg[mode] = add(address, reg["x"])
-        reg["carry"] = check_carry_add(address, reg["x"], 0)
+        reg["carry"] = check_carry(address + reg["x"])
     elif plus == "y":
         reg[mode] = add(address, reg["y"])
-        reg["carry"] = check_carry_add(address, reg["y"], 0)
+        reg["carry"] = check_carry(address + reg["y"])
 
     if inc: inc_pc(reg)
 
@@ -44,6 +44,12 @@ def fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
         
     if inc: inc_pc(reg)
 
+def store(reg, memory, address, step, inc=False):
+    print_registers(f"{step}. Storing value", 50, reg)
+    cycle()
+
+    memory[address] = reg["result"]
+
 def adc_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing ADC", 50, reg)
     print()
@@ -52,15 +58,15 @@ def adc_execute(reg, operand, step, inc=False):
     a = reg["a"]
     b = operand
     c = reg["flags"] & 0b00000001
-    result = (a + b + c) & 0b11111111
-    reg["a"] = result
+    result = (a + b + c)
+    reg["a"] = result & 0b11111111
     if check_negative(result):
         reg["flags"] |= 0b10000000
     if check_overflow_add(a, b, c):
         reg["flags"] |= 0b01000000
     if check_zero(result):
         reg["flags"] |= 0b00000010
-    if check_carry_add(a, b, c):
+    if check_carry(result):
         reg["flags"] |= 0b00000001
     
     if inc: inc_pc(reg)
@@ -78,5 +84,21 @@ def and_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b10000000
     if check_zero(result):
         reg["flags"] |= 0b00000010
+    
+    if inc: inc_pc(reg)
+
+def asl_execute(reg, operand, step, mode, inc=False):
+    print_registers(f"{step}. Executing ASL", 50, reg)
+    print()
+    cycle()
+
+    result = operand << 1
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(operand):
+        reg["flags"] |= 0b00000001
     
     if inc: inc_pc(reg)

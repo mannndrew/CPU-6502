@@ -105,7 +105,7 @@ def check_zero(result):
     if (result & 0b11111111 == 0): return True
     else: return False
             
-def check_carry_add(a, b, cin):
-    c7 = (a + b + cin) >> 8
+def check_carry(result):
+    c7 = result >> 8
     if (c7 == 1): return True
     else: return False
