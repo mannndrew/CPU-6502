@@ -845,9 +845,12 @@ while True:
             branch(reg, step=3)
 
         case 0x90:
-            # BCC r: ? cycles
+            # BCC r: 2/3 cycles
             print(f"---BCC r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BCC", inc=True)
+            check_branch(reg, memory, step=2, check=(not get_carry(reg)), inc=True)
+            branch(reg, step=3)
+
         case 0x91:
             # STA (zp), y: ? cycles
             print(f"---STA (zp), y Instruction at address {hex(address)}---")
@@ -965,9 +968,12 @@ while True:
             branch(reg, step=3)
 
         case 0xB0:
-            # BCS r: ? cycles
+            # BCS r: 2/3 cycles
             print(f"---BCS r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BCS", inc=True)
+            check_branch(reg, memory, step=2, check=(get_carry(reg)), inc=True)
+            branch(reg, step=3)
+
         case 0xB1:
             # LDA (zp), y: ? cycles
             print(f"---LDA (zp), y Instruction at address {hex(address)}---")
@@ -1197,9 +1203,12 @@ while True:
             branch(reg, step=3)
 
         case 0xF0:
-            # BEQ r: ? cycles
+            # BEQ r: 2/3 cycles
             print(f"---BEQ r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BCS", inc=True)
+            check_branch(reg, memory, step=2, check=(get_zero(reg)), inc=True)
+            branch(reg, step=3)
+
         case 0xF1:
             # SBC (zp), y: ? cycles
             print(f"---SBC (zp), y Instruction at address {hex(address)}---")

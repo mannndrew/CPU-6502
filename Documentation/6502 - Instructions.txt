@@ -79,7 +79,7 @@
 6. BCC Inustruction - Branch on Carry Clear (Pc=0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BCC {Branch Name}                  90    2     ?
+#9   Program Counter Relative               r               BCC {Branch Name}                  90    2     2/3
 
 7. BCS Instruction - Branch on Carry Set (Pc=1)
 
