@@ -84,41 +84,41 @@
 7. BCS Instruction - Branch on Carry Set (Pc=1)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BCS {Branch Name}                  B0    2     ?
+#9   Program Counter Relative               r               BCS {Branch Name}                  B0    2     2/3
 
 8. BEQ Instruction - Branch if Equal (Pz=1)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BEQ {Branch Name}                  F0    2     ?
+#9   Program Counter Relative               r               BEQ {Branch Name}                  F0    2     2/3
 
 9. BIT Instruction - Bit Test
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               BIT $1234                          2C    3     ?
-#3   Absolute Indexed with X                a, x            BIT $1234, X                       3C    3     ?
-#7   Immediate Addressing                   #               BIT #$12                           89    2     ?
-#11  Zero Page                              zp              BIT $12                            24    2     ?
-#13  Zero Page Indexed with X               zp, x           BIT $12, X                         34    2     ?
+#1   Absolute                               a               BIT $1234                          2C    3     4
+#3   Absolute Indexed with X                a, x            BIT $1234, X                       3C    3     4
+#7   Immediate Addressing                   #               BIT #$12                           89    2     2
+#11  Zero Page                              zp              BIT $12                            24    2     3
+#13  Zero Page Indexed with X               zp, x           BIT $12, X                         34    2     3
 
 10. BMI Instruction - Branch if result Minus (Pn=1)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BMI {Branch Name}                  30    2     ?
+#9   Program Counter Relative               r               BMI {Branch Name}                  30    2     2/3
 
 11. BNE Instruction - Branch if Not Equal (Pz=0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BNE {Branch Name}                  D0    2     ?
+#9   Program Counter Relative               r               BNE {Branch Name}                  D0    2     2/3
 
 12. BPL Instruction - Branch if result Plus (Pn=0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BPL {Branch Name}                  10    2     ?
+#9   Program Counter Relative               r               BPL {Branch Name}                  10    2     2/3
 
 13. BRA Instruction - Branch Always
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BRA {Branch Name}                  80    2     ?
+#9   Program Counter Relative               r               BRA {Branch Name}                  80    2     3
 
 14. BRK Instruction - Break Instruction
 

@@ -126,3 +126,20 @@ def asl_execute(reg, operand, step, mode, inc=False):
         reg["flags"] |= 0b00000001
     
     if inc: inc_pc(reg)
+
+def bit_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing BIT", 50, reg)
+    print()
+    cycle()
+
+    a = reg["a"]
+    b = operand
+    result = a & b
+    if get_bit(result, 7) == 1:
+        reg["flags"] |= 0b10000000
+    if get_bit(result, 6) == 1:
+        reg["flags"] |= 0b01000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    
+    if inc: inc_pc(reg)

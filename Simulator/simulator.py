@@ -297,9 +297,12 @@ while True:
             branch(reg, step=3)
 
         case 0x10:
-            # BPL r: ? cycles
+            # BPL r: 2/3 cycles
             print(f"---BPL r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BPL", inc=True)
+            check_branch(reg, memory, step=2, check=(not get_negative(reg)), inc=True)
+            branch(reg, step=3)
+
         case 0x11:
             # ORA (zp), y: ? cycles
             print(f"---ORA (zp), y Instruction at address {hex(address)}---")
@@ -381,9 +384,11 @@ while True:
             and_execute(reg, memory[get_dir(reg)], step=5)
 
         case 0x24:
-            # BIT zp: ? cycles
+            # BIT zp: 3 cycles
             print(f"---BIT zp Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BIT", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            bit_execute(reg, memory[reg["dirl"]], step=3)
 
         case 0x25:
             # AND zp: 3 cycles
@@ -415,10 +420,14 @@ while True:
             # ROL A: ? cycles
             print(f"---ROL A Instruction at address {hex(address)}---")
             pass
+
         case 0x2C:
-            # BIT a: ? cycles
+            # BIT a: 4 cycles
             print(f"---BIT a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BIT", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            bit_execute(reg, memory[get_dir(reg)], step=4)
 
         case 0x2D:
             # AND a: 4 cycles
@@ -441,9 +450,11 @@ while True:
             branch(reg, step=3)
 
         case 0x30:
-            # BMI r: ? cycles
+            # BMI r: 2/3 cycles
             print(f"---BMI r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BMI", inc=True)
+            check_branch(reg, memory, step=2, check=(get_negative(reg)), inc=True)
+            branch(reg, step=3)
 
         case 0x31:
             # AND (zp), y: 5 cycles
@@ -464,9 +475,11 @@ while True:
             and_execute(reg, memory[get_dir(reg)], step=5)
 
         case 0x34:
-            # BIT zp, x: ? cycles
+            # BIT zp, x: 3 cycles
             print(f"---BIT zp, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BIT", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            bit_execute(reg, memory[reg["dirl"]], step=3)
 
         case 0x35:
             # AND zp, x: 3 cycles
@@ -500,10 +513,14 @@ while True:
             # DEC A: ? cycles
             print(f"---DEC A Instruction at address {hex(address)}---")
             pass
+
         case 0x3C:
-            # BIT a, x: ? cycles
+            # BIT a, x: 4 cycles
             print(f"---BIT a, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BIT", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
+            bit_execute(reg, memory[get_dir(reg)], step=4)
 
         case 0x3D:
             # AND a, x: 4 cycles
@@ -789,9 +806,12 @@ while True:
             branch(reg, step=3)
 
         case 0x80:
-            # BRA r: ? cycles
+            # BRA r: 3 cycles
             print(f"---BRA r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BRA", inc=True)
+            check_branch(reg, memory, step=2, check=1, inc=True)
+            branch(reg, step=3)
+
         case 0x81:
             # STA (zp, x): ? cycles
             print(f"---STA (zp, x) Instruction at address {hex(address)}---")
@@ -816,10 +836,13 @@ while True:
             # DEY i: ? cycles
             print(f"---DEY i Instruction at address {hex(address)}---")
             pass
+
         case 0x89:
-            # BIT #: ? cycles
+            # BIT #: 2 cycles
             print(f"---BIT # Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BIT", inc=True)
+            bit_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+
         case 0x8A:
             # TXA i: ? cycles
             print(f"---TXA i Instruction at address {hex(address)}---")
@@ -1091,9 +1114,12 @@ while True:
             branch(reg, step=3)
 
         case 0xD0:
-            # BNE r: ? cycles
+            # BNE r: 2/3 cycles
             print(f"---BNE r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BNE", inc=True)
+            check_branch(reg, memory, step=2, check=(not get_zero(reg)), inc=True)
+            branch(reg, step=3)
+
         case 0xD1:
             # CMP (zp), y: ? cycles
             print(f"---CMP (zp), y Instruction at address {hex(address)}---")
