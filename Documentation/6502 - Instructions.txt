@@ -55,26 +55,26 @@
 4. BBR Instruction - Branch on Bit Reset of Accumulator (0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BBR{0} {Branch Name}               0F    2     ?
-#9   Program Counter Relative               r               BBR{1} {Branch Name}               1F    2     ?
-#9   Program Counter Relative               r               BBR{2} {Branch Name}               2F    2     ?
-#9   Program Counter Relative               r               BBR{3} {Branch Name}               3F    2     ?
-#9   Program Counter Relative               r               BBR{4} {Branch Name}               4F    2     ?
-#9   Program Counter Relative               r               BBR{5} {Branch Name}               5F    2     ?
-#9   Program Counter Relative               r               BBR{6} {Branch Name}               6F    2     ?
-#9   Program Counter Relative               r               BBR{7} {Branch Name}               7F    2     ?
+#9   Program Counter Relative               r               BBR{0} {Branch Name}               0F    2     2/3
+#9   Program Counter Relative               r               BBR{1} {Branch Name}               1F    2     2/3
+#9   Program Counter Relative               r               BBR{2} {Branch Name}               2F    2     2/3
+#9   Program Counter Relative               r               BBR{3} {Branch Name}               3F    2     2/3
+#9   Program Counter Relative               r               BBR{4} {Branch Name}               4F    2     2/3
+#9   Program Counter Relative               r               BBR{5} {Branch Name}               5F    2     2/3
+#9   Program Counter Relative               r               BBR{6} {Branch Name}               6F    2     2/3
+#9   Program Counter Relative               r               BBR{7} {Branch Name}               7F    2     2/3
 
 5. BBS Instruction - Branch on Bit Set (1)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BBS{0} {Branch Name}               8F    2     ?
-#9   Program Counter Relative               r               BBS{1} {Branch Name}               9F    2     ?
-#9   Program Counter Relative               r               BBS{2} {Branch Name}               AF    2     ?
-#9   Program Counter Relative               r               BBS{3} {Branch Name}               BF    2     ?
-#9   Program Counter Relative               r               BBS{4} {Branch Name}               CF    2     ?
-#9   Program Counter Relative               r               BBS{5} {Branch Name}               DF    2     ?
-#9   Program Counter Relative               r               BBS{6} {Branch Name}               EF    2     ?
-#9   Program Counter Relative               r               BBS{7} {Branch Name}               FF    2     ?
+#9   Program Counter Relative               r               BBS{0} {Branch Name}               8F    2     2/3
+#9   Program Counter Relative               r               BBS{1} {Branch Name}               9F    2     2/3
+#9   Program Counter Relative               r               BBS{2} {Branch Name}               AF    2     2/3
+#9   Program Counter Relative               r               BBS{3} {Branch Name}               BF    2     2/3
+#9   Program Counter Relative               r               BBS{4} {Branch Name}               CF    2     2/3
+#9   Program Counter Relative               r               BBS{5} {Branch Name}               DF    2     2/3
+#9   Program Counter Relative               r               BBS{6} {Branch Name}               EF    2     2/3
+#9   Program Counter Relative               r               BBS{7} {Branch Name}               FF    2     2/3
 
 6. BCC Inustruction - Branch on Carry Clear (Pc=0)
 

@@ -59,6 +59,9 @@ def get_pc(reg):
 def get_dir(reg):
     return (reg["dirh"] << 8) | reg["dirl"]
 
+def get_bit(value, bit):
+    return (value >> bit) & 0x01
+
 ########################################################### Flag Functions ####################################################
 
 # Getters

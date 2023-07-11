@@ -50,6 +50,30 @@ def store(reg, memory, address, step, inc=False):
 
     memory[address] = reg["result"]
 
+def check_branch(reg, memory, step, check, inc=False):
+    print_registers(f"{step}. Checking branch", 50, reg)
+    cycle()
+
+    if check == 1: 
+        reg["branch"] = 1
+        reg["result"] = memory[get_pc(reg)]
+
+    else: 
+        reg["branch"] = 0
+        print()
+
+    if inc: inc_pc(reg)
+
+def branch(reg, step):
+    if reg["branch"] == 0:
+        return
+
+    print_registers(f"{step}. Branching", 50, reg)
+    cycle()
+    print()
+
+    reg["pcl"] = add(reg["pcl"], reg["result"])
+
 def adc_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing ADC", 50, reg)
     print()
