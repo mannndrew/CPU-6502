@@ -123,50 +123,50 @@
 14. BRK Instruction - Break Instruction
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#10  Stack                                  s               BRK                                00    1     ?
+#10  Stack                                  s               BRK                                00    1     7
 
 15. BVC Instruction - Branch on Overflow Clear (Pv=0)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BVC {Branch Name}                  50    2     ?
+#9   Program Counter Relative               r               BVC {Branch Name}                  50    2     2/3
 
 16. BVS Instruction - Branch on Overflow Set (Pv=1)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#9   Program Counter Relative               r               BVS {Branch Name}                  70    2     ?
+#9   Program Counter Relative               r               BVS {Branch Name}                  70    2     2/3
 
 17. CLC Instruction - Cleary Carry Flag
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               CLC                                18    1     ?
+#8   Implied Addressing                     i               CLC                                18    1     2
 
 18. CLD Instruction - Clear Decimal Mode
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               CLD                                D8    1     ?
+#8   Implied Addressing                     i               CLD                                D8    1     2
 
 19. CLI Instruction - Clear Interrupt Disable Bit
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               CLI                                58    1     ?
+#8   Implied Addressing                     i               CLI                                58    1     2
 
 20. CLV Instruction - Clear Overflow Flag
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               CLV                                B8    1     ?
+#8   Implied Addressing                     i               CLV                                B8    1     2
 
 21. CMP Instruction - Compare Memory and Accumulator
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               CMP $1234                          CD    3     ?
-#3   Absolute Indexed with X                a, x            CMP $1234, X                       DD    3     ?
-#4   Absolute Indexed with Y                a, y            CMP $1234, Y                       D9    3     ?
-#7   Immediate Addressing                   #               CMP #$12                           C9    2     ?
-#11  Zero Page                              zp              CMP $12                            C5    2     ?
-#12  Zero Page Indexed Indirect            (zp, x)          CMP ($12, X)                       C1    2     ?
-#13  Zero Page Indexed with X               zp, x           CMP $12, X                         D5    2     ?
-#15  Zero Page Indirect                    (zp)             CMP ($12)                          D2    2     ?
-#16  Zero Page Indirect with Indexed       (zp), y          CMP ($12), Y                       D1    2     ?
+#1   Absolute                               a               CMP $1234                          CD    3     4
+#3   Absolute Indexed with X                a, x            CMP $1234, X                       DD    3     4
+#4   Absolute Indexed with Y                a, y            CMP $1234, Y                       D9    3     4
+#7   Immediate Addressing                   #               CMP #$12                           C9    2     2
+#11  Zero Page                              zp              CMP $12                            C5    2     3
+#12  Zero Page Indexed Indirect            (zp, x)          CMP ($12, X)                       C1    2     5
+#13  Zero Page Indexed with X               zp, x           CMP $12, X                         D5    2     3
+#15  Zero Page Indirect                    (zp)             CMP ($12)                          D2    2     5
+#16  Zero Page Indirect with Indexed       (zp), y          CMP ($12), Y                       D1    2     5
 
 22. CPX Instruction - Compare Memory and X Register
 

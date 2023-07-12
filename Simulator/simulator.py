@@ -104,47 +104,13 @@ while True:
         case 0x00:
             # BRK: 7 cycles
             print(f"---BRK s Instruction at address {hex(address)}---")
-
-            # Fetch instruction: 1 cycle
-            print_registers("1. Fetching instruction BRK", 50, reg)
-            cycle()
-            reg = inc_pc(reg)
-
-            # Push PCH to stack
-            print_registers("2. Pushing PCH to stack", 50, reg)
-            cycle()
-            memory[reg["sp"]] = reg["pch"]
-            reg["sp"] -= 0x01
-
-            # Push PCL to stack
-            print_registers("3. Pushing PCL to stack", 50, reg)
-            cycle()
-            memory[reg["sp"]] = reg["pcl"]
-            reg["sp"] -= 0x01
-
-            # Push flags to stack with break set
-            print_registers("4. Pushing flags to stack with break set", 50, reg)
-            cycle()
-            reg["flags"] |= 0b00010000
-            memory[reg["sp"]] = reg["flags"]
-            reg["sp"] -= 0x01
-
-            # Set interrupt disable flag
-            print_registers("5. Setting interrupt disable flag", 50, reg)
-            cycle()
-            reg["flags"] |= 0b00000100
-
-            # Load interrupt vector low byte
-            print_registers("6. Loading interrupt vector low byte", 50, reg)
-            cycle()
-            reg["pcl"] = memory[nonmaskable_interupt_vector_low]
-
-            # Load interrupt vector high byte
-            print_registers(f"7. Loading interrupt vector high byte", 50, reg)
-            cycle()
-            reg["pch"] = memory[nonmaskable_interupt_vector_high]
-
-            # Print newspace
+            fetch_instruction(reg, step=1, name="BRK", inc=True)
+            push(reg, memory, step=2, mode="pch")
+            push(reg, memory, step=3, mode="pcl")
+            push(reg, memory, step=4, mode="flags")
+            set_flags(reg, flags=0b00010100, step=5)
+            store_reg(reg, "pcl", memory[nonmaskable_interupt_vector_low], step=6)
+            store_reg(reg, "pch", memory[nonmaskable_interupt_vector_low], step=7)
             print()
 
         case 0x01:
@@ -245,7 +211,8 @@ while True:
             fetch_instruction(reg, step=1, name="ASL", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             asl_execute(reg, memory[reg["dirl"]], step=3, mode="result")
-            store(reg, memory, reg["dirl"], step=4)
+            store_mem(reg, memory, reg["dirl"], reg["result"], step=4)
+            print()
 
         case 0x07:
             # RMB0 zp: ? cycles
@@ -265,11 +232,7 @@ while True:
             print(f"---ASL A Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="ASL", inc=True)
             asl_execute(reg, reg["a"], step=2, mode="a")
-
-            # fetch_instruction(reg, step=1, name="AND", inc=True)
-            # fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
-            # fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
-            # and_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x0C:
             # TSB a: ? cycles
@@ -287,7 +250,8 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
             asl_execute(reg, memory[get_dir(reg)], step=4, mode="result")
-            store(reg, memory, get_dir(reg), step=5)
+            store_mem(reg, memory, get_dir(reg), reg["result"], step=5)
+            print()
 
         case 0x0F:
             # BBR0 r: 2/3 cycles
@@ -295,6 +259,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR0", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 0)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x10:
             # BPL r: 2/3 cycles
@@ -302,6 +267,7 @@ while True:
             fetch_instruction(reg, step=1, name="BPL", inc=True)
             check_branch(reg, memory, step=2, check=(not get_negative(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x11:
             # ORA (zp), y: ? cycles
@@ -326,16 +292,21 @@ while True:
             fetch_instruction(reg, step=1, name="ASL", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             asl_execute(reg, memory[reg["dirl"]], step=3, mode="result")
-            store(reg, memory, reg["dirl"], step=4)
+            store_mem(reg, memory, reg["dirl"], reg["result"], step=4)
+            print()
 
         case 0x17:
             # RMB1 zp: ? cycles
             print(f"---RMB1 zp Instruction at address {hex(address)}---")
             pass
+
         case 0x18:
-            # CLC i: ? cycles
+            # CLC i: 2 cycles
             print(f"---CLC i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CLC", inc=True)
+            clear_flags(reg, flags=0b00000001, step=2)
+            print()
+
         case 0x19:
             # ORA a, y: ? cycles
             print(f"---ORA a, y Instruction at address {hex(address)}---")
@@ -360,7 +331,8 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="y", inc=True)
             asl_execute(reg, memory[get_dir(reg)], step=4, mode="result")
-            store(reg, memory, get_dir(reg), step=5)
+            store_mem(reg, memory, get_dir(reg), reg["result"], step=5)
+            print()
 
         case 0x1F:
             # BBR1 r: 2/3 cycles
@@ -368,6 +340,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR1", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 1)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x20:
             # JSR a: ? cycles
@@ -382,6 +355,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             and_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x24:
             # BIT zp: 3 cycles
@@ -389,6 +363,7 @@ while True:
             fetch_instruction(reg, step=1, name="BIT", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             bit_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x25:
             # AND zp: 3 cycles
@@ -396,6 +371,7 @@ while True:
             fetch_instruction(reg, step=1, name="AND", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             and_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x26:
             # ROL zp: ? cycles
@@ -415,6 +391,7 @@ while True:
             print(f"---AND # Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="AND", inc=True)
             and_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
 
         case 0x2A:
             # ROL A: ? cycles
@@ -428,6 +405,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
             bit_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x2D:
             # AND a: 4 cycles
@@ -436,6 +414,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
             and_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x2E:
             # ROL a: ? cycles
@@ -448,6 +427,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR2", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 2)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x30:
             # BMI r: 2/3 cycles
@@ -455,6 +435,7 @@ while True:
             fetch_instruction(reg, step=1, name="BMI", inc=True)
             check_branch(reg, memory, step=2, check=(get_negative(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x31:
             # AND (zp), y: 5 cycles
@@ -464,6 +445,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, plus="y", mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, plus="y", mode="dirh")
             and_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x32:
             # AND (zp): 5 cycles
@@ -473,6 +455,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             and_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x34:
             # BIT zp, x: 3 cycles
@@ -480,6 +463,7 @@ while True:
             fetch_instruction(reg, step=1, name="BIT", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             bit_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x35:
             # AND zp, x: 3 cycles
@@ -487,6 +471,7 @@ while True:
             fetch_instruction(reg, step=1, name="AND", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             and_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x36:
             # ROL zp, x: ? cycles
@@ -508,6 +493,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="y", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="y", inc=True)
             and_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x3A:
             # DEC A: ? cycles
@@ -521,6 +507,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
             bit_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x3D:
             # AND a, x: 4 cycles
@@ -529,6 +516,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
             and_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x3E:
             # ROL a, x: ? cycles
@@ -541,6 +529,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR3", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 3)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x40:
             # RTI s: ? cycles
@@ -593,11 +582,16 @@ while True:
             fetch_instruction(reg, step=1, name="BBR4", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 4)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x50:
-            # BVC r: ? cycles
+            # BVC r: 2/3 cycles
             print(f"---BVC r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BVC", inc=True)
+            check_branch(reg, memory, step=2, check=(not get_overflow(reg)), inc=True)
+            branch(reg, step=3)
+            print()
+
         case 0x51:
             # EOR (zp), y: ? cycles
             print(f"---EOR (zp), y Instruction at address {hex(address)}---")
@@ -618,10 +612,14 @@ while True:
             # RMB5 zp: ? cycles
             print(f"---RMB5 zp Instruction at address {hex(address)}---")
             pass
+
         case 0x58:
-            # CLI i: ? cycles
+            # CLI i: 2 cycles
             print(f"---CLI i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CLI", inc=True)
+            clear_flags(reg, flags=0b00000100, step=2)
+            print()
+
         case 0x59:
             # EOR a, y: ? cycles
             print(f"---EOR a, y Instruction at address {hex(address)}---")
@@ -645,6 +643,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR5", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 5)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x60:
             # RTS s: ? cycles
@@ -659,6 +658,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             adc_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x64:
             # STZ zp: ? cycles
@@ -671,6 +671,7 @@ while True:
             fetch_instruction(reg, step=1, name="ADC", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             adc_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x66:
             # ROR zp: ? cycles
@@ -690,6 +691,7 @@ while True:
             print(f"---ADC # Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="ADC", inc=True)
             adc_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
             
         case 0x6A:
             # ROR A: ? cycles
@@ -707,6 +709,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
             adc_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x6E:
             # ROR a: ? cycles
@@ -719,11 +722,15 @@ while True:
             fetch_instruction(reg, step=1, name="BBR6", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 6)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x70:
-            # BVS r: ? cycles
+            # BVS r: 2/3 cycles
             print(f"---BVS r Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="BVS", inc=True)
+            check_branch(reg, memory, step=2, check=(get_overflow(reg)), inc=True)
+            branch(reg, step=3)
+            print()
 
         case 0x71:
             # ADC (zp), y: 5 cycles
@@ -733,6 +740,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, plus="y", mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, plus="y", mode="dirh")
             adc_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x72:
             # ADC (zp): 5 cycles
@@ -742,6 +750,7 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             adc_execute(reg, memory[get_dir(reg)], step=5)
+            print()
 
         case 0x74:
             # STZ zp, x: ? cycles
@@ -754,6 +763,7 @@ while True:
             fetch_instruction(reg, step=1, name="ADC", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             adc_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0x76:
             # ROR zp, x: ? cycles
@@ -775,6 +785,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="y", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="y", inc=True)
             adc_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x7A:
             # PLY s: ? cycles
@@ -792,6 +803,7 @@ while True:
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
             fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
             adc_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0x7E:
             # ROR a, x: ? cycles
@@ -804,6 +816,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBR7", inc=True)
             check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 7)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x80:
             # BRA r: 3 cycles
@@ -811,6 +824,7 @@ while True:
             fetch_instruction(reg, step=1, name="BRA", inc=True)
             check_branch(reg, memory, step=2, check=1, inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x81:
             # STA (zp, x): ? cycles
@@ -842,6 +856,7 @@ while True:
             print(f"---BIT # Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BIT", inc=True)
             bit_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
 
         case 0x8A:
             # TXA i: ? cycles
@@ -866,6 +881,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS0", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 0)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x90:
             # BCC r: 2/3 cycles
@@ -873,6 +889,7 @@ while True:
             fetch_instruction(reg, step=1, name="BCC", inc=True)
             check_branch(reg, memory, step=2, check=(not get_carry(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0x91:
             # STA (zp), y: ? cycles
@@ -929,6 +946,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS1", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 1)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xA0:
             # LDY #: ? cycles
@@ -989,6 +1007,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS2", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 2)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xB0:
             # BCS r: 2/3 cycles
@@ -996,6 +1015,7 @@ while True:
             fetch_instruction(reg, step=1, name="BCS", inc=True)
             check_branch(reg, memory, step=2, check=(get_carry(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xB1:
             # LDA (zp), y: ? cycles
@@ -1021,10 +1041,14 @@ while True:
             # SMB3 zp: ? cycles
             print(f"---SMB3 zp Instruction at address {hex(address)}---")
             pass
+
         case 0xB8:
-            # CLV i: ? cycles
+            # CLV i: 2 cycles
             print(f"---CLV i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CLV", inc=True)
+            clear_flags(reg, flags=0b01000000, step=2)
+            print()
+
         case 0xB9:
             # LDA a, y: ? cycles
             print(f"---LDA a, y Instruction at address {hex(address)}---")
@@ -1052,23 +1076,36 @@ while True:
             fetch_instruction(reg, step=1, name="BBS3", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 3)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xC0:
             # CPY #: ? cycles
             print(f"---CPY # Instruction at address {hex(address)}---")
             pass
+
         case 0xC1:
-            # CMP (zp, x): ? cycles
+            # CMP (zp, x): 5 cycles
             print(f"---CMP (zp, x) Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", plus="x", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
+            cmp_execute(reg, memory[get_dir(reg)], step=5)
+            print()
+
         case 0xC4:
             # CPY zp: ? cycles
             print(f"---CPY zp Instruction at address {hex(address)}---")
             pass
+
         case 0xC5:
-            # CMP zp: ? cycles
+            # CMP zp: 3 cycles
             print(f"---CMP zp Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            cmp_execute(reg, memory[reg["dirl"]], step=3)
+            print()
+
         case 0xC6:
             # DEC zp: ? cycles
             print(f"---DEC zp Instruction at address {hex(address)}---")
@@ -1081,10 +1118,14 @@ while True:
             # INY i: ? cycles
             print(f"---INY i Instruction at address {hex(address)}---")
             pass
+
         case 0xC9:
-            # CMP #: ? cycles
+            # CMP #: 2 cycles
             print(f"---CMP # Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            cmp_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
+
         case 0xCA:
             # DEX i: ? cycles
             print(f"---DEX i Instruction at address {hex(address)}---")
@@ -1097,10 +1138,16 @@ while True:
             # CPY a: ? cycles
             print(f"---CPY a Instruction at address {hex(address)}---")
             pass
+
         case 0xCD:
-            # CMP a: ? cycles
+            # CMP a: 4 cycles
             print(f"---CMP a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            cmp_execute(reg, memory[get_dir(reg)], step=4)
+            print()
+
         case 0xCE:
             # DEC a: ? cycles
             print(f"---DEC a Instruction at address {hex(address)}---")
@@ -1112,6 +1159,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS4", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 4)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xD0:
             # BNE r: 2/3 cycles
@@ -1119,19 +1167,36 @@ while True:
             fetch_instruction(reg, step=1, name="BNE", inc=True)
             check_branch(reg, memory, step=2, check=(not get_zero(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xD1:
-            # CMP (zp), y: ? cycles
+            # CMP (zp), y: 5 cycles
             print(f"---CMP (zp), y Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", plus="y")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh", plus="y")
+            cmp_execute(reg, memory[get_dir(reg)], step=5)
+            print()
+        
         case 0xD2:
-            # CMP (zp): ? cycles
+            # CMP (zp): 5 cycles
             print(f"---CMP (zp) Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
+            cmp_execute(reg, memory[get_dir(reg)], step=5)
+            print()
+
         case 0xD5:
-            # CMP zp, x: ? cycles
+            # CMP zp, x: 3 cycles
             print(f"---CMP zp, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            cmp_execute(reg, memory[reg["dirl"]], step=3)
+            print()
+
         case 0xD6:
             # DEC zp, x: ? cycles
             print(f"---DEC zp, x Instruction at address {hex(address)}---")
@@ -1140,14 +1205,23 @@ while True:
             # SMB5 zp: ? cycles
             print(f"---SMB5 zp Instruction at address {hex(address)}---")
             pass
+
         case 0xD8:
-            # CLD i: ? cycles
+            # CLD i: 2 cycles
             print(f"---CLD i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CLD", inc=True)
+            clear_flags(reg, flags=0b00001000, step=2)
+            print()
+
         case 0xD9:
-            # CMP a, y: ? cycles
+            # CMP a, y: 4 cycles
             print(f"---CMP a, y Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="y", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="y", inc=True)
+            cmp_execute(reg, memory[get_dir(reg)], step=4)
+            print()
+
         case 0xDA:
             # PHX s: ? cycles
             print(f"---PHX s Instruction at address {hex(address)}---")
@@ -1156,10 +1230,16 @@ while True:
             # STP i: ? cycles
             print(f"---STP i Instruction at address {hex(address)}---")
             pass
+
         case 0xDD:
-            # CMP a, x: ? cycles
+            # CMP a, x: 4 cycles
             print(f"---CMP a, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CMP", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
+            cmp_execute(reg, memory[get_dir(reg)], step=4)
+            print()
+
         case 0xDE:
             # DEC a, x: ? cycles
             print(f"---DEC a, x Instruction at address {hex(address)}---")
@@ -1171,6 +1251,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS5", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 5)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xE0:
             # CPX #: ? cycles
@@ -1227,6 +1308,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS6", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 6)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xF0:
             # BEQ r: 2/3 cycles
@@ -1234,6 +1316,7 @@ while True:
             fetch_instruction(reg, step=1, name="BCS", inc=True)
             check_branch(reg, memory, step=2, check=(get_zero(reg)), inc=True)
             branch(reg, step=3)
+            print()
 
         case 0xF1:
             # SBC (zp), y: ? cycles
@@ -1282,6 +1365,7 @@ while True:
             fetch_instruction(reg, step=1, name="BBS7", inc=True)
             check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 7)), inc=True)
             branch(reg, step=3)
+            print()
 
 
 
