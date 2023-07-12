@@ -1079,9 +1079,11 @@ while True:
             print()
 
         case 0xC0:
-            # CPY #: ? cycles
+            # CPY #: 2 cycles
             print(f"---CPY # Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPY", inc=True)
+            cpy_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
 
         case 0xC1:
             # CMP (zp, x): 5 cycles
@@ -1094,9 +1096,12 @@ while True:
             print()
 
         case 0xC4:
-            # CPY zp: ? cycles
+            # CPY zp: 3 cycles
             print(f"---CPY zp Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPY", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            cpy_execute(reg, memory[reg["dirl"]], step=3)
+            print()
 
         case 0xC5:
             # CMP zp: 3 cycles
@@ -1134,10 +1139,15 @@ while True:
             # WAI i: ? cycles
             print(f"---WAI i Instruction at address {hex(address)}---")
             pass
+
         case 0xCC:
-            # CPY a: ? cycles
+            # CPY a: 4 cycles
             print(f"---CPY a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPY", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            cpy_execute(reg, memory[get_dir(reg)], step=4)
+            print()
 
         case 0xCD:
             # CMP a: 4 cycles
@@ -1254,17 +1264,25 @@ while True:
             print()
 
         case 0xE0:
-            # CPX #: ? cycles
+            # CPX #: 2 cycles
             print(f"---CPX # Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPX", inc=True)
+            cpx_execute(reg, memory[get_pc(reg)], step=2, inc=True)
+            print()
+
         case 0xE1:
             # SBC (zp, x): ? cycles
             print(f"---SBC (zp, x) Instruction at address {hex(address)}---")
             pass
+
         case 0xE4:
-            # CPX zp: ? cycles
+            # CPX zp: 3 cycles
             print(f"---CPX zp Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPX", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            cpx_execute(reg, memory[reg["dirl"]], step=3)
+            print()
+
         case 0xE5:
             # SBC zp: ? cycles
             print(f"---SBC zp Instruction at address {hex(address)}---")
@@ -1289,10 +1307,16 @@ while True:
             # NOP i: ? cycles
             print(f"---NOP i Instruction at address {hex(address)}---")
             pass
+
         case 0xEC:
-            # CPX a: ? cycles
+            # CPX a: 4 cycles
             print(f"---CPX a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="CPX", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            cpx_execute(reg, memory[get_dir(reg)], step=4)
+            print()
+
         case 0xED:
             # SBC a: ? cycles
             print(f"---SBC a Instruction at address {hex(address)}---")

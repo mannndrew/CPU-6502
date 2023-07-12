@@ -157,6 +157,36 @@ def cmp_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000001
     if inc: inc_pc(reg)
 
+def cpx_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing CMP", 50, reg)
+    cycle()
+
+    a = reg["x"]
+    b = operand
+    result = a - b
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(result):
+        reg["flags"] |= 0b00000001
+    if inc: inc_pc(reg)
+
+def cpy_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing CMP", 50, reg)
+    cycle()
+
+    a = reg["y"]
+    b = operand
+    result = a - b
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(result):
+        reg["flags"] |= 0b00000001
+    if inc: inc_pc(reg)
+
 def store_mem(reg, memory, address, data, step):
     print_registers(f"{step}. Storing value in mem", 50, reg)
     cycle()

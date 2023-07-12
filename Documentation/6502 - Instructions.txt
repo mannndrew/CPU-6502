@@ -171,16 +171,16 @@
 22. CPX Instruction - Compare Memory and X Register
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               CPX $1234                          EC    3     ?
-#7   Immediate Addressing                   #               CPX #$12                           E0    2     ?
-#11  Zero Page                              zp              CPX $12                            E4    2     ?
+#1   Absolute                               a               CPX $1234                          EC    3     4
+#7   Immediate Addressing                   #               CPX #$12                           E0    2     2
+#11  Zero Page                              zp              CPX $12                            E4    2     3
 
 23. CPY Instruction - Compare Memory and Y Register
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               CPY $1234                          CC    3     ?
-#7   Immediate Addressing                   #               CPY #$12                           C0    2     ?
-#11  Zero Page                              zp              CPY $12                            C4    2     ?
+#1   Absolute                               a               CPY $1234                          CC    3     4
+#7   Immediate Addressing                   #               CPY #$12                           C0    2     2
+#11  Zero Page                              zp              CPY $12                            C4    2     3
 
 24. DEC Instruction - Decrement Memory or Accumulator by One
 
