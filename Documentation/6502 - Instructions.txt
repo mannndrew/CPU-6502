@@ -185,21 +185,21 @@
 24. DEC Instruction - Decrement Memory or Accumulator by One
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               DEC $1234                          CE    3     ?
-#3   Absolute Indexed with X                a, x            DEC $1234, X                       DE    3     ?
-#6   Accumulator                            A               DEC A                              3A    1     ?
-#11  Zero Page                              zp              DEC $12                            C6    2     ?
-#13  Zero Page Indexed with X               zp, x           DEC $12, X                         D6    2     ?
+#1   Absolute                               a               DEC $1234                          CE    3     5
+#3   Absolute Indexed with X                a, x            DEC $1234, X                       DE    3     5
+#6   Accumulator                            A               DEC A                              3A    1     2
+#11  Zero Page                              zp              DEC $12                            C6    2     4
+#13  Zero Page Indexed with X               zp, x           DEC $12, X                         D6    2     4
 
 25. DEX Instruction - Decrement X by one
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               DEX                                CA    1     ?
+#8   Implied Addressing                     i               DEX                                CA    1     2
 
 26. DEY Instruction - Decrement Y by one
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#8   Implied Addressing                     i               DEY                                88    1     ?
+#8   Implied Addressing                     i               DEY                                88    1     2
 
 27. EOR Instruction - XOR Memory with Accumulator
 

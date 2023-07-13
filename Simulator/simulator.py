@@ -496,9 +496,10 @@ while True:
             print()
 
         case 0x3A:
-            # DEC A: ? cycles
+            # DEC A: 2 cycles
             print(f"---DEC A Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEC", inc=True)
+            decrement_execute(reg, reg["a"], step=2, mode="a")
 
         case 0x3C:
             # BIT a, x: 4 cycles
@@ -846,10 +847,12 @@ while True:
             # SMB0 zp: ? cycles
             print(f"---SMB0 zp Instruction at address {hex(address)}---")
             pass
+
         case 0x88:
-            # DEY i: ? cycles
+            # DEY i: 2 cycles
             print(f"---DEY i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEY", inc=True)
+            decrement_execute(reg, reg["y"], step=2, mode="y")
 
         case 0x89:
             # BIT #: 2 cycles
@@ -1112,9 +1115,13 @@ while True:
             print()
 
         case 0xC6:
-            # DEC zp: ? cycles
+            # DEC zp: 4 cycles
             print(f"---DEC zp Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEC", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            decrement_execute(reg, memory[reg["dirl"]], step=3, mode="result")
+            store_mem(reg, memory, reg["dirl"], reg["result"], step=4)
+
         case 0xC7:
             # SMB4 zp: ? cycles
             print(f"---SMB4 zp Instruction at address {hex(address)}---")
@@ -1132,9 +1139,11 @@ while True:
             print()
 
         case 0xCA:
-            # DEX i: ? cycles
+            # DEX i: 2 cycles
             print(f"---DEX i Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEX", inc=True)
+            decrement_execute(reg, reg["x"], step=2, mode="x")
+        
         case 0xCB:
             # WAI i: ? cycles
             print(f"---WAI i Instruction at address {hex(address)}---")
@@ -1159,9 +1168,13 @@ while True:
             print()
 
         case 0xCE:
-            # DEC a: ? cycles
+            # DEC a: 5 cycles
             print(f"---DEC a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEC", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
+            decrement_execute(reg, memory[get_dir(reg)], step=4, mode="result")
+            store_mem(reg, memory, get_dir(reg), reg["result"], step=5)
 
         case 0xCF:
             # BBS4 r: 2/3 cycles
@@ -1208,9 +1221,13 @@ while True:
             print()
 
         case 0xD6:
-            # DEC zp, x: ? cycles
+            # DEC zp, x: 4 cycles
             print(f"---DEC zp, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEC", inc=True)
+            fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            decrement_execute(reg, memory[reg["dirl"]], step=3, mode="result")
+            store_mem(reg, memory, reg["dirl"], reg["result"], step=4)
+
         case 0xD7:
             # SMB5 zp: ? cycles
             print(f"---SMB5 zp Instruction at address {hex(address)}---")
@@ -1251,9 +1268,13 @@ while True:
             print()
 
         case 0xDE:
-            # DEC a, x: ? cycles
+            # DEC a, x: 5 cycles
             print(f"---DEC a, x Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="DEC", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", plus="x", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", plus="x", inc=True)
+            decrement_execute(reg, memory[get_dir(reg)], step=4, mode="result")
+            store_mem(reg, memory, get_dir(reg), reg["result"], step=5)
 
         case 0xDF:
             # BBS5 r: 2/3 cycles

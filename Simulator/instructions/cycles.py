@@ -164,6 +164,18 @@ def compare_execute(reg, operand, step, mode, inc=False):
         reg["flags"] |= 0b00000001
     if inc: inc_pc(reg)
 
+def decrement_execute(reg, operand, step, mode, inc=False):
+    print_registers(f"{step}. Executing DEC", 50, reg)
+    cycle()
+
+    result = operand + (0b11111111)
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if inc: inc_pc(reg)
+
 def store_mem(reg, memory, address, data, step):
     print_registers(f"{step}. Storing value in mem", 50, reg)
     cycle()
