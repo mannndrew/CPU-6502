@@ -144,7 +144,7 @@ def bit_execute(reg, operand, step, inc=False):
 def compare_execute(reg, operand, step, mode, inc=False):
     print_registers(f"{step}. Executing compare", 50, reg)
     cycle()
-    
+
     a = reg[mode]
     b = operand
     result = a + (~b & 0b11111111) + 1
@@ -155,6 +155,17 @@ def compare_execute(reg, operand, step, mode, inc=False):
     if check_carry(result):
         reg["flags"] |= 0b00000001
     if inc: inc_pc(reg)
+
+def increment_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing increment", 50, reg)
+    cycle()
+
+    result = operand + 1
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
 
 def decrement_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing decrement", 50, reg)
