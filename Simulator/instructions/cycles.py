@@ -113,7 +113,7 @@ def and_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
 
-def asl_execute(reg, operand, step, mode, inc=False):
+def asl_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing ASL", 50, reg)
     cycle()
 
@@ -125,7 +125,6 @@ def asl_execute(reg, operand, step, mode, inc=False):
         reg["flags"] |= 0b00000010
     if check_carry(operand):
         reg["flags"] |= 0b00000001
-    if inc: inc_pc(reg)
 
 def bit_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing BIT", 50, reg)
@@ -143,17 +142,10 @@ def bit_execute(reg, operand, step, inc=False):
     if inc: inc_pc(reg)
 
 def compare_execute(reg, operand, step, mode, inc=False):
-    print_registers(f"{step}. Executing {mode}", 50, reg)
+    print_registers(f"{step}. Executing compare", 50, reg)
     cycle()
-    a = 0
-
-    if mode == "CMP":
-        a = reg["a"]
-    elif mode == "CPX":
-        a = reg["x"]
-    elif mode == "CPY":
-        a = reg["y"]
-
+    
+    a = reg[mode]
     b = operand
     result = a + (~b & 0b11111111) + 1
     if check_negative(result):
@@ -164,12 +156,25 @@ def compare_execute(reg, operand, step, mode, inc=False):
         reg["flags"] |= 0b00000001
     if inc: inc_pc(reg)
 
-def decrement_execute(reg, operand, step, mode, inc=False):
-    print_registers(f"{step}. Executing DEC", 50, reg)
+def decrement_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing decrement", 50, reg)
     cycle()
 
     result = operand + (0b11111111)
     reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+
+def eor_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing EOR", 50, reg)
+    cycle()
+
+    a = reg["a"]
+    b = operand
+    result = a ^ b
+    reg["a"] = result
     if check_negative(result):
         reg["flags"] |= 0b10000000
     if check_zero(result):
