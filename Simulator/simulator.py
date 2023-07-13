@@ -346,9 +346,15 @@ while True:
             print()
 
         case 0x20:
-            # JSR a: ? cycles
+            # JSR a: 6 cycles
             print(f"---JSR a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="JMP", inc=True)
+            fetch_absolute_low(reg, memory[get_indir(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_indir(reg)], step=3, mode="dirh", inc=True)
+            push(reg, memory, step=4, mode="pch")
+            push(reg, memory, step=5, mode="pcl")
+            jump_execute(reg, reg["dirh"], step=6)
+            
 
         case 0x21:
             # AND (zp, x): 5 cycles
@@ -579,10 +585,14 @@ while True:
             # LSR A: ? cycles
             print(f"---LSR A Instruction at address {hex(address)}---")
             pass
+
         case 0x4C:
-            # JMP a: ? cycles
+            # JMP a: 3 cycles
             print(f"---JMP a Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="JMP", inc=True)
+            fetch_absolute_low(reg, memory[get_indir(reg)], step=2, mode="dirl", inc=True)
+            jump_execute(reg, memory[get_pc(reg)], step=3)
+            
 
         case 0x4D:
             # EOR a: 4 cycles
@@ -740,10 +750,15 @@ while True:
             # ROR A: ? cycles
             print(f"---ROR A Instruction at address {hex(address)}---")
             pass
+
         case 0x6C:
-            # JMP (a): ? cycles
+            # JMP (a): 5 cycles
             print(f"---JMP (a) Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="JMP", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="indirh")
+            fetch_absolute_low(reg, memory[get_indir(reg)], step=4, mode="dirl")
+            jump_execute(reg, memory[(get_indir(reg) + 1) & 0xFFFF], step=5)
 
         case 0x6D:
             # ADC a: 4 cycles
@@ -834,10 +849,15 @@ while True:
             # PLY s: ? cycles
             print(f"---PLY s Instruction at address {hex(address)}---")
             pass
+
         case 0x7C:
             # JMP (a, x): ? cycles
             print(f"---JMP (a, x) Instruction at address {hex(address)}---")
-            pass
+            fetch_instruction(reg, step=1, name="JMP", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="indirl", plus="x", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="indirh", plus="x")
+            fetch_absolute_low(reg, memory[get_indir(reg)], step=4, mode="dirl")
+            jump_execute(reg, memory[(get_indir(reg) + 1) & 0xFFFF], step=5)
 
         case 0x7D:
             # ADC a, x: 4 cycles

@@ -236,14 +236,14 @@
 31. JMP Instruction - Jump to a new Location
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               JMP {Jump Name}                    4C    3     ?
-#2   Absolute Indexed Indirect             (a, x)           JMP ({{Jump Name}, X)              7C    3     ?
-#5   Absolute Indirect                     (a)              JMP ({Jump Name})                  6C    3     ?
+#1   Absolute                               a               JMP {Jump Name}                    4C    3     3
+#2   Absolute Indexed Indirect             (a, x)           JMP ({{Jump Name}, X)              7C    3     5
+#5   Absolute Indirect                     (a)              JMP ({Jump Name})                  6C    3     5
 
 32. JSR Instruction - Jump to a new Location (Saving Return)
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#1   Absolute                               a               JSR $1234                          20    3     ?
+#1   Absolute                               a               JSR $1234                          20    3     6
 
 33. LDA Instruction - Load Accumulator with Memory
 

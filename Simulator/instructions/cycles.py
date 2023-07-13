@@ -192,14 +192,22 @@ def eor_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
 
+def jump_execute(reg, operand, step):
+    print_registers(f"{step}. Executing JMP", 50, reg)
+    cycle()
+
+    reg["pcl"] = reg["dirl"]
+    reg["pch"] = operand
+
 def store_mem(reg, memory, address, data, step):
     print_registers(f"{step}. Storing value in mem", 50, reg)
     cycle()
 
     memory[address] = data
 
-def store_reg(reg, reg_name, data, step):
+def store_reg(reg, reg_name, data, step, inc=False):
     print_registers(f"{step}. Storing value in reg", 50, reg)
     cycle()
 
     reg[reg_name] = data
+    if inc: inc_pc(reg)

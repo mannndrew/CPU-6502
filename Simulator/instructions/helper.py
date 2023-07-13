@@ -62,6 +62,9 @@ def get_pc(reg):
 def get_dir(reg):
     return (reg["dirh"] << 8) | reg["dirl"]
 
+def get_indir(reg):
+    return (reg["indirh"] << 8) | reg["indirl"]
+
 def get_bit(value, bit):
     return (value >> bit) & 0x01
 
