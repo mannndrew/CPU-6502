@@ -86,7 +86,7 @@ def adc_execute(reg, operand, step, inc=False):
 
     a = reg["a"]
     b = operand
-    c = reg["flags"] & 0b00000001
+    c = get_carry(reg)
     result = (a + b + c)
     reg["a"] = result & 0b11111111
     if check_negative(result):
@@ -142,43 +142,20 @@ def bit_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
 
-def cmp_execute(reg, operand, step, inc=False):
-    print_registers(f"{step}. Executing CMP", 50, reg)
+def compare_execute(reg, operand, step, mode, inc=False):
+    print_registers(f"{step}. Executing {mode}", 50, reg)
     cycle()
+    a = 0
 
-    a = reg["a"]
+    if mode == "CMP":
+        a = reg["a"]
+    elif mode == "CPX":
+        a = reg["x"]
+    elif mode == "CPY":
+        a = reg["y"]
+
     b = operand
-    result = a - b
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(result):
-        reg["flags"] |= 0b00000001
-    if inc: inc_pc(reg)
-
-def cpx_execute(reg, operand, step, inc=False):
-    print_registers(f"{step}. Executing CMP", 50, reg)
-    cycle()
-
-    a = reg["x"]
-    b = operand
-    result = a - b
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(result):
-        reg["flags"] |= 0b00000001
-    if inc: inc_pc(reg)
-
-def cpy_execute(reg, operand, step, inc=False):
-    print_registers(f"{step}. Executing CMP", 50, reg)
-    cycle()
-
-    a = reg["y"]
-    b = operand
-    result = a - b
+    result = a + (~b & 0b11111111) + 1
     if check_negative(result):
         reg["flags"] |= 0b10000000
     if check_zero(result):

@@ -53,6 +53,9 @@ def inc_pc(reg):
 def add(a, b):
     return (a + b) & 0xFF
 
+def sub(a, b):
+    return (a + (~b & 0xFF) + 1) & 0xFF
+
 def get_pc(reg):
     return (reg["pch"] << 8) | reg["pcl"]
 
