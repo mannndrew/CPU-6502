@@ -15,6 +15,8 @@ def fetch_zero(reg, address, step, mode, plus="", inc=False):
         reg[mode] = address
     elif plus == "x":
         reg[mode] = add(address, reg["x"])
+    elif plus == "y":
+        reg[mode] = add(address, reg["y"])
     if inc: inc_pc(reg)
 
 def fetch_absolute_low(reg, address, step, mode, plus="", inc=False):
@@ -156,17 +158,6 @@ def compare_execute(reg, operand, step, mode, inc=False):
         reg["flags"] |= 0b00000001
     if inc: inc_pc(reg)
 
-def increment_execute(reg, operand, step, mode):
-    print_registers(f"{step}. Executing increment", 50, reg)
-    cycle()
-
-    result = operand + 1
-    reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-
 def decrement_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing decrement", 50, reg)
     cycle()
@@ -191,6 +182,17 @@ def eor_execute(reg, operand, step, inc=False):
     if check_zero(result):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
+
+def increment_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing increment", 50, reg)
+    cycle()
+
+    result = operand + 1
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
 
 def jump_execute(reg, operand, step):
     print_registers(f"{step}. Executing JMP", 50, reg)
