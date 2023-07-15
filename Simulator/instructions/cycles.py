@@ -248,15 +248,17 @@ def push(reg, memory, step, mode):
     print_registers(f"{step}. Pushing {mode} to stack", 50, reg)
     cycle()
 
-    memory[reg["sp"]] = reg[mode]
-    reg["sp"] -= 0x01
+    memory[0x0100 + reg["sp"]] = reg[mode]
+    if reg["sp"] == 0x00: reg["sp"] = 0x00
+    else: reg["sp"] -= 0x01
 
 def pull(reg, memory, step, mode, update_flags=False):
     print_registers(f"{step}. Pulling {mode} from stack", 50, reg)
     cycle()
 
-    reg["sp"] += 0x01
-    reg[mode] = memory[reg["sp"]]
+    if reg["sp"] == 0xFF: reg["sp"] = 0xFF
+    else: reg["sp"] += 0x01
+    reg[mode] = memory[0x0100 + reg["sp"]]
 
     if update_flags: 
         if check_negative(reg[mode]):

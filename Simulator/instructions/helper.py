@@ -71,32 +71,32 @@ def get_bit(value, bit):
 ########################################################### Flag Functions ####################################################
 
 # Getters
-def get_negative(flags):
-    if (flags & 0b10000000 != 0): return 1
+def get_negative(reg):
+    if (reg["flags"] & 0b10000000 != 0): return 1
     else: return 0
 
-def get_overflow(flags):
-    if (flags & 0b01000000 != 0): return 1
+def get_overflow(reg):
+    if (reg["flags"] & 0b01000000 != 0): return 1
     else: return 0
 
-def get_break(flags):
-    if (flags & 0b00010000 != 0): return 1
+def get_break(reg):
+    if (reg["flags"] & 0b00010000 != 0): return 1
     else: return 0
 
-def get_decimal(flags):
-    if (flags & 0b00001000 != 0): return 1
+def get_decimal(reg):
+    if (reg["flags"] & 0b00001000 != 0): return 1
     else: return 0
 
-def get_interrupt(flags):
-    if (flags & 0b00000100 != 0): return 1
+def get_interrupt(reg):
+    if (reg["flags"] & 0b00000100 != 0): return 1
     else: return 0
 
-def get_zero(flags):
-    if (flags & 0b00000010 != 0): return 1
+def get_zero(reg):
+    if (reg["flags"] & 0b00000010 != 0): return 1
     else: return 0
 
-def get_carry(flags):
-    if (flags & 0b00000001 != 0): return 1
+def get_carry(reg):
+    if (reg["flags"] & 0b00000001 != 0): return 1
     else: return 0
 
 # Check for possible flag changes
