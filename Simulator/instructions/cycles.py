@@ -43,13 +43,6 @@ def fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
         reg[mode] = add(address, reg["carry"])
     if inc: inc_pc(reg)
 
-def push(reg, memory, step, mode):
-    print_registers(f"{step}. Pushing {mode} to stack", 50, reg)
-    cycle()
-
-    memory[reg["sp"]] = reg[mode]
-    reg["sp"] -= 0x01
-
 def check_branch(reg, memory, step, check, inc=False):
     print_registers(f"{step}. Checking branch", 50, reg)
     cycle()
@@ -200,6 +193,155 @@ def jump_execute(reg, operand, step):
 
     reg["pcl"] = reg["dirl"]
     reg["pch"] = operand
+
+def load_execute(reg, reg_name, data, step, inc=False):
+    print_registers(f"{step}. Storing value in reg", 50, reg)
+    cycle()
+
+    reg[reg_name] = data
+    if check_negative(data):
+        reg["flags"] |= 0b10000000
+    if check_zero(data):
+        reg["flags"] |= 0b00000010
+    if inc: inc_pc(reg)
+
+def lsr_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing LSR", 50, reg)
+    cycle()
+
+    result = operand >> 1
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(operand):
+        reg["flags"] |= 0b00000001
+
+def nop_execute(reg, step):
+    print_registers(f"{step}. Executing NOP", 50, reg)
+    cycle()
+
+def ora_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing ORA", 50, reg)
+    cycle()
+
+    a = reg["a"]
+    b = operand
+    result = a | b
+    reg["a"] = result
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if inc: inc_pc(reg)
+
+def push(reg, memory, step, mode):
+    print_registers(f"{step}. Pushing {mode} to stack", 50, reg)
+    cycle()
+
+    memory[reg["sp"]] = reg[mode]
+    reg["sp"] -= 0x01
+
+def pull(reg, memory, step, mode, update_flags=False):
+    print_registers(f"{step}. Pulling {mode} from stack", 50, reg)
+    cycle()
+
+    reg["sp"] += 0x01
+    reg[mode] = memory[reg["sp"]]
+
+    if update_flags: 
+        if check_negative(reg[mode]):
+            reg["flags"] |= 0b10000000
+        elif check_zero(reg[mode]):
+            reg["flags"] |= 0b00000010
+
+def rmb_execute(reg, operand, bit, step):
+    print_registers(f"{step}. Executing reset bit", 50, reg)
+    cycle()
+
+    reg["result"] = (operand & ~(1 << bit))
+
+def rol_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing ROL", 50, reg)
+    cycle()
+
+    result = (operand << 1) | get_carry(reg)
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(operand):
+        reg["flags"] |= 0b00000001
+
+def ror_execute(reg, operand, step, mode):
+    print_registers(f"{step}. Executing ROR", 50, reg)
+    cycle()
+
+    result = ((operand & 1) << 8) | (get_carry(reg) << 7) | (operand >> 1)
+    reg[mode] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(operand):
+        reg["flags"] |= 0b00000001
+
+def sbc_execute(reg, operand, step, inc=False):
+    print_registers(f"{step}. Executing SBC", 50, reg)
+    cycle()
+
+    a = reg["a"]
+    b = ((operand ^ 0b11111111) + 1)
+    c = get_carry(reg)
+    result = (a + b + c)
+    reg["a"] = result & 0b11111111
+    if check_negative(result):
+        reg["flags"] |= 0b10000000
+    if check_overflow_add(a, b, c):
+        reg["flags"] |= 0b01000000
+    if check_zero(result):
+        reg["flags"] |= 0b00000010
+    if check_carry(result):
+        reg["flags"] |= 0b00000001
+    if inc: inc_pc(reg)
+
+def smb_execute(reg, operand, bit, step):
+    print_registers(f"{step}. Executing set bit", 50, reg)
+    cycle()
+
+    reg["result"] = (operand | (1 << bit))
+
+def stop_execute(reg, step):
+    print_registers(f"{step}. Executing STOP", 50, reg)
+    cycle()
+
+    exit(0)
+
+def trb_execute(reg, operand, step):
+    print_registers(f"{step}. Executing TRB", 50, reg)
+    cycle()
+
+    if check_zero(operand & reg["a"]):
+        reg["flags"] |= 0b00000010
+
+    reg["result"] = (operand & ~reg["a"])
+
+def tsb_execute(reg, operand, step):
+    print_registers(f"{step}. Executing TSB", 50, reg)
+    cycle()
+
+    if check_zero(operand & reg["a"]):
+        reg["flags"] |= 0b00000010
+
+    reg["result"] = (operand | reg["a"])
+
+def wai_execute(reg, step):
+    print_registers(f"{step}. Executing WAIT", 50, reg)
+    cycle()
+
+    exit(0)
 
 def store_mem(reg, memory, address, data, step):
     print_registers(f"{step}. Storing value in mem", 50, reg)
