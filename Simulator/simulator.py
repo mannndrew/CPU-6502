@@ -74,8 +74,8 @@ interupt_vector_low = 0xFFFF
 
 # Registers
 reg = {
-    "x": 0x01,
-    "y": 0x02,
+    "x": 0x00,
+    "y": 0x00,
     "sp": 0xFF,
     "a": 0x00,
     "pch": 0x00,
@@ -84,7 +84,7 @@ reg = {
     "indirl": 0x00,
     "dirh": 0x00,
     "dirl": 0x00,
-    "flags": 0x01,
+    "flags": 0x00,
     "inst": 0x00,
     "carry": 0x00,
     "result": 0x00,
@@ -130,32 +130,6 @@ while True:
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             tsb_execute(reg, memory[reg["dirl"]], step=3)
             store_mem(reg, memory, reg["dirl"], reg["result"], step=4)
-            print()
-
-            # Fetch instruction: 1 cycle
-            print_registers("1. Fetching instruction TSB", 50, reg)
-            cycle()
-            reg = inc_pc(reg)
-
-            # Fetch operand: 1 cycle
-            print_registers("2. Fetching operand", 50, reg)
-            cycle()
-            reg["dirl"] = memory[reg["pcl"]]
-            reg = inc_pc(reg)
-
-            # Execute instruction: 1 cycle
-            print_registers("3. Executing instruction", 50, reg)
-            cycle()
-            tmp = memory[reg["dirl"]]
-            reg["data"] = reg["a"] | tmp
-            if ((reg["a"] | tmp) & 0b11111111 == 0): reg["flags"] |= 0b00000010
-
-            # Store data: 1 cycle
-            print_registers("4. Storing result", 50, reg)
-            cycle()
-            memory[reg["dirl"]] = reg["data"]
-
-            # Print newspace
             print()
 
         case 0x05:
@@ -369,8 +343,8 @@ while True:
             # JSR a: 6 cycles
             print(f"---JSR a Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="JMP", inc=True)
-            fetch_absolute_low(reg, memory[get_indir(reg)], step=2, mode="dirl", inc=True)
-            fetch_absolute_high(reg, memory[get_indir(reg)], step=3, mode="dirh", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_high(reg, memory[get_pc(reg)], step=3, mode="dirh", inc=True)
             push(reg, memory, step=4, mode="pch")
             push(reg, memory, step=5, mode="pcl")
             jump_execute(reg, reg["dirh"], step=6)
