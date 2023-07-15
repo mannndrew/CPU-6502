@@ -1,5 +1,9 @@
 from instructions.helper import *
 
+
+########################################################### Fetch #############################################################
+
+
 def fetch_instruction(reg, step, name, inc=False):
     print_registers(f"{step}. Fetching instruction {name}", 50, reg)
     cycle()
@@ -43,37 +47,9 @@ def fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
         reg[mode] = add(address, reg["carry"])
     if inc: inc_pc(reg)
 
-def check_branch(reg, memory, step, check, inc=False):
-    print_registers(f"{step}. Checking branch", 50, reg)
-    cycle()
 
-    if check == 1: 
-        reg["branch"] = 1
-        reg["result"] = memory[get_pc(reg)]
-    else: 
-        reg["branch"] = 0
-        print()
-    if inc: inc_pc(reg)
+########################################################### Execute ###########################################################
 
-def branch(reg, step):
-    if reg["branch"] == 0:
-        return
-    print_registers(f"{step}. Branching", 50, reg)
-    cycle()
-
-    reg["pcl"] = add(reg["pcl"], reg["result"])
-
-def set_flags(reg, flags, step):
-    print_registers(f"{step}. Setting flags", 50, reg)
-    cycle()
-
-    reg["flags"] |= flags
-
-def clear_flags(reg, flags, step):
-    print_registers(f"{step}. Clearing flags", 50, reg)
-    cycle()
-
-    reg["flags"] &= ~flags
 
 def adc_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing ADC", 50, reg)
@@ -136,6 +112,26 @@ def bit_execute(reg, operand, step, inc=False):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
 
+def branch_check(reg, memory, step, check, inc=False):
+    print_registers(f"{step}. Checking branch", 50, reg)
+    cycle()
+
+    if check == 1: 
+        reg["branch"] = 1
+        reg["result"] = memory[get_pc(reg)]
+    else: 
+        reg["branch"] = 0
+        print()
+    if inc: inc_pc(reg)
+
+def branch_execute(reg, step):
+    if reg["branch"] == 0:
+        return
+    print_registers(f"{step}. Branching", 50, reg)
+    cycle()
+
+    reg["pcl"] = add(reg["pcl"], reg["result"])
+
 def compare_execute(reg, operand, step, mode, inc=False):
     print_registers(f"{step}. Executing compare", 50, reg)
     cycle()
@@ -175,6 +171,18 @@ def eor_execute(reg, operand, step, inc=False):
     if check_zero(result):
         reg["flags"] |= 0b00000010
     if inc: inc_pc(reg)
+
+def flags_clear(reg, flags, step):
+    print_registers(f"{step}. Clearing flags", 50, reg)
+    cycle()
+
+    reg["flags"] &= ~flags
+
+def flags_set(reg, flags, step):
+    print_registers(f"{step}. Setting flags", 50, reg)
+    cycle()
+
+    reg["flags"] |= flags
 
 def increment_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing increment", 50, reg)
@@ -342,6 +350,10 @@ def wai_execute(reg, step):
     cycle()
 
     exit(0)
+
+
+########################################################### Store #############################################################
+
 
 def store_mem(reg, memory, address, data, step):
     print_registers(f"{step}. Storing value in mem", 50, reg)

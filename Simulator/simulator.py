@@ -108,7 +108,7 @@ while True:
             push(reg, memory, step=2, mode="pch")
             push(reg, memory, step=3, mode="pcl")
             push(reg, memory, step=4, mode="flags")
-            set_flags(reg, flags=0b00010100, step=5)
+            flags_set(reg, flags=0b00010100, step=5)
             store_reg(reg, "pcl", memory[nonmaskable_interupt_vector_low], step=6)
             store_reg(reg, "pch", memory[nonmaskable_interupt_vector_low], step=7)
             print()
@@ -238,16 +238,16 @@ while True:
             # BBR0 r: 2/3 cycles
             print(f"---BBR0 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR0", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 0)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 0)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x10:
             # BPL r: 2/3 cycles
             print(f"---BPL r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BPL", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_negative(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_negative(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x11:
@@ -309,7 +309,7 @@ while True:
             # CLC i: 2 cycles
             print(f"---CLC i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="CLC", inc=True)
-            clear_flags(reg, flags=0b00000001, step=2)
+            flags_clear(reg, flags=0b00000001, step=2)
             print()
 
         case 0x19:
@@ -361,8 +361,8 @@ while True:
             # BBR1 r: 2/3 cycles
             print(f"---BBR1 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR1", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 1)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 1)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x20:
@@ -473,16 +473,16 @@ while True:
             # BBR2 r: 2/3 cycles
             print(f"---BBR2 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR2", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 2)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 2)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x30:
             # BMI r: 2/3 cycles
             print(f"---BMI r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BMI", inc=True)
-            check_branch(reg, memory, step=2, check=(get_negative(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_negative(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x31:
@@ -543,7 +543,8 @@ while True:
             # SEC i: 2 cycles
             print(f"---SEC i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="SEC", inc=True)
-            set_flags(reg, 0b00000001, step=2)
+            flags_set(reg, 0b00000001, step=2)
+            print()
 
         case 0x39:
             # AND a, y: 4 cycles
@@ -593,8 +594,8 @@ while True:
             # BBR3 r: 2/3 cycles
             print(f"---BBR3 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR3", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 3)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 3)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x40:
@@ -694,16 +695,16 @@ while True:
             # BBR4 r: 2/3 cycles
             print(f"---BBR4 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR4", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 4)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 4)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x50:
             # BVC r: 2/3 cycles
             print(f"---BVC r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BVC", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_overflow(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_overflow(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x51:
@@ -756,7 +757,7 @@ while True:
             # CLI i: 2 cycles
             print(f"---CLI i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="CLI", inc=True)
-            clear_flags(reg, flags=0b00000100, step=2)
+            flags_clear(reg, flags=0b00000100, step=2)
             print()
 
         case 0x59:
@@ -798,8 +799,8 @@ while True:
             # BBR5 r: 2/3 cycles
             print(f"---BBR5 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR5", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 5)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 5)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x60:
@@ -908,16 +909,16 @@ while True:
             # BBR6 r: 2/3 cycles
             print(f"---BBR6 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR6", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 6)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 6)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x70:
             # BVS r: 2/3 cycles
             print(f"---BVS r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BVS", inc=True)
-            check_branch(reg, memory, step=2, check=(get_overflow(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_overflow(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x71:
@@ -978,9 +979,9 @@ while True:
             # SEI i: 2 cycles
             print(f"---SEI i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="SEI", inc=True)
-            set_flags(reg, 0b00000100, step=2)
+            flags_set(reg, 0b00000100, step=2)
+            print()
             
-
         case 0x79:
             # ADC a, y: 4 cycles
             print(f"---ADC a, y Instruction at address {hex(address)}---")
@@ -1030,16 +1031,16 @@ while True:
             # BBR7 r: 2/3 cycles
             print(f"---BBR7 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBR7", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 7)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_bit(memory[get_pc(reg)], 7)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x80:
             # BRA r: 3 cycles
             print(f"---BRA r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BRA", inc=True)
-            check_branch(reg, memory, step=2, check=1, inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=1, inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x81:
@@ -1136,16 +1137,16 @@ while True:
             # BBS0 r: 2/3 cycles
             print(f"---BBS0 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS0", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 0)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 0)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x90:
             # BCC r: 2/3 cycles
             print(f"---BCC r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BCC", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_carry(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_carry(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0x91:
@@ -1253,8 +1254,8 @@ while True:
             # BBS1 r: 2/3 cycles
             print(f"---BBS1 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS1", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 1)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 1)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xA0:
@@ -1364,16 +1365,16 @@ while True:
             # BBS2 r: 2/3 cycles
             print(f"---BBS2 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS2", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 2)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 2)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xB0:
             # BCS r: 2/3 cycles
             print(f"---BCS r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BCS", inc=True)
-            check_branch(reg, memory, step=2, check=(get_carry(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_carry(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xB1:
@@ -1433,7 +1434,7 @@ while True:
             # CLV i: 2 cycles
             print(f"---CLV i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="CLV", inc=True)
-            clear_flags(reg, flags=0b01000000, step=2)
+            flags_clear(reg, flags=0b01000000, step=2)
             print()
 
         case 0xB9:
@@ -1482,8 +1483,8 @@ while True:
             # BBS3 r: 2/3 cycles
             print(f"---BBS3 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS3", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 3)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 3)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xC0:
@@ -1596,16 +1597,16 @@ while True:
             # BBS4 r: 2/3 cycles
             print(f"---BBS4 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS4", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 4)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 4)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xD0:
             # BNE r: 2/3 cycles
             print(f"---BNE r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BNE", inc=True)
-            check_branch(reg, memory, step=2, check=(not get_zero(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(not get_zero(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xD1:
@@ -1658,7 +1659,7 @@ while True:
             # CLD i: 2 cycles
             print(f"---CLD i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="CLD", inc=True)
-            clear_flags(reg, flags=0b00001000, step=2)
+            flags_clear(reg, flags=0b00001000, step=2)
             print()
 
         case 0xD9:
@@ -1706,8 +1707,8 @@ while True:
             # BBS5 r: 2/3 cycles
             print(f"---BBS5 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS5", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 5)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 5)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xE0:
@@ -1814,16 +1815,16 @@ while True:
             # BBS6 r: 2/3 cycles
             print(f"---BBS6 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS6", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 6)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 6)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xF0:
             # BEQ r: 2/3 cycles
             print(f"---BEQ r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BCS", inc=True)
-            check_branch(reg, memory, step=2, check=(get_zero(reg)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_zero(reg)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
         case 0xF1:
@@ -1876,7 +1877,8 @@ while True:
             # SED i: 2 cycles
             print(f"---SED i Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="SEC", inc=True)
-            set_flags(reg, 0b00001000, step=2)
+            flags_set(reg, 0b00001000, step=2)
+            print()
 
         case 0xF9:
             # SBC a, y: 4 cycles
@@ -1917,8 +1919,8 @@ while True:
             # BBS7 r: 2/3 cycles
             print(f"---BBS7 r Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="BBS7", inc=True)
-            check_branch(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 7)), inc=True)
-            branch(reg, step=3)
+            branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 7)), inc=True)
+            branch_execute(reg, step=3)
             print()
 
     # Fetch next instruction
