@@ -119,6 +119,7 @@ screen = pygame.display.set_mode((width * pixel_size, height * pixel_size))
 while True:
     pos = screen_begin
 
+
     print(hex(address), hex(memory[address]))
     match memory[address]:
         case 0x00:
@@ -1919,11 +1920,8 @@ while True:
 
     
 
-    
-
-
-    for x in range(width):
-        for y in range(height):
+    for y in range(height):
+        for x in range(width):
             data = memory[pos]
             pos += 1
 
