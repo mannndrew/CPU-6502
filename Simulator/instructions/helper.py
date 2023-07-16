@@ -1,9 +1,13 @@
 import readchar
+mode = "run"
 
 ########################################################### Functions #########################################################
 
 def cycle():
-    readchar.readkey()
+    if mode == "step":
+        readchar.readkey()
+    elif mode == "run":
+        pass
 
 def hex_value(dec):
     conversion_table = ['0', '1', '2', '3',
@@ -34,7 +38,8 @@ def print_registers(message, offset, reg):
           f"X: {hex_value(reg['x'])}\t"
           f"Y: {hex_value(reg['y'])}\t"
           f"SP: {hex_value(reg['sp'])}\t"
-          f"PC: {hex_value(reg['pch'])}{hex_value(reg['pcl'])}")
+          f"PC: {hex_value(reg['pch'])}{hex_value(reg['pcl'])}\t"
+          f"Flags: {bin(reg['flags'])}")
 
 def inc_pc(reg):
     if reg["pch"] == 0xFF and reg["pcl"] == 0xFF:
@@ -118,3 +123,28 @@ def check_carry(result):
     c7 = result >> 8
     if (c7 == 1): return True
     else: return False
+
+# Set flags
+def set_negative(reg, result):
+    if check_negative(result): 
+        reg["flags"] |= 0b10000000
+    else: 
+        reg["flags"] &= 0b01111111
+
+def set_overflow(reg, a, b, cin):
+    if check_overflow_add(a, b, cin): 
+        reg["flags"] |= 0b01000000
+    else: 
+        reg["flags"] &= 0b10111111
+
+def set_zero(reg, result):
+    if check_zero(result): 
+        reg["flags"] |= 0b00000010
+    else: 
+        reg["flags"] &= 0b11111101
+
+def set_carry(reg, result):
+    if check_carry(result): 
+        reg["flags"] |= 0b00000001
+    else: 
+        reg["flags"] &= 0b11111110

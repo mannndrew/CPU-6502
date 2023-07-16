@@ -1,6 +1,7 @@
 import sys
-from instructions.helper import *
+import pygame
 from instructions.cycles import *
+from instructions.helper import *
 
 
 ########################################################### File IO ###########################################################
@@ -59,8 +60,10 @@ zero_page_begin = 0x0000
 zero_page_end = 0x00FF
 stack_pointer_end = 0x0100
 stack_pointer_begin = 0x01FF
-data_begin = 0x0200
-data_end = 0x07FF
+screen_begin = 0x0200
+screen_end = 0x05FF
+data_begin = 0x0600
+data_end = 0x7FFF
 program_begin = 0x8000
 program_end = 0xFFFF
 
@@ -93,13 +96,30 @@ reg = {
 
 print(f"Beginning simulation...\n")
 
+
 # Fetch instruction: 1 cycle
 
 reg["pch"] = program_begin >> 8
 reg["pcl"] = program_begin & 0xFF
 address = get_pc(reg)
 
+# Screen dimensions
+width = 32
+height = 32
+pixel_size = 10  # Size of each pixel
+
+
+# Initialize pygame
+pygame.init()
+
+# Create the screen
+screen = pygame.display.set_mode((width * pixel_size, height * pixel_size))
+
+
 while True:
+    pos = screen_begin
+
+    print(hex(address), hex(memory[address]))
     match memory[address]:
         case 0x00:
             # BRK: 7 cycles
@@ -642,7 +662,7 @@ while True:
             # JMP a: 3 cycles
             print(f"---JMP a Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="JMP", inc=True)
-            fetch_absolute_low(reg, memory[get_indir(reg)], step=2, mode="dirl", inc=True)
+            fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="dirl", inc=True)
             jump_execute(reg, memory[get_pc(reg)], step=3)
             print()
 
@@ -1022,8 +1042,8 @@ while True:
             print(f"---STA (zp, x) Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="STA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", plus="x", inc=True)
-            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", inc=True)
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             store_mem(reg, memory, get_dir(reg), reg["a"], step=5)
             print()
 
@@ -1128,8 +1148,8 @@ while True:
             print(f"---STA (zp), y Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="STA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
-            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", plus="y", inc=True)
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh", plus="y", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", plus="y")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh", plus="y")
             store_mem(reg, memory, get_dir(reg), reg["a"], step=5)
             print()
 
@@ -1138,8 +1158,8 @@ while True:
             print(f"---STA (zp) Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="STA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
-            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", inc=True)
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh", inc=True)
+            fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             store_mem(reg, memory, get_dir(reg), reg["a"], step=5)
             print()
 
@@ -1245,7 +1265,7 @@ while True:
             fetch_instruction(reg, step=1, name="LDA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", plus="x", inc=True)
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             load_execute(reg, "a", memory[get_dir(reg)], step=5)
             print()
 
@@ -1357,7 +1377,7 @@ while True:
             fetch_instruction(reg, step=1, name="LDA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", plus="y")
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh", plus="y")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh", plus="y")
             load_execute(reg, "a", memory[get_dir(reg)], step=5)
             print()
 
@@ -1367,7 +1387,7 @@ while True:
             fetch_instruction(reg, step=1, name="LDA", inc=True)
             fetch_zero(reg, memory[get_pc(reg)], step=2, mode="indirl", inc=True)
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl")
-            fetch_absolute_high(reg, memory[add(reg["indirl"]), 1], step=4, mode="dirh")
+            fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh")
             load_execute(reg, "a", memory[get_dir(reg)], step=5)
             print()
 
@@ -1896,6 +1916,27 @@ while True:
             branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 7)), inc=True)
             branch_execute(reg, step=3)
             print()
+
+    
+
+    
+
+
+    for x in range(width):
+        for y in range(height):
+            data = memory[pos]
+            pos += 1
+
+            if data == 0:
+                pixel_color = (0, 0, 0)  # Black
+            else:
+                pixel_color = (255, 255, 255)  # White
+
+            pixel_pos = (x * pixel_size, y * pixel_size)
+            pygame.draw.rect(screen, pixel_color, (pixel_pos, (pixel_size, pixel_size)))
+
+    # Update the screen
+    pygame.display.flip()
 
     # Fetch next instruction
     address = get_pc(reg)

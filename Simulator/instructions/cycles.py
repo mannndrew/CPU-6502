@@ -60,14 +60,10 @@ def adc_execute(reg, operand, step, inc=False):
     c = get_carry(reg)
     result = (a + b + c)
     reg["a"] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_overflow_add(a, b, c):
-        reg["flags"] |= 0b01000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(result):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_overflow(reg, a, b, c)
+    set_zero(reg, result)
+    set_carry(reg, result)
     if inc: inc_pc(reg)
 
 def and_execute(reg, operand, step, inc=False):
@@ -78,10 +74,8 @@ def and_execute(reg, operand, step, inc=False):
     b = operand
     result = a & b
     reg["a"] = result
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_zero(reg, result)
     if inc: inc_pc(reg)
 
 def asl_execute(reg, operand, step, mode):
@@ -90,12 +84,9 @@ def asl_execute(reg, operand, step, mode):
 
     result = operand << 1
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(operand):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_zero(reg, result)
+    set_carry(reg, result)
 
 def bit_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing BIT", 50, reg)
@@ -104,12 +95,9 @@ def bit_execute(reg, operand, step, inc=False):
     a = reg["a"]
     b = operand
     result = a & b
-    if get_bit(result, 7) == 1:
-        reg["flags"] |= 0b10000000
-    if get_bit(result, 6) == 1:
-        reg["flags"] |= 0b01000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_overflow(reg, result, 0, 0)
+    set_zero(reg, result)
     if inc: inc_pc(reg)
 
 def branch_check(reg, memory, step, check, inc=False):
@@ -139,12 +127,9 @@ def compare_execute(reg, operand, step, mode, inc=False):
     a = reg[mode]
     b = operand
     result = a + (~b & 0b11111111) + 1
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(result):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_zero(reg, result)
+    set_carry(reg, result)
     if inc: inc_pc(reg)
 
 def decrement_execute(reg, operand, step, mode):
@@ -153,10 +138,8 @@ def decrement_execute(reg, operand, step, mode):
 
     result = operand + (0b11111111)
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_zero(reg, result)
 
 def eor_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing EOR", 50, reg)
@@ -166,10 +149,8 @@ def eor_execute(reg, operand, step, inc=False):
     b = operand
     result = a ^ b
     reg["a"] = result
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_zero(reg, result)
     if inc: inc_pc(reg)
 
 def flags_clear(reg, flags, step):
@@ -190,10 +171,8 @@ def increment_execute(reg, operand, step, mode):
 
     result = operand + 1
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_zero(reg, result)
 
 def jump_execute(reg, operand, step):
     print_registers(f"{step}. Executing JMP", 50, reg)
@@ -207,10 +186,8 @@ def load_execute(reg, reg_name, data, step, inc=False):
     cycle()
 
     reg[reg_name] = data
-    if check_negative(data):
-        reg["flags"] |= 0b10000000
-    if check_zero(data):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, data)
+    set_zero(reg, data)
     if inc: inc_pc(reg)
 
 def lsr_execute(reg, operand, step, mode):
@@ -219,12 +196,9 @@ def lsr_execute(reg, operand, step, mode):
 
     result = operand >> 1
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(operand):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_zero(reg, result)
+    set_carry(reg, result)
 
 def nop_execute(reg, step):
     print_registers(f"{step}. Executing NOP", 50, reg)
@@ -238,10 +212,8 @@ def ora_execute(reg, operand, step, inc=False):
     b = operand
     result = a | b
     reg["a"] = result
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
+    set_negative(reg, result)
+    set_zero(reg, result)
     if inc: inc_pc(reg)
 
 def push(reg, memory, step, mode):
@@ -261,10 +233,8 @@ def pull(reg, memory, step, mode, update_flags=False):
     reg[mode] = memory[0x0100 + reg["sp"]]
 
     if update_flags: 
-        if check_negative(reg[mode]):
-            reg["flags"] |= 0b10000000
-        elif check_zero(reg[mode]):
-            reg["flags"] |= 0b00000010
+        set_negative(reg, reg[mode])
+        set_zero(reg, reg[mode])
 
 def rmb_execute(reg, operand, bit, step):
     print_registers(f"{step}. Executing reset bit", 50, reg)
@@ -278,12 +248,9 @@ def rol_execute(reg, operand, step, mode):
 
     result = (operand << 1) | get_carry(reg)
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(operand):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_zero(reg, result)
+    set_carry(reg, result)
 
 def ror_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing ROR", 50, reg)
@@ -291,12 +258,9 @@ def ror_execute(reg, operand, step, mode):
 
     result = ((operand & 1) << 8) | (get_carry(reg) << 7) | (operand >> 1)
     reg[mode] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(operand):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_zero(reg, result)
+    set_carry(reg, result)
 
 def sbc_execute(reg, operand, step, inc=False):
     print_registers(f"{step}. Executing SBC", 50, reg)
@@ -307,14 +271,10 @@ def sbc_execute(reg, operand, step, inc=False):
     c = get_carry(reg)
     result = (a + b + c)
     reg["a"] = result & 0b11111111
-    if check_negative(result):
-        reg["flags"] |= 0b10000000
-    if check_overflow_add(a, b, c):
-        reg["flags"] |= 0b01000000
-    if check_zero(result):
-        reg["flags"] |= 0b00000010
-    if check_carry(result):
-        reg["flags"] |= 0b00000001
+    set_negative(reg, result)
+    set_overflow(reg, a, b, c)
+    set_zero(reg, result)
+    set_carry(reg, result)
     if inc: inc_pc(reg)
 
 def smb_execute(reg, operand, bit, step):
@@ -333,18 +293,16 @@ def trb_execute(reg, operand, step):
     print_registers(f"{step}. Executing TRB", 50, reg)
     cycle()
 
-    if check_zero(operand & reg["a"]):
-        reg["flags"] |= 0b00000010
-
+    result = operand & reg["a"]
+    set_zero(reg, result)
     reg["result"] = (operand & ~reg["a"])
 
 def tsb_execute(reg, operand, step):
     print_registers(f"{step}. Executing TSB", 50, reg)
     cycle()
 
-    if check_zero(operand & reg["a"]):
-        reg["flags"] |= 0b00000010
-
+    result = operand & reg["a"]
+    set_zero(reg, result)
     reg["result"] = (operand | reg["a"])
 
 def wai_execute(reg, step):
