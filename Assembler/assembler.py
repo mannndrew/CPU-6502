@@ -29,7 +29,6 @@ defines = {}
 labels = {}
 addressing_mode = [0]
 addressing_dict = {}
-opcode = ""
 hexdump = []
 
 # Dictionaries
@@ -111,6 +110,7 @@ for line in file:
             else:
                 addressing_dict = instruction_dict[words[0]]
                 addressing_mode = []
+                opcode = ""
                 argument = ""
                 hex = ""
 
@@ -150,6 +150,7 @@ for line in file:
                     hexdump.append(f"{hex[2:4]}")
                     hexdump.append(f"{hex[0:2]}")
                     address += 3
+
             
     linenum += 1
 
@@ -268,8 +269,6 @@ for address in range(0x10000):
 
 # Close write file
 file.close()
-
-
 
 # Exit program
 exit(0)

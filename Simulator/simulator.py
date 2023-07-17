@@ -1921,7 +1921,7 @@ while True:
             branch_check(reg, memory, step=2, check=(get_bit(memory[get_pc(reg)], 7)), inc=True)
             branch_execute(reg, step=3)
 
-    instruction_message("")
+    instruction_message(memory[address])
             
 
     
@@ -1939,7 +1939,7 @@ while True:
                 pixel_pos = (x * pixel_size, y * pixel_size)
                 pygame.draw.rect(screen, pixel_color, (pixel_pos, (pixel_size, pixel_size)))
 
-    if count == 90:
+    if count == 15600:
         for i in range(16):
             print(f"{hex_value(0x0000 + i*16)}: ", end="")
             for j in range(16):
@@ -1951,6 +1951,8 @@ while True:
             for j in range(32):
                 print(f"{hex_value(memory[0x0200 + i*32 + j])} ", end="")
             print()
+
+        time.sleep(10000)
 
         
 

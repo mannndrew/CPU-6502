@@ -192,13 +192,13 @@ updateloop:
   BPL updateloop
 
   LDA snakeDirection
-  LSR
+  LSR A
   BCS up
-  LSR
+  LSR A 
   BCS right
-  LSR
+  LSR A
   BCS down
-  LSR
+  LSR A
   BCS left
 up:
   LDA snakeHeadL
