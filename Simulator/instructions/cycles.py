@@ -43,6 +43,8 @@ def fetch_absolute_high(reg, address, step, mode, plus="", inc=False):
 
     if plus == "":
         reg[mode] = address
+    elif (plus == "x" or plus == "y") and reg["carry"] == 0:
+        reg[mode] = address
     elif (plus == "x" or plus == "y") and reg["carry"] == 1:
         reg[mode] = add(address, reg["carry"])
     if inc: inc_pc(reg)
@@ -193,7 +195,7 @@ def lsr_execute(reg, operand, step, mode):
     print_registers(f"{step}. Executing LSR", 50, reg)
     cycle()
 
-    result = operand >> 1
+    result = ((operand & 1) << 8) | ((operand & 1) << 7) | (operand >> 1)
     reg[mode] = result & 0b11111111
     set_negative(reg, result)
     set_zero(reg, result)
@@ -266,7 +268,7 @@ def sbc_execute(reg, operand, step, inc=False):
     cycle()
 
     a = reg["a"]
-    b = ((operand ^ 0b11111111) + 1)
+    b = ((operand ^ 0b11111111))
     c = get_carry(reg)
     result = (a + b + c)
     reg["a"] = result & 0b11111111

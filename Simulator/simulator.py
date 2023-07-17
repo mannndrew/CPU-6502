@@ -1,5 +1,6 @@
 import sys
 import pygame
+import random
 from instructions.cycles import *
 from instructions.helper import *
 
@@ -119,6 +120,7 @@ mode = "step"
 
 while True:
     pos = screen_begin
+    memory[0xFE] = random.randint(0, 255)
     instruction_message(f"Instruction #{count}")
     count += 1
     match memory[address]:
@@ -1150,6 +1152,10 @@ while True:
             fetch_absolute_low(reg, memory[reg["indirl"]], step=3, mode="dirl", plus="y")
             fetch_absolute_high(reg, memory[add(reg["indirl"], 1)], step=4, mode="dirh", plus="y")
             store_mem(reg, memory, get_dir(reg), reg["a"], step=5)
+            # print("y =", reg["y"])
+            # print(hex_value(reg["indirl"]), hex_value(add(reg["indirl"], 1)))
+            # print(hex_value(memory[add(reg["indirl"], 1)]), hex_value(memory[reg["indirl"]]))
+            # print(hex_value(reg["dirh"]), hex_value(reg["dirl"]))
             
 
         case 0x92:
@@ -1932,6 +1938,21 @@ while True:
 
                 pixel_pos = (x * pixel_size, y * pixel_size)
                 pygame.draw.rect(screen, pixel_color, (pixel_pos, (pixel_size, pixel_size)))
+
+    if count == 90:
+        for i in range(16):
+            print(f"{hex_value(0x0000 + i*16)}: ", end="")
+            for j in range(16):
+                print(f"{hex_value(memory[0x0000 + i*16 + j])} ", end="")
+            print()
+
+        for i in range(32):
+            print(f"{hex_value(0x0200 + i*32)}: ", end="")
+            for j in range(32):
+                print(f"{hex_value(memory[0x0200 + i*32 + j])} ", end="")
+            print()
+
+        
 
     # Update the screen
     pygame.display.flip()
