@@ -109,7 +109,6 @@ def branch_check(reg, memory, step, check, inc=False):
         reg["result"] = memory[get_pc(reg)]
     else: 
         reg["branch"] = 0
-        print()
     if inc: inc_pc(reg)
 
 def branch_execute(reg, step):

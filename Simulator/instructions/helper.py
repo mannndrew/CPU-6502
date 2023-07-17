@@ -1,13 +1,20 @@
 import readchar
-mode = "run"
+import time
+cycle_mode = "run"
+cycle_speed = 5
+print_mode = "yes"
 
 ########################################################### Functions #########################################################
 
 def cycle():
-    if mode == "step":
+    if cycle_mode == "step":
         readchar.readkey()
-    elif mode == "run":
-        pass
+    elif cycle_mode == "run":
+        if cycle_speed == 1: time.sleep(1/1)
+        elif cycle_speed == 2: time.sleep(1/10)
+        elif cycle_speed == 3: time.sleep(1/1000)
+        elif cycle_speed == 4: time.sleep(1/1000000)
+        elif cycle_speed == 5: pass
 
 def hex_value(dec):
     conversion_table = ['0', '1', '2', '3',
@@ -31,15 +38,25 @@ def hex_value(dec):
     
     return hex
 
-def print_registers(message, offset, reg):
+def instruction_message(message):
+    if print_mode == "yes":
+        print(message)
+    elif print_mode == "no":
+        pass
 
-    print(f"{message:<{offset}}"
-          f"A: {hex_value(reg['a'])}\t"
-          f"X: {hex_value(reg['x'])}\t"
-          f"Y: {hex_value(reg['y'])}\t"
-          f"SP: {hex_value(reg['sp'])}\t"
-          f"PC: {hex_value(reg['pch'])}{hex_value(reg['pcl'])}\t"
-          f"Flags: {bin(reg['flags'])}")
+def print_registers(message, offset, reg):
+    if print_mode == "yes":
+        print(f"{message:<{offset}}"
+            f"A: {hex_value(reg['a'])}\t"
+            f"X: {hex_value(reg['x'])}\t"
+            f"Y: {hex_value(reg['y'])}\t"
+            f"SP: {hex_value(reg['sp'])}\t"
+            f"PC: {hex_value(reg['pch'])}{hex_value(reg['pcl'])}\t"
+            f"Flags: {bin(reg['flags'])}")
+    elif print_mode == "no":
+        pass
+    
+
 
 def inc_pc(reg):
     if reg["pch"] == 0xFF and reg["pcl"] == 0xFF:
