@@ -1,7 +1,7 @@
 import readchar
 import time
 cycle_mode = "run"
-cycle_speed = 3
+cycle_speed = 5
 print_mode = "yes"
 
 ########################################################### Functions #########################################################
