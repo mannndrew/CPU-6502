@@ -119,7 +119,10 @@ def branch_execute(reg, step):
     print_registers(f"{step}. Branching", 50, reg)
     cycle()
 
+    carry = check_carry(reg["pcl"] + reg["result"])
     reg["pcl"] = add(reg["pcl"], reg["result"])
+    if not check_negative(reg["result"]): 
+        reg["pch"] = add(reg["pch"], carry)
 
 def compare_execute(reg, operand, step, mode, inc=False):
     print_registers(f"{step}. Executing compare", 50, reg)
@@ -287,7 +290,7 @@ def smb_execute(reg, operand, bit, step):
 def stop_execute(reg, step):
     print_registers(f"{step}. Executing STOP", 50, reg)
     cycle()
-
+    time.sleep(100000)
     exit(0)
 
 def trb_execute(reg, operand, step):

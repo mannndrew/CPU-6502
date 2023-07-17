@@ -1,7 +1,7 @@
 import readchar
 import time
 cycle_mode = "run"
-cycle_speed = 5
+cycle_speed = 3
 print_mode = "yes"
 
 ########################################################### Functions #########################################################
@@ -123,23 +123,23 @@ def get_carry(reg):
 
 # Check for possible flag changes
 def check_negative(result):
-    if (result & 0b10000000 != 0): return True
-    else: return False
+    if (result & 0b10000000 != 0): return 1
+    else: return 0
 
 def check_overflow_add(a, b, cin):
     c6 = ((a & 0b1111111) + (b & 0b1111111) + cin) >> 7 
     c7 = (a + b + cin) >> 8
-    if (c6 ^ c7 == 1): return True
-    else: return False
+    if (c6 ^ c7 == 1): return 1
+    else: return 0
             
 def check_zero(result):
-    if (result & 0b11111111 == 0): return True
-    else: return False
+    if (result & 0b11111111 == 0): return 1
+    else: return 0
             
 def check_carry(result):
     c7 = result >> 8
-    if (c7 == 1): return True
-    else: return False
+    if (c7 == 1): return 1
+    else: return 0
 
 # Set flags
 def set_negative(reg, result):
