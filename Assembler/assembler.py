@@ -30,6 +30,7 @@ labels = {}
 addressing_mode = [0]
 addressing_dict = {}
 hexdump = []
+mode = "mif" # mif or hex
 
 # Dictionaries
 instruction_dict = dictionary.instruction_dict
@@ -229,43 +230,63 @@ for i in range(len(hexdump)):
 file.close()
 
 
+if mode == "hex":
+    # Open write file
+    file = open(filename[:-4] + ".hex", "w")
 
-# Open write file
-file = open(filename[:-4] + ".hex", "w")
-
-# Write hexdump to file
-# address = starting_address
-
-for address in range(0x10000):
-    if (address < starting_address):
-        if address % 16 == 0:
-            file.write(f"{address:04x}: ")
-            
-        file.write(f"00 ")
-
-        if address % 16 == 15:
-            file.write("\n")
-
-    elif (starting_address <= address and 
-          address < starting_address + len(hexdump)):
-
+    for address in range(0x10000):
+        if (address < starting_address):
             if address % 16 == 0:
                 file.write(f"{address:04x}: ")
-
-            file.write(f"{hexdump[address - starting_address]} ")
+                
+            file.write(f"00 ")
 
             if address % 16 == 15:
                 file.write("\n")
 
-    else:
-        if address % 16 == 0:
-            file.write(f"{address:04x}: ")
-            
-        file.write(f"00 ")
+        elif (starting_address <= address and 
+            address < starting_address + len(hexdump)):
 
-        if address % 16 == 15:
-            file.write("\n")
+                if address % 16 == 0:
+                    file.write(f"{address:04x}: ")
 
+                file.write(f"{hexdump[address - starting_address]} ")
+
+                if address % 16 == 15:
+                    file.write("\n")
+
+        else:
+            if address % 16 == 0:
+                file.write(f"{address:04x}: ")
+                
+            file.write(f"00 ")
+
+            if address % 16 == 15:
+                file.write("\n")
+
+elif mode == "mif":
+    # Open write file
+    file = open(filename[:-4] + ".mif", "w")
+    file.write(f"DEPTH = 65536;\n")
+    file.write(f"WIDTH = 8;\n")
+    file.write(f"ADDRESS_RADIX = HEX;\n")
+    file.write(f"DATA_RADIX = HEX;\n")
+    file.write(f"CONTENT\n")
+    file.write(f"BEGIN\n")
+
+    for address in range(0x10000):
+        if (address < starting_address):
+            file.write(f"{address:04x}: 00;\n")
+
+        elif (starting_address <= address and 
+            address < starting_address + len(hexdump)):
+
+                file.write(f"{address:04x}: {hexdump[address - starting_address]};\n")
+
+        else:
+            file.write(f"{address:04x}: 00;\n")
+
+    file.write(f"END;")
 
 # Close write file
 file.close()
