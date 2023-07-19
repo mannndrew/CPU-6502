@@ -87,6 +87,7 @@ module ram (
 	defparam
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_output_a = "BYPASS",
+		altsyncram_component.init_file = "memory.mif",
 		altsyncram_component.intended_device_family = "MAX 10",
 		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
 		altsyncram_component.lpm_type = "altsyncram",
@@ -113,7 +114,7 @@ endmodule
 // Retrieval info: PRIVATE: AclrOutput NUMERIC "0"
 // Retrieval info: PRIVATE: BYTE_ENABLE NUMERIC "0"
 // Retrieval info: PRIVATE: BYTE_SIZE NUMERIC "8"
-// Retrieval info: PRIVATE: BlankMemory NUMERIC "1"
+// Retrieval info: PRIVATE: BlankMemory NUMERIC "0"
 // Retrieval info: PRIVATE: CLOCK_ENABLE_INPUT_A NUMERIC "0"
 // Retrieval info: PRIVATE: CLOCK_ENABLE_OUTPUT_A NUMERIC "0"
 // Retrieval info: PRIVATE: Clken NUMERIC "0"
@@ -125,7 +126,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
-// Retrieval info: PRIVATE: MIFfilename STRING ""
+// Retrieval info: PRIVATE: MIFfilename STRING "memory.mif"
 // Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "65536"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "3"
@@ -142,6 +143,7 @@ endmodule
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
+// Retrieval info: CONSTANT: INIT_FILE STRING "memory.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "MAX 10"
 // Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
@@ -169,5 +171,5 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL ram.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL ram.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL ram_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL ram_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL ram_bb.v FALSE
 // Retrieval info: LIB_FILE: altera_mf
