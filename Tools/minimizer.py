@@ -7,44 +7,51 @@ except IOError:
     print("Failed to open file")
     sys.exit()
 
-mem = []
+dup = set()
+
+cur = []
 temp = []
 res = []
 
 # read file
 for line in file:
     hex = line.strip()
+    # Check if empty
+    if hex == '': continue
+    # Check if duplicate
+    if hex in dup: continue
+    else: dup.add(hex)
     binary_val = bin(int(hex, 16))[2:].zfill(8)
     binary_list = [bit for bit in binary_val]  # Split binary string into a list of bits
-    mem.append(binary_list)
+    cur.append(binary_list)
 
 # close file
 file.close()
 
-while mem != [] or temp != []:
-    while mem != []:
+while cur != [] or temp != []:
+    while cur != []:
         # Iterate thorugh mem
-        for i in range(len(mem)):
+        for i in range(len(cur)):
             # Iterate through all 8 bits
             same = 8
             bit_idx = 0
             for j in range(8):
-                if mem[0][j] != mem[i][j]:
+                if cur[0][j] != cur[i][j]:
                     same -= 1
                     bit_idx = j
 
             if same == 7:
-                mem[0][bit_idx] = 'X'
-                temp.append(mem[0])
-                mem.pop(i)
-                mem.pop(0)
+                cur[0][bit_idx] = 'X'
+                temp.append(cur[0])
+                cur.pop(i)
+                cur.pop(0)
                 break
 
-            if i == len(mem) - 1:
-                res.append(mem[0])
-                mem.pop(0)
+            elif i == len(cur) - 1:
+                res.append(cur[0])
+                cur.pop(0)
 
-    mem = temp
+    cur = temp
     temp = []
 
 print("Result:")
