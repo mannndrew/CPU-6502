@@ -1,6 +1,7 @@
 module computer
 (
-	input clk
+	input clk,
+	output [7:0] test_led
 );
 
 wire read_write;
@@ -25,5 +26,7 @@ ram inst2
 	.wren(read_write),
 	.q(data_read)
 );
+
+assign test_led = data_read;
 
 endmodule

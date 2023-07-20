@@ -7,15 +7,17 @@ module cpu
 	output [15:0] address
 );
 
+assign data_write = 8'b00000000; /* PLACEHOLDER */
 
-// FSM
-wire increment_PC;
+
+// FSM Wires
+wire increment_pc;
 wire instruction_load;
 wire a_load;
 wire x_load;
 wire y_load;
 wire address_select;
-wire [1:0] arithmetic_select;
+wire [1:0] alu_select;
 wire [1:0] alu_opcode;
 
 
@@ -45,15 +47,13 @@ wire [7:0] flags_out;
 
 
 
-
-
 /*---------------------------------Registers---------------------------------*/
 
 
 program_counter pc_low
 (
 	.clk(clk),
-	.increment(increment_PC),
+	.increment(increment_pc),
 	.carry(carry),
 	.pc(pcl)
 );
@@ -111,7 +111,7 @@ flag_register f_reg
 
 arithmetic_mux mux1
 (
-	.select(arithmetic_select),
+	.select(alu_select),
 	.a(a_out),
 	.x(x_out),
 	.y(y_out),
@@ -129,6 +129,22 @@ address_mux mux2
 
 /*---------------------------------Units-------------------------------------*/
 
+
+control_unit clu
+(
+	.clk(clk),
+	.opcode(data_read),
+	.opcode_reg(opcode),
+	.instruction_load(instruction_load),
+	.increment_pc(increment_pc),
+	.a_load(a_load),
+	.x_load(x_load),
+	.y_load(y_load),
+	.read_write(read_write),
+	.address_select(address_select),
+	.alu_select(alu_select),
+	.alu_opcode(alu_opcode)
+);
 
 arithmetic_unit alu
 (
