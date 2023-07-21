@@ -1,6 +1,7 @@
 module control_unit
 (
 	input clk,
+	input rst,
 	input [7:0] opcode,
 	input [7:0] opcode_reg,
 	output reg instruction_load,
@@ -37,7 +38,9 @@ parameter
 /* States */
 parameter
 	FETCH				= 6'd0,
-	EXECUTE			= 6'd1;
+	IM0				= 6'd1;
+	ZP0				= 6'd2;
+	ZP1				= 6'd3;
 	
 	
 reg [5:0] state;
@@ -45,16 +48,24 @@ reg [5:0] state;
 	
 /* State Machine */
 	
-always @(posedge clk) begin
-	case (state)
-		FETCH:
-			casex (opcode)
-				8'bxxx01001: state <= EXECUTE;
-				8'b11x00000: state <= EXECUTE;
-				8'b101000x0: state <= EXECUTE;
-				default: state <= 6'd2;
-			endcase
-	endcase
+always @(posedge clk, negedge rst) begin
+	if (rst == 1'b0)
+		state <= FETCH;
+	else begin
+		case (state)
+			FETCH:
+				casex (opcode)
+					8'bxxx0_1001: state <= IM0;
+					8'b11x0_0000: state <= IM0;
+					8'b1010_00x0: state <= IM0;
+					8'bxxx0_01xx: state <= ZP0;
+					8'bxxxx_0111: state <= ZP0;
+					8'b000x_1000: state <= ZP0;
+					default: state <= FETCH;
+				endcase
+			IM0: state <= FETCH;
+		endcase
+	end
 end
 
 /* Instruction Load */
@@ -71,7 +82,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: increment_pc <= 1'b1;
-		EXECUTE: increment_pc <= 1'b1;
+		IM0: increment_pc <= 1'b1;
 		default: increment_pc <= 1'b0;
 	endcase
 end
@@ -81,7 +92,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: a_load <= 1'b0;
-		EXECUTE: a_load <= 1'b1;
+		IM0: a_load <= 1'b1;
 		default: a_load <= 1'b0;
 	endcase
 end
@@ -91,7 +102,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: x_load <= 1'b0;
-		EXECUTE: x_load <= 1'b0;
+		IM0: x_load <= 1'b0;
 		default: x_load <= 1'b0;
 	endcase
 end
@@ -101,7 +112,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: y_load <= 1'b0;
-		EXECUTE: y_load <= 1'b0;
+		IM0: y_load <= 1'b0;
 		default: y_load <= 1'b0;
 	endcase
 end
@@ -111,7 +122,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: read_write <= read;
-		EXECUTE: read_write <= write;
+		IM0: read_write <= read;
 		default: read_write <= read;
 	endcase
 end
@@ -121,7 +132,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: address_select <= PC;
-		EXECUTE: address_select <= PC;
+		IM0: address_select <= PC;
 		default: address_select <= PC;
 	endcase
 end

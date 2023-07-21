@@ -1,6 +1,7 @@
 module cpu
 (
 	input clk,
+	input rst,
 	input [7:0] data_read,
 	output read_write,
 	output [7:0] data_write,
@@ -122,7 +123,7 @@ address_mux mux2
 (
 	.address_select(address_select),
 	.pcl(pcl),
-	.pch(pcl),
+	.pch(pch),
 	.address(address)
 );
 
@@ -133,6 +134,7 @@ address_mux mux2
 control_unit clu
 (
 	.clk(clk),
+	.rst(rst),
 	.opcode(data_read),
 	.opcode_reg(opcode),
 	.instruction_load(instruction_load),

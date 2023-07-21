@@ -25,6 +25,11 @@ for line in file:
     binary_list = [bit for bit in binary_val]  # Split binary string into a list of bits
     cur.append(binary_list)
 
+print("Start:")
+for i in range(len(cur)):
+    print(''.join(cur[i]))
+print()
+
 # close file
 file.close()
 

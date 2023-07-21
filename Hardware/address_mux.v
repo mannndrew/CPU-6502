@@ -6,6 +6,6 @@ module address_mux
 	output [15:0] address
 );
 
-assign address = (address_select == 1'b1) ? {pch, pcl} : 16'b0;
+assign address = (address_select == 1'b0) ? {pch, pcl} : 16'b0;
 
 endmodule
