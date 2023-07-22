@@ -2,9 +2,17 @@ import sys
 import os
 
 
+# Check if espresso is compiled
+if not os.path.exists("bin/espresso"):
+    # Change directory to espresso-src
+    os.chdir("espresso-src")
+    # Compile espresso
+    os.system("make -B")
+    # Change directory back to original
+    os.chdir("..")
+
 
 # open input file
-
 try:
     file_one = open('hex/one.txt', 'r')
     file_dcs = open('hex/dcs.txt', 'r')
@@ -43,14 +51,11 @@ for line in file_dcs:
 file_one.close()
 file_dcs.close()
 
+# Move to bin directory
+os.chdir("bin")
 
 # open output file
-current_directory = os.getcwd()
-parent_directory = os.path.dirname(current_directory)
-output_directory = os.path.join(parent_directory, "bin")
-if not os.path.exists(output_directory): os.makedirs(output_directory)
-output_file = os.path.join(output_directory, "data.txt")
-file_output = open(output_file, 'w')
+file_output = open("data.txt", 'w')
 
 # print to file output.txt
 file_output.write(".i 8\n")
@@ -66,6 +71,11 @@ for i in range(len(dcs)):
 
 # Close output file
 file_output.close()
+
+
+
+# Run espresso
+os.system("./espresso data.txt")
 
 
 
