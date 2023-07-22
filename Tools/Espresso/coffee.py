@@ -14,8 +14,8 @@ if not os.path.exists("bin/espresso"):
 
 # open input file
 try:
-    file_one = open('hex/one.txt', 'r')
-    file_dcs = open('hex/dcs.txt', 'r')
+    file_one = open('input-hex/one.txt', 'r')
+    file_dcs = open('input-hex/dcs.txt', 'r')
 except IOError:
     print("Failed to open file")
     sys.exit()
