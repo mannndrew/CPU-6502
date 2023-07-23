@@ -6,6 +6,10 @@ module control_unit
 	input [7:0] opcode_reg,
 	output reg instruction_load,
 	output reg increment_pc,
+	output reg indirl_load,
+	output reg indirh_load,
+	output reg dirl_load,
+	output reg dirh_load,
 	output reg a_load,
 	output reg x_load,
 	output reg y_load,
@@ -38,8 +42,8 @@ parameter
 /* States */
 parameter
 	FETCH				= 6'd0,
-	IM0				= 6'd1;
-	ZP0				= 6'd2;
+	IM0				= 6'd1,
+	ZP0				= 6'd2,
 	ZP1				= 6'd3;
 	
 	
@@ -55,15 +59,17 @@ always @(posedge clk, negedge rst) begin
 		case (state)
 			FETCH:
 				casex (opcode)
-					8'bxxx0_1001: state <= IM0;
-					8'b11x0_0000: state <= IM0;
+					8'bxxx0_1001,
+					8'b11x0_0000,
 					8'b1010_00x0: state <= IM0;
-					8'bxxx0_01xx: state <= ZP0;
-					8'bxxxx_0111: state <= ZP0;
-					8'b000x_1000: state <= ZP0;
+					8'bxxx0_01xx,
+					8'bxxxx_0x11,
+					8'b0x0x_0100: state <= ZP0;
 					default: state <= FETCH;
 				endcase
 			IM0: state <= FETCH;
+			ZP0: state <= ZP1;
+			ZP1: state <= FETCH;
 		endcase
 	end
 end

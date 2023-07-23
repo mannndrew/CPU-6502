@@ -14,6 +14,10 @@ assign data_write = 8'b00000000; /* PLACEHOLDER */
 // FSM Wires
 wire increment_pc;
 wire instruction_load;
+wire indirl_load;
+wire indirh_load;
+wire dirl_load;
+wire dirh_load;
 wire a_load;
 wire x_load;
 wire y_load;
@@ -29,6 +33,14 @@ wire [7:0] pch;
 
 // Instruction Reg Wires
 wire [7:0] opcode;
+
+// Indirect Reg Wires
+wire [7:0] indirl_out;
+wire [7:0] indirh_out;
+
+// Direct Reg Wires
+wire [7:0] dirl_out;
+wire [7:0] dirh_out;
 
 // A Reg Wires
 wire [7:0] a_out;
@@ -72,6 +84,38 @@ register instruction_reg
 	.ena(instruction_load),
 	.d(data_read),
 	.q(opcode)
+);
+
+register indirl_reg
+(
+	.clk(clk),
+	.ena(indirl_load),
+	.d(data_read),
+	.q(indirl_out)
+);
+
+register indirh_reg
+(
+	.clk(clk),
+	.ena(indirh_load),
+	.d(data_read),
+	.q(indirh_out)
+);
+
+register dirl_reg
+(
+	.clk(clk),
+	.ena(dirl_load),
+	.d(data_read),
+	.q(dirl_out)
+);
+
+register dirh_reg
+(
+	.clk(clk),
+	.ena(dirh_load),
+	.d(data_read),
+	.q(dirh_out)
 );
 
 register a_reg
@@ -139,6 +183,10 @@ control_unit clu
 	.opcode_reg(opcode),
 	.instruction_load(instruction_load),
 	.increment_pc(increment_pc),
+	.indirl_load(indirl_load),
+	.indirh_load(indirh_load),
+	.dirl_load(dirl_load),
+	.dirh_load(dirh_load),
 	.a_load(a_load),
 	.x_load(x_load),
 	.y_load(y_load),
