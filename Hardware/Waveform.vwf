@@ -30,6 +30,8 @@ quit -f
 
 
 
+
+
 </modelsim_script>
 <modelsim_script_timing>onerror {exit -code 1}
 vlib work
@@ -48,6 +50,8 @@ proc simTimestamp {} {
 after 2500 simTimestamp
 run -all
 quit -f
+
+
 
 
 
@@ -89,7 +93,7 @@ HEADER
 	VERSION = 1;
 	TIME_UNIT = ns;
 	DATA_OFFSET = 0.0;
-	DATA_DURATION = 1000.0;
+	DATA_DURATION = 2000.0;
 	SIMULATION_TIME = 0.0;
 	GRID_PHASE = 0.0;
 	GRID_PERIOD = 100.0;
@@ -383,7 +387,7 @@ TRANSITION_LIST("clk")
 		REPEAT = 1;
 		NODE
 		{
-			REPEAT = 5;
+			REPEAT = 10;
 			LEVEL 0 FOR 100.0;
 			LEVEL 1 FOR 100.0;
 		}
@@ -396,8 +400,8 @@ TRANSITION_LIST("data_read[7]")
 	{
 		REPEAT = 1;
 		LEVEL 0 FOR 400.0;
-		LEVEL 1 FOR 200.0;
-		LEVEL 0 FOR 400.0;
+		LEVEL 1 FOR 400.0;
+		LEVEL 0 FOR 1200.0;
 	}
 }
 
@@ -408,7 +412,7 @@ TRANSITION_LIST("data_read[6]")
 		REPEAT = 1;
 		LEVEL 0 FOR 200.0;
 		LEVEL 1 FOR 200.0;
-		LEVEL 0 FOR 600.0;
+		LEVEL 0 FOR 1600.0;
 	}
 }
 
@@ -418,8 +422,8 @@ TRANSITION_LIST("data_read[5]")
 	{
 		REPEAT = 1;
 		LEVEL 0 FOR 200.0;
-		LEVEL 1 FOR 400.0;
-		LEVEL 0 FOR 400.0;
+		LEVEL 1 FOR 600.0;
+		LEVEL 0 FOR 1200.0;
 	}
 }
 
@@ -428,7 +432,7 @@ TRANSITION_LIST("data_read[4]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL 0 FOR 1000.0;
+		LEVEL 0 FOR 2000.0;
 	}
 }
 
@@ -437,9 +441,9 @@ TRANSITION_LIST("data_read[3]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL 0 FOR 400.0;
-		LEVEL 1 FOR 200.0;
-		LEVEL 0 FOR 400.0;
+		LEVEL 0 FOR 200.0;
+		LEVEL 1 FOR 600.0;
+		LEVEL 0 FOR 1200.0;
 	}
 }
 
@@ -449,8 +453,8 @@ TRANSITION_LIST("data_read[2]")
 	{
 		REPEAT = 1;
 		LEVEL 0 FOR 200.0;
-		LEVEL 1 FOR 400.0;
-		LEVEL 0 FOR 400.0;
+		LEVEL 1 FOR 600.0;
+		LEVEL 0 FOR 1200.0;
 	}
 }
 
@@ -459,6 +463,8 @@ TRANSITION_LIST("data_read[1]")
 	NODE
 	{
 		REPEAT = 1;
+		LEVEL 0 FOR 800.0;
+		LEVEL 1 FOR 200.0;
 		LEVEL 0 FOR 1000.0;
 	}
 }
@@ -470,7 +476,7 @@ TRANSITION_LIST("data_read[0]")
 		REPEAT = 1;
 		LEVEL 0 FOR 200.0;
 		LEVEL 1 FOR 200.0;
-		LEVEL 0 FOR 600.0;
+		LEVEL 0 FOR 1600.0;
 	}
 }
 
@@ -480,7 +486,7 @@ TRANSITION_LIST("rst")
 	{
 		REPEAT = 1;
 		LEVEL 0 FOR 200.0;
-		LEVEL 1 FOR 800.0;
+		LEVEL 1 FOR 1800.0;
 	}
 }
 
@@ -489,7 +495,7 @@ TRANSITION_LIST("address[15]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -498,7 +504,7 @@ TRANSITION_LIST("address[14]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -507,7 +513,7 @@ TRANSITION_LIST("address[13]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -516,7 +522,7 @@ TRANSITION_LIST("address[12]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -525,7 +531,7 @@ TRANSITION_LIST("address[11]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -534,7 +540,7 @@ TRANSITION_LIST("address[10]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -543,7 +549,7 @@ TRANSITION_LIST("address[9]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -552,7 +558,7 @@ TRANSITION_LIST("address[8]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -561,7 +567,7 @@ TRANSITION_LIST("address[7]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -570,7 +576,7 @@ TRANSITION_LIST("address[6]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -579,7 +585,7 @@ TRANSITION_LIST("address[5]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -588,7 +594,7 @@ TRANSITION_LIST("address[4]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -597,7 +603,7 @@ TRANSITION_LIST("address[3]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -606,7 +612,7 @@ TRANSITION_LIST("address[2]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -615,7 +621,7 @@ TRANSITION_LIST("address[1]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 
@@ -624,7 +630,7 @@ TRANSITION_LIST("address[0]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL X FOR 1000.0;
+		LEVEL X FOR 2000.0;
 	}
 }
 

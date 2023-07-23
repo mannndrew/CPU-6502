@@ -22,7 +22,7 @@ wire dirh_load;
 wire a_load;
 wire x_load;
 wire y_load;
-wire address_select;
+wire [1:0] address_select;
 wire [1:0] alu_select;
 wire [1:0] alu_opcode;
 
@@ -169,7 +169,8 @@ address_mux mux2
 	.address_select(address_select),
 	.pcl(pcl),
 	.pch(pch),
-	.zero(data_read),
+	.dirl(dirl_out),
+	.dirh(dirh_out),
 	.address(address)
 );
 
