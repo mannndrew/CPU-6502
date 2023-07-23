@@ -27,7 +27,8 @@ parameter
 
 /* Address Select */
 parameter
-	PC					= 1'b0;
+	PC					= 1'b0,
+	ZERO				= 1'b1;
 
 /* ALU Select */
 parameter
@@ -89,6 +90,8 @@ always @(state) begin
 	case (state)
 		FETCH: increment_pc <= 1'b1;
 		IM0: increment_pc <= 1'b1;
+		ZP0: increment_pc <= 1'b1;
+		ZP1: increment_pc <= 1'b0;
 		default: increment_pc <= 1'b0;
 	endcase
 end
@@ -97,8 +100,9 @@ end
 
 always @(state) begin
 	case (state)
-		FETCH: a_load <= 1'b0;
 		IM0: a_load <= 1'b1;
+		ZP0: a_load <= 1'b0;
+		ZP1: a_load <= 1'b1;
 		default: a_load <= 1'b0;
 	endcase
 end
@@ -109,6 +113,8 @@ always @(state) begin
 	case (state)
 		FETCH: x_load <= 1'b0;
 		IM0: x_load <= 1'b0;
+		ZP0: x_load <= 1'b0;
+		ZP1: x_load <= 1'b0;
 		default: x_load <= 1'b0;
 	endcase
 end
@@ -119,6 +125,8 @@ always @(state) begin
 	case (state)
 		FETCH: y_load <= 1'b0;
 		IM0: y_load <= 1'b0;
+		ZP0: y_load <= 1'b0;
+		ZP1: y_load <= 1'b0;
 		default: y_load <= 1'b0;
 	endcase
 end
@@ -129,6 +137,8 @@ always @(state) begin
 	case (state)
 		FETCH: read_write <= read;
 		IM0: read_write <= read;
+		ZP0: read_write <= read;
+		ZP1: read_write <= read;
 		default: read_write <= read;
 	endcase
 end
@@ -139,6 +149,8 @@ always @(state) begin
 	case (state)
 		FETCH: address_select <= PC;
 		IM0: address_select <= PC;
+		ZP0: address_select <= PC;
+		ZP1: address_select <= ZERO;
 		default: address_select <= PC;
 	endcase
 end

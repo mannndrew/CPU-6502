@@ -8,6 +8,7 @@ module cpu
 	output [15:0] address
 );
 
+
 assign data_write = 8'b00000000; /* PLACEHOLDER */
 
 
@@ -168,6 +169,7 @@ address_mux mux2
 	.address_select(address_select),
 	.pcl(pcl),
 	.pch(pch),
+	.zero(data_read),
 	.address(address)
 );
 
