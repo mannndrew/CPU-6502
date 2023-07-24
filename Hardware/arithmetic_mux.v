@@ -13,6 +13,7 @@ begin
 		2'b00: alu_a <= a;
 		2'b01: alu_a <= x;
 		2'b10: alu_a <= y;
+		2'b11: alu_a <= 8'b0;
 		default alu_a <= 8'b0;
 	endcase
 end

@@ -35,11 +35,15 @@ parameter
 parameter
 	A					= 2'b00,
 	X					= 2'b01,
-	Y					= 2'b10;
+	Y					= 2'b10,
+	Z					= 2'b11;
 	
 /* Opcodes */
 parameter
-	ADC				= 2'b00;
+	ADR0				= 2'b00,
+	ADR1				= 2'b01,
+	ADC				= 2'b10,
+	LDX				= 2'b11;
 
 /* States */
 parameter
@@ -53,6 +57,9 @@ parameter
 	
 	
 reg [5:0] state;
+reg [1:0] alu_select_ad;
+reg [1:0] alu_select_ex;
+reg [1:0] alu_opcode_ex;
 	
 	
 /* State Machine */
@@ -69,7 +76,7 @@ always @(posedge clk, negedge rst) begin
 					8'b1010_00x0: state <= IM0;
 					8'bxxx0_01xx,
 					8'bxxxx_0x11,
-					8'b0x0x_0100: state <= ZP0;
+					8'bxxxx_01xx: state <= ZP0;
 					8'bxxx0_1101,
 					8'bxxx0_1110,
 					8'bxx0x_1100,
@@ -246,23 +253,68 @@ always @(state) begin
 	endcase
 end
 
+
+
 /* ALU Select */
 
 always @(opcode_reg) begin
 	casex (opcode_reg)
-		8'b01110010: alu_select <= A;
-		8'b011xxx01: alu_select <= A;
-		default: alu_select <= X;
+		8'bxxx0_00x1,
+		8'bxx01_1110,
+		8'bx1x1_x1x0,
+		8'b0xx1_x110,
+		8'bxx11_x10x,
+		8'bxxx1_x101,
+		8'b1xx1_010x: alu_select_ad <= X;
+		8'b10x1_0110,
+		8'b1011_x110,
+		8'bxxx1_x001: alu_select_ad <= Y;
+		default: alu_select_ad <= Z;
 	endcase
 end
+
+always @(opcode_reg) begin
+	casex (opcode_reg)
+		8'b0111_0010,
+		8'b011x_xx01: alu_select_ex <= A; //ADC
+		default: alu_select_ex <= Z;
+	endcase
+end
+
+always @(state, alu_select_ad, alu_select_ex) begin
+	case (state)
+		IM0: alu_select <= alu_select_ex;
+		ZP0: alu_select <= alu_select_ad;
+		ZP1: alu_select <= alu_select_ex;
+		ABS0: alu_select <= alu_select_ad;
+		ABS1: alu_select <= Z;
+		ABS2: alu_select <= alu_select_ex;
+		default: alu_select <= Z;
+	endcase
+end
+
+
+
 
 /* ALU Opcode */
 
 always @(opcode_reg) begin
 	casex (opcode_reg)
-		8'b01110010: alu_opcode <= ADC;
-		8'b011xxx01: alu_opcode <= ADC;
-		default: alu_opcode <= 2'b11;
+		8'b01110010,
+		8'b011xxx01: alu_opcode_ex <= ADC; // ADC
+		default: alu_opcode_ex <= 2'b01;
+	endcase
+end
+
+always @(state, alu_opcode_ex) begin
+	case (state)
+		IM0: alu_opcode <= alu_opcode_ex;
+		ZP0: alu_opcode <= ADR0;
+		ZP1: alu_opcode <= alu_opcode_ex;
+		ABS0: alu_opcode <= ADR0;
+		ABS1: alu_opcode <= ADR1;
+		ABS2: alu_opcode <= alu_opcode_ex;
+		default: alu_opcode <= 2'b01;
 	endcase
 end
 

@@ -91,7 +91,7 @@ register indirl_reg
 (
 	.clk(clk),
 	.ena(indirl_load),
-	.d(data_read),
+	.d(alu_out),
 	.q(indirl_out)
 );
 
@@ -99,7 +99,7 @@ register indirh_reg
 (
 	.clk(clk),
 	.ena(indirh_load),
-	.d(data_read),
+	.d(alu_out),
 	.q(indirh_out)
 );
 
@@ -107,7 +107,7 @@ register dirl_reg
 (
 	.clk(clk),
 	.ena(dirl_load),
-	.d(data_read),
+	.d(alu_out),
 	.q(dirl_out)
 );
 
@@ -115,7 +115,7 @@ register dirh_reg
 (
 	.clk(clk),
 	.ena(dirh_load),
-	.d(data_read),
+	.d(alu_out),
 	.q(dirh_out)
 );
 
@@ -201,6 +201,7 @@ control_unit clu
 
 arithmetic_unit alu
 (
+	.clk(clk),
 	.alu_opcode(alu_opcode),
 	.alu_a(alu_a),
 	.alu_b(data_read),
