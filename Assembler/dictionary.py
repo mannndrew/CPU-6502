@@ -132,5 +132,6 @@ jump_dict = {
 # print values in dictionary
 for key, value in instruction_dict.items():
     for key2, value2 in value.items():
-        if key2 == 4 or key2 == 14 or key2 == 16:
+        if key2 == 1 or key2==3 or key2==4:
             print(value2)
+    

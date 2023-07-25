@@ -6,8 +6,16 @@ module cpu
 	output read_write,
 	output [7:0] data_write,
 	output [15:0] address
+	
+	,output [7:0] register_a 
+	,output [7:0] register_x 
+	,output [7:0] register_y 
+	,output [5:0] fsm
 );
 
+assign register_a = a_out;
+assign register_x = x_out;
+assign register_y = y_out;
 
 assign data_write = 8'b00000000; /* PLACEHOLDER */
 
@@ -197,6 +205,7 @@ control_unit clu
 	.address_select(address_select),
 	.alu_select(alu_select),
 	.alu_opcode(alu_opcode)
+	,.fsm(fsm)
 );
 
 arithmetic_unit alu

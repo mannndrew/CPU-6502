@@ -24,12 +24,12 @@ assign adc_n = adc[7];
 assign adc_v = (~alu_a[7] & ~alu_b[7] & adc[7]) || (alu_a[7] & alu_b[7] & ~adc[7]);
 assign adc_z = ~(|adc);
 
-// LDX
-wire [7:0] ldx;
-wire ldx_n, ldx_z;
-assign ldx = alu_b;
-assign ldx_n = ldx[7];
-assign ldx_z = !(|ldx);
+// LDA, LDX, LDY
+wire [7:0] ld;
+wire ld_n, ld_z;
+assign ld = alu_b;
+assign ld_n = ld[7];
+assign ld_z = !(|ld);
 
 always @(posedge clk) begin
 	carry_tmp <= flags_out[0]; 
@@ -56,9 +56,9 @@ begin
 			flags_ena <= 8'b11000011; 
 		end
 		
-		2'b11: begin // LDX
+		2'b11: begin // LDA, LDX, LDY
 			alu_out <= alu_b; 
-			flags_out <= {ldx_n, 5'b0000, ldx_z, 1'b0}; 
+			flags_out <= {ld_n, 5'b0000, ld_z, 1'b0}; 
 			flags_ena <= 8'b01000010; 
 		end
 		

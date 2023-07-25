@@ -17,7 +17,10 @@ module control_unit
 	output reg [1:0] address_select,
 	output reg [1:0] alu_select,
 	output reg [1:0] alu_opcode
+	,output [5:0] fsm
 );
+
+assign fsm = state;
 
 /* Read/Write */
 parameter
@@ -43,7 +46,7 @@ parameter
 	ADR0				= 2'b00,
 	ADR1				= 2'b01,
 	ADC				= 2'b10,
-	LDX				= 2'b11;
+	LD					= 2'b11;
 
 /* States */
 parameter
@@ -60,7 +63,7 @@ reg [5:0] state;
 reg [1:0] alu_select_ad;
 reg [1:0] alu_select_ex;
 reg [1:0] alu_opcode_ex;
-	
+reg load;
 	
 /* State Machine */
 	
@@ -77,11 +80,13 @@ always @(posedge clk, negedge rst) begin
 					8'bxxx0_01xx,
 					8'bxxxx_0x11,
 					8'bxxxx_01xx: state <= ZP0;
-					8'bxxx0_1101,
-					8'bxxx0_1110,
-					8'bxx0x_1100,
-					8'bx0x0_11x0,
-					8'b1xx0_11x0: state <= ABS0;
+					8'bxx0x_11x0,
+					8'b1xxx_11x0,
+					8'bx0xx_11x0,
+					8'b0010_00x0,
+					8'bxxx1_1x01,
+					8'bxxxx_1110,
+					8'bxxxx_1101: state <= ABS0;
 					default: state <= FETCH;
 				endcase
 			IM0: state <= FETCH;
@@ -152,13 +157,8 @@ end
 
 always @(state) begin
 	case (state)
-		FETCH: dirl_load <= 1'b0;
-		IM0: dirl_load <= 1'b0;
 		ZP0: dirl_load <= 1'b1;
-		ZP1: dirl_load <= 1'b0;
 		ABS0: dirl_load <= 1'b1;
-		ABS1: dirl_load <= 1'b0;
-		ABS2: dirl_load <= 1'b0;
 		default: dirl_load <= 1'b0;
 	endcase
 end
@@ -167,58 +167,68 @@ end
 
 always @(state) begin
 	case (state)
-		FETCH: dirh_load <= 1'b0;
-		IM0: dirh_load <= 1'b0;
-		ZP0: dirh_load <= 1'b0;
-		ZP1: dirh_load <= 1'b0;
-		ABS0: dirh_load <= 1'b0;
 		ABS1: dirh_load <= 1'b1;
-		ABS2: dirh_load <= 1'b0;
 		default: dirh_load <= 1'b0;
+	endcase
+end
+
+/* Load */
+
+always @(state) begin
+	case (state)
+		IM0: load <= 1'b1;
+		ZP1: load <= 1'b1;
+		ABS2: load <= 1'b1;
+		default: load <= 1'b0;
 	endcase
 end
 
 /* A Load */
 
-always @(state) begin
-	case (state)
-		FETCH: a_load <= 1'b0;
-		IM0: a_load <= 1'b1;
-		ZP0: a_load <= 1'b0;
-		ZP1: a_load <= 1'b1;
-		ABS0: a_load <= 1'b0;
-		ABS1: a_load <= 1'b0;
-		ABS2: a_load <= 1'b1;
+always @(opcode_reg, load) begin
+	casex (opcode_reg)
+		8'bx000_x01x,
+		8'bxx11_001x,
+		8'b0xxx_001x,
+		8'b0xx0_x01x,
+		8'b00xx_x01x,
+		8'b1001_1000,
+		8'bxx1x_xx01,
+		8'b0xxx_xx01,
+		8'b0110_10xx: a_load <= 1'b1 & load; 
+		/* ADC, AND, ASL A, DEC A, EOR, INC A
+		LDA, LSR A, ORA, PLA, ROL A, ROR A, SBC
+		TXA, TYA */
+
 		default: a_load <= 1'b0;
 	endcase
 end
 
 /* X Load */
 
-always @(state) begin
-	case (state)
-		FETCH: x_load <= 1'b0;
-		IM0: x_load <= 1'b0;
-		ZP0: x_load <= 1'b0;
-		ZP1: x_load <= 1'b0;
-		ABS0: x_load <= 1'b0;
-		ABS1: x_load <= 1'b0;
-		ABS2: x_load <= 1'b0;
+always @(opcode_reg, load) begin
+	casex (opcode_reg)
+		8'b1010_xx10,
+		8'b1110_1000,
+		8'b1100_x010,
+		8'b101x_x110,
+		8'b1x11_101x: x_load <= 1'b1 & load;
+		/* DEX, INX, LDX, PLX, TAX, TSX */
+		
 		default: x_load <= 1'b0;
 	endcase
 end
 
 /* Y Load */
 
-always @(state) begin
-	case (state)
-		FETCH: y_load <= 1'b0;
-		IM0: y_load <= 1'b0;
-		ZP0: y_load <= 1'b0;
-		ZP1: y_load <= 1'b0;
-		ABS0: y_load <= 1'b0;
-		ABS1: y_load <= 1'b0;
-		ABS2: y_load <= 1'b0;
+always @(opcode_reg, load) begin
+	casex (opcode_reg)
+		8'b1x11_x100,
+		8'b0111_101x,
+		8'b1x00_1000,
+		8'b1010_xx00: y_load <= 1'b1 & load;
+		/* DEY, INY, LDY, PLY, TAY */
+		
 		default: y_load <= 1'b0;
 	endcase
 end
