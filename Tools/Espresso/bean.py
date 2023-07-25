@@ -1,6 +1,7 @@
 import sys
 import os
 
+############################################# Compiling Espresso #####################################
 
 # Check if espresso is compiled
 if not os.path.exists("bin/espresso"):
@@ -10,6 +11,9 @@ if not os.path.exists("bin/espresso"):
     os.system("make -B")
     # Change directory back to original
     os.chdir("..")
+
+
+############################################# Open Input #############################################
 
 
 # open input file
@@ -51,6 +55,10 @@ for line in file_dcs:
 file_one.close()
 file_dcs.close()
 
+
+############################################# Make Output ############################################
+
+
 # Move to bin directory
 os.chdir("bin")
 
@@ -73,10 +81,25 @@ for i in range(len(dcs)):
 file_output.close()
 
 
+############################################# Run Program ############################################
+
 
 # Run espresso
 os.system("./espresso data.txt")
 
 
+############################################# Print Output ###########################################
 
+
+# Open output file
+file = open("result.txt", 'r')
+for line in file:
+    line = line[0:8]
+    line = line[0:4] + "_" + line[4:8]
+    line = line.replace("-", "x")
+    line = "8'b" + line
+    print(line)
+
+# Close output file
+file.close()
 
