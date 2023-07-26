@@ -1,19 +1,20 @@
 module arithmetic_mux
 (
-	input [1:0] select,
+	input [2:0] select,
 	input [7:0] a,
 	input [7:0] x,
 	input [7:0] y,
+	input [7:0] m,
 	output reg [7:0] alu_a
 );
 
-always @(select, a, x, y)
+always @(*)
 begin
 	case (select)
-		2'b00: alu_a <= a;
-		2'b01: alu_a <= x;
-		2'b10: alu_a <= y;
-		2'b11: alu_a <= 8'b0;
+		3'b000: alu_a <= a;
+		3'b001: alu_a <= x;
+		3'b010: alu_a <= y;
+		3'b011: alu_a <= m;
 		default alu_a <= 8'b0;
 	endcase
 end

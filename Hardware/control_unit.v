@@ -15,7 +15,7 @@ module control_unit
 	output reg y_load,
 	output reg read_write,
 	output reg [2:0] address_select,
-	output reg [1:0] alu_select,
+	output reg [2:0] alu_select,
 	output reg [1:0] alu_opcode
 	,output [5:0] fsm
 );
@@ -34,14 +34,17 @@ parameter
 	ZERO				= 3'b001,
 	ABS				= 3'b010,
 	IND_ZERO_0		= 3'b011,
-	IND_ZERO_1		= 3'b100;
+	IND_ZERO_1		= 3'b100,
+	IND_ABS_0		= 3'b101,
+	IND_ABS_1		= 3'b110;
 
 /* ALU Select */
 parameter
-	A					= 2'b00,
-	X					= 2'b01,
-	Y					= 2'b10,
-	Z					= 2'b11;
+	A					= 3'b000,
+	X					= 3'b001,
+	Y					= 3'b010,
+	M					= 3'b011,
+	Z					= 3'b100;
 	
 /* Opcodes */
 parameter
@@ -53,21 +56,27 @@ parameter
 /* States */
 parameter
 	FETCH				= 6'd0,
-	IM0				= 6'd1,
-	ZP0				= 6'd2,
-	ZP1				= 6'd3,
-	ABS0				= 6'd4,
-	ABS1				= 6'd5,
-	ABS2				= 6'd6,
-	IND_ZP0			= 6'd7,
-	IND_ZP1			= 6'd8,
-	IND_ZP2			= 6'd9,
-	IND_ZP3			= 6'd10;
+	AC0				= 6'd1,
+	IM0				= 6'd2,
+	ZP0				= 6'd3,
+	ZP1				= 6'd4,
+	ABS0				= 6'd5,
+	ABS1				= 6'd6,
+	ABS2				= 6'd7,
+	IND_ZP0			= 6'd8,
+	IND_ZP1			= 6'd9,
+	IND_ZP2			= 6'd10,
+	IND_ZP3			= 6'd11,
+	IND_ABS0			= 6'd12,
+	IND_ABS1			= 6'd13,
+	IND_ABS2			= 6'd14,
+	IND_ABS3			= 6'd15,
+	IND_ABS4			= 6'd16;
 	
 	
 reg [5:0] state;
-reg [1:0] alu_select_ad;
-reg [1:0] alu_select_ex;
+reg [2:0] alu_select_ad;
+reg [2:0] alu_select_ex;
 reg [1:0] alu_opcode_ex;
 reg load;
 	
@@ -80,6 +89,8 @@ always @(posedge clk, negedge rst) begin
 		case (state)
 			FETCH:
 				casex (opcode)
+					8'b0xx0_x01x,
+					8'b00xx_101x: state <= AC0;
 					8'b1x10_00x0,
 					8'b11x0_00x0,
 					8'bxxx0_1001: state <= IM0;
@@ -95,6 +106,7 @@ always @(posedge clk, negedge rst) begin
 					8'bxxxx_00x1: state <= IND_ZP0;
 					default: state <= FETCH;
 				endcase
+			AC0: state <= FETCH;
 			IM0: state <= FETCH;
 			ZP0: state <= ZP1;
 			ZP1: state <= FETCH;
@@ -105,6 +117,12 @@ always @(posedge clk, negedge rst) begin
 			IND_ZP1: state <= IND_ZP2;
 			IND_ZP2: state <= IND_ZP3;
 			IND_ZP3: state <= FETCH;
+			IND_ABS0: state <= IND_ABS1;
+			IND_ABS1: state <= IND_ABS2;
+			IND_ABS2: state <= IND_ABS3;
+			IND_ABS3: state <= IND_ABS4;
+			IND_ABS4: state <= FETCH;
+			
 		endcase
 	end
 end
@@ -128,6 +146,8 @@ always @(state) begin
 		ABS0: increment_pc <= 1'b1;
 		ABS1: increment_pc <= 1'b1;
 		IND_ZP0: increment_pc <= 1'b1;
+		IND_ABS0: increment_pc <= 1'b1;
+		IND_ABS1: increment_pc <= 1'b1;
 		default: increment_pc <= 1'b0;
 	endcase
 end
@@ -137,6 +157,7 @@ end
 always @(state) begin
 	case (state)
 		IND_ZP0: indirl_load <= 1'b1;
+		IND_ABS0: indirl_load <= 1'b1;
 		default: indirl_load <= 1'b0;
 	endcase
 end
@@ -145,13 +166,7 @@ end
 
 always @(state) begin
 	case (state)
-		FETCH: indirh_load <= 1'b0;
-		IM0: indirh_load <= 1'b0;
-		ZP0: indirh_load <= 1'b0;
-		ZP1: indirh_load <= 1'b0;
-		ABS0: indirh_load <= 1'b0;
-		ABS1: indirh_load <= 1'b0;
-		ABS2: indirh_load <= 1'b0;
+		IND_ABS1: indirh_load <= 1'b1;
 		default: indirh_load <= 1'b0;
 	endcase
 end
@@ -163,6 +178,7 @@ always @(state) begin
 		ZP0: dirl_load <= 1'b1;
 		ABS0: dirl_load <= 1'b1;
 		IND_ZP1: dirl_load <= 1'b1;
+		IND_ABS2: dirl_load <= 1'b1;
 		default: dirl_load <= 1'b0;
 	endcase
 end
@@ -173,6 +189,7 @@ always @(state) begin
 	case (state)
 		ABS1: dirh_load <= 1'b1;
 		IND_ZP2: dirh_load <= 1'b1;
+		IND_ABS3: dirh_load <= 1'b1;
 		default: dirh_load <= 1'b0;
 	endcase
 end
@@ -181,10 +198,12 @@ end
 
 always @(state) begin
 	case (state)
+		AC0: load <= 1'b1;
 		IM0: load <= 1'b1;
 		ZP1: load <= 1'b1;
 		ABS2: load <= 1'b1;
 		IND_ZP3: load <= 1'b1;
+		IND_ABS4: load <= 1'b1;
 		default: load <= 1'b0;
 	endcase
 end
@@ -244,6 +263,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: read_write <= read;
+		AC0: read_write <= read;
 		IM0: read_write <= read;
 		ZP0: read_write <= read;
 		ZP1: read_write <= read;
@@ -254,6 +274,11 @@ always @(state) begin
 		IND_ZP1: read_write <= read;
 		IND_ZP2: read_write <= read;
 		IND_ZP3: read_write <= read;
+		IND_ABS0: read_write <= read;
+		IND_ABS1: read_write <= read;
+		IND_ABS2: read_write <= read;
+		IND_ABS3: read_write <= read;
+		IND_ABS4: read_write <= read;
 		default: read_write <= read;
 	endcase
 end
@@ -263,6 +288,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: address_select <= PC;
+		AC0: address_select <= PC;
 		IM0: address_select <= PC;
 		ZP0: address_select <= PC;
 		ZP1: address_select <= ZERO;
@@ -273,6 +299,11 @@ always @(state) begin
 		IND_ZP1: address_select <= IND_ZERO_0;
 		IND_ZP2: address_select <= IND_ZERO_1;
 		IND_ZP3: address_select <= ABS;
+		IND_ABS0: address_select <= PC;
+		IND_ABS1: address_select <= PC;
+		IND_ABS2: address_select <= IND_ABS_0;
+		IND_ABS3: address_select <= IND_ABS_1;
+		IND_ABS4: address_select <= ABS;
 		default: address_select <= PC;
 	endcase
 end
@@ -300,27 +331,40 @@ end
 always @(opcode_reg) begin
 	casex (opcode_reg)
 		8'b0111_0010,
-		8'b011x_xx01: alu_select_ex <= A; //ADC
-		default: alu_select_ex <= Z;
+		8'b011x_xx01: alu_select_ex <= A; 
+		/* A: ADC, AND, ASL A, BBR, BBS, BIT, CMP, DEC A, EOR, INC A, LSR A, ORA, PHA, ROL A, ROR A, SBC, STA, TAX, TAY, TRB, TSB*/
+		/* F: BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS, CLC, CLD, CLI, CLV, PHP, SEC, SED, SEI */
+		/* M: ASL, DEC, INC, LDA, LDX, LDY, LSR, PLA, PLP, PLX, PLY, RMB, ROL, ROR, SMB*/
+		/* X: CPX, DEX, INX, PHX, STX, TXA, TXS    */
+		/* Y: CPY, DEY, INY, PHY, STY, TYA    */
+		/* Z: STZ */
+		/* SP: TSX */
+		
+		Outputs:
+
+		/* M: ASL, DEC, INC, LSR, RMB, ROL, ROR, SMB, STA, STX, STY, STZ, TRB, TSB							*/
+		default: alu_select_ex <= M;
 	endcase
 end
 
 always @(state, alu_select_ad, alu_select_ex) begin
 	case (state)
+		AC0: alu_select <= A;
 		IM0: alu_select <= alu_select_ex;
 		ZP0: alu_select <= alu_select_ad;
 		ZP1: alu_select <= alu_select_ex;
 		ABS0: alu_select <= alu_select_ad;
-		ABS1: alu_select <= Z;
 		ABS2: alu_select <= alu_select_ex;
 		
 		IND_ZP0: if (alu_select_ad == X) alu_select <= alu_select_ad;
 					else alu_select <= Z;
 		IND_ZP1: if (alu_select_ad == Y) alu_select <= alu_select_ad;
 					else alu_select <= Z;
-		IND_ZP2: if (alu_select_ad == Y) alu_select <= alu_select_ad;
-					else alu_select <= Z;
 		IND_ZP3: alu_select <= alu_select_ex;
+		
+		
+		IND_ABS0: alu_select <= alu_select_ad;
+		IND_ABS4: alu_select <= alu_select_ex;
 		
 		default: alu_select <= Z;
 	endcase
@@ -335,12 +379,13 @@ always @(opcode_reg) begin
 	casex (opcode_reg)
 		8'b01110010,
 		8'b011xxx01: alu_opcode_ex <= ADC; // ADC
-		default: alu_opcode_ex <= 2'b01;
+		default: alu_opcode_ex <= 2'b11;
 	endcase
 end
 
 always @(state, alu_opcode_ex) begin
 	case (state)
+		AC0: alu_opcode <= alu_opcode_ex;
 		IM0: alu_opcode <= alu_opcode_ex;
 		ZP0: alu_opcode <= ADR0;
 		ZP1: alu_opcode <= alu_opcode_ex;
@@ -351,6 +396,11 @@ always @(state, alu_opcode_ex) begin
 		IND_ZP1: alu_opcode <= ADR0;
 		IND_ZP2: alu_opcode <= ADR1;
 		IND_ZP3: alu_opcode <= alu_opcode_ex;
+		IND_ABS0: alu_opcode <= ADR0;
+		IND_ABS1: alu_opcode <= ADR1;
+		IND_ABS2: alu_opcode <= ADR0;
+		IND_ABS3: alu_opcode <= ADR0;
+		IND_ABS4: alu_opcode <= alu_opcode_ex;
 		default: alu_opcode <= 2'b01;
 	endcase
 end

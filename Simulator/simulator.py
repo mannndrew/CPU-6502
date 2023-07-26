@@ -915,7 +915,7 @@ while True:
             pull(reg, memory, step=2, mode="y", update_flags=True)
             
         case 0x7C:
-            # JMP (a, x): ? cycles
+            # JMP (a, x): 5 cycles
             instruction_message(f"---JMP (a, x) Instruction at address {hex(address)}---")
             fetch_instruction(reg, step=1, name="JMP", inc=True)
             fetch_absolute_low(reg, memory[get_pc(reg)], step=2, mode="indirl", plus="x", inc=True)

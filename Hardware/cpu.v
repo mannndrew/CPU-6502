@@ -31,7 +31,7 @@ wire a_load;
 wire x_load;
 wire y_load;
 wire [2:0] address_select;
-wire [1:0] alu_select;
+wire [2:0] alu_select;
 wire [1:0] alu_opcode;
 
 
@@ -169,6 +169,7 @@ arithmetic_mux mux1
 	.a(a_out),
 	.x(x_out),
 	.y(y_out),
+	.m(data_read),
 	.alu_a(alu_a)
 );
 

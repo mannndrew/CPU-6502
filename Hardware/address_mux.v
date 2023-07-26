@@ -11,7 +11,9 @@ module address_mux
 );
 
 wire [7:0] indirl_plus;
+wire [15:0] indir_plus;
 assign indirl_plus = indirl + 1'b1;
+assign indir_plus = {indirh, indirl} + 1'b1;
 
 always @(*) begin
 	case (address_select)
@@ -20,6 +22,8 @@ always @(*) begin
 		3'b010: address = {dirh, dirl};
 		3'b011: address = {8'h00, indirl};
 		3'b100: address = {8'h00, indirl_plus};
+		3'b101: address = {indirh, indirl};
+		3'b110: address = {indir_plus};
 		default: address = 16'h0;
 	endcase
 end

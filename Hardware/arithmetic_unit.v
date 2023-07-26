@@ -27,7 +27,7 @@ assign adc_z = ~(|adc);
 // LDA, LDX, LDY
 wire [7:0] ld;
 wire ld_n, ld_z;
-assign ld = alu_b;
+assign ld = alu_a;
 assign ld_n = ld[7];
 assign ld_z = !(|ld);
 
