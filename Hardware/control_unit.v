@@ -107,16 +107,29 @@ always @(posedge clk, negedge rst) begin
 					default: state <= FETCH;
 				endcase
 			AC0: state <= FETCH;
+			
+			
 			IM0: state <= FETCH;
+			
+			
 			ZP0: state <= ZP1;
 			ZP1: state <= FETCH;
+			// else goto store
+			
+			
 			ABS0: state <= ABS1;
 			ABS1: state <= ABS2;
 			ABS2: state <= FETCH;
+			// else goto store
+			
+			
 			IND_ZP0: state <= IND_ZP1;
 			IND_ZP1: state <= IND_ZP2;
 			IND_ZP2: state <= IND_ZP3;
 			IND_ZP3: state <= FETCH;
+			// else goto store
+			
+			
 			IND_ABS0: state <= IND_ABS1;
 			IND_ABS1: state <= IND_ABS2;
 			IND_ABS2: state <= IND_ABS3;
@@ -332,17 +345,26 @@ always @(opcode_reg) begin
 	casex (opcode_reg)
 		8'b0111_0010,
 		8'b011x_xx01: alu_select_ex <= A; 
-		/* A: ADC, AND, ASL A, BBR, BBS, BIT, CMP, DEC A, EOR, INC A, LSR A, ORA, PHA, ROL A, ROR A, SBC, STA, TAX, TAY, TRB, TSB*/
-		/* F: BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS, CLC, CLD, CLI, CLV, PHP, SEC, SED, SEI */
-		/* M: ASL, DEC, INC, LDA, LDX, LDY, LSR, PLA, PLP, PLX, PLY, RMB, ROL, ROR, SMB*/
-		/* X: CPX, DEX, INX, PHX, STX, TXA, TXS    */
-		/* Y: CPY, DEY, INY, PHY, STY, TYA    */
-		/* Z: STZ */
-		/* SP: TSX */
+		/* ------------------------------------------------------- Inputs -------------------------------------------------------- */
+		/* A: ADC, AND, ASL A, BBR, BBS, BIT, CMP, DEC A, EOR, INC A, LSR A, ORA, PHA, ROL A, ROR A, SBC, STA, TAX, TAY, TRB, TSB	*/
+		/* F: BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS, CLC, CLD, CLI, CLV, PHP, SEC, SED, SEI 											*/
+		/* M: ASL, DEC, INC, LDA, LDX, LDY, LSR, PLA, PLP, PLX, PLY, RMB, ROL, ROR, SMB															*/
+		/* X: CPX, DEX, INX, PHX, STX, TXA, TXS    																											*/
+		/* Y: CPY, DEY, INY, PHY, STY, TYA   																													*/
+		/* Z: STZ 																																						*/
+		/* SP: TSX 																																						*/
 		
-		Outputs:
-
-		/* M: ASL, DEC, INC, LSR, RMB, ROL, ROR, SMB, STA, STX, STY, STZ, TRB, TSB							*/
+		/* ------------------------------------------------------- Outputs ------------------------------------------------------- */
+		/* A: ADC, AND, ASL A, DEC A, EOR, INC A, LDA, LSR A, ORA, PLA, ROL A, ROR A, SBC, TXA, TYA 											*/
+		/* F: CLC, CLD, CLI, CLV, PLP, SEC, SED, SEI 																										*/
+		/* M: ASL, DEC, INC, LSR, PHA, PHP, PHX, PHY, RMB, ROL, ROR, SMB, STA, STX, STY, STZ, TRB, TSB   									*/
+		/* X: DEX, INX, LDX, PLX, TAX, TSX,     																												*/
+		/* Y: DEY, INY, LDY, PLY, TAY   																															*/
+		/* Z:  																																							*/
+		/* SP: TXS  																																					*/
+		/* PC: JMP, JSR 																																				*/
+							
+		
 		default: alu_select_ex <= M;
 	endcase
 end
