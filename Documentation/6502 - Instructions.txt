@@ -665,7 +665,6 @@
 /* M: ASL, DEC, INC, LSR, PHA, PHP, PHX, PHY, RMB, ROL, ROR, SMB, STA, STX, STY, STZ, TRB, TSB   				*/
 /* X: DEX, INX, LDX, PLX, TAX, TSX,     											*/
 /* Y: DEY, INY, LDY, PLY, TAY  													*/
-/* Z:  																*/
 /* SP: TXS 															*/
 /* PC: JMP, JSR 														*/
 

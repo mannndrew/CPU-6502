@@ -17,8 +17,6 @@ assign register_a = a_out;
 assign register_x = x_out;
 assign register_y = y_out;
 
-assign data_write = 8'b00000000; /* PLACEHOLDER */
-
 
 // FSM Wires
 wire increment_pc;
@@ -30,15 +28,19 @@ wire dirh_load;
 wire a_load;
 wire x_load;
 wire y_load;
+wire branch_valid;
+wire branch_load;
 wire [2:0] address_select;
 wire [2:0] alu_select;
-wire [1:0] alu_opcode;
+wire [2:0] alu_opcode;
 
 
 // Program Counter Wires
 wire carry;
 wire [7:0] pcl;
 wire [7:0] pch;
+wire [7:0] pcl_branch;
+wire [7:0] pch_branch;
 
 // Instruction Reg Wires
 wire [7:0] opcode;
@@ -76,6 +78,8 @@ program_counter pc_low
 (
 	.clk(clk),
 	.increment(increment_pc),
+	.branch_load(branch_load),
+	.branch(pcl_branch),
 	.carry(carry),
 	.pc(pcl)
 );
@@ -84,6 +88,8 @@ program_counter pc_high
 (
 	.clk(clk),
 	.increment(carry),
+	.branch_load(branch_load),
+	.branch(pch_branch),
 	.pc(pch)
 );
 
@@ -159,6 +165,13 @@ flag_register f_reg
 	.q(flags_in)
 );
 
+register result
+(
+	.clk(clk),
+	.ena(1'b1),
+	.d(alu_out),
+	.q(data_write)
+);
 
 /*---------------------------------MUXs--------------------------------------*/
 
@@ -204,6 +217,8 @@ control_unit clu
 	.a_load(a_load),
 	.x_load(x_load),
 	.y_load(y_load),
+	.branch_valid(branch_valid),
+	.branch_load(branch_load),
 	.read_write(read_write),
 	.address_select(address_select),
 	.alu_select(alu_select),
@@ -220,7 +235,18 @@ arithmetic_unit alu
 	.flags_in(flags_in),
 	.alu_out(alu_out),
 	.flags_out(flags_out),
-	.flags_ena(flags_ena)
+	.flags_ena(flags_ena),
+	.branch_valid(branch_valid)
+);
+
+branching_unit bru
+(
+	.clk(clk),
+	.data_read(data_read),
+	.pcl(pcl),
+	.pch(pch),
+	.pcl_branch(pcl_branch),
+	.pch_branch(pch_branch)
 );
 
 
