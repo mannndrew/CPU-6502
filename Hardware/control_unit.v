@@ -113,23 +113,32 @@ always @(posedge clk, negedge rst) begin
 		case (state)
 			FETCH:
 				casex (opcode)
-					8'b0xx0_x01x,
-					8'b00xx_101x: state <= AC0;
-					8'b1x10_00x0,
-					8'b11x0_00x0,
-					8'bxxx0_1001: state <= IM0;
-					8'bxxxx_01xx: state <= ZP0;
-					8'bxx0x_11x0,
-					8'b1xxx_11x0,
+
+					8'b0xx0_1010,
+					8'b00xx_1010: state <= AC0;
+					8'b110x_1011,
+					8'bxxx1_1000,
+					8'b1xx0_10x0,
+					8'b10xx_10x0: state <= IM0;
+					8'b1xx0_01xx,
+					8'b0x1x_01xx,
+					8'bx0xx_01xx,
+					8'bxxxx_011x,
+					8'bxxxx_01x1: state <= ZP0;
+					8'b1xx0_11x0,
+					8'bxx00_11x0,
 					8'bx0xx_11x0,
-					8'b0010_00x0,
+					8'b0010_0000,
 					8'bxxx1_1x01,
 					8'bxxxx_1110,
 					8'bxxxx_1101: state <= ABS0;
-					8'bxxx1_001x,
-					8'bxxxx_00x1: state <= IND_ZP0;
-					8'b1001_0000: state <= BRANCH_CHECK;
+					8'bxxx1_0010,
+					8'bxxxx_0001: state <= IND_ZP0;
+					8'b100x_0000,
+					8'bxxx1_0000,
+					8'bxxxx_1111: state <= BRANCH_CHECK;
 					default: state <= FETCH;
+					
 				endcase
 			AC0: state <= FETCH;
 			

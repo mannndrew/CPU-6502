@@ -131,9 +131,13 @@ jump_dict = {
 
 # print values in dictionary
 for key, value in instruction_dict.items():
-    # Check if PHA, PHP, PHX, PHY, STA, STX, STY, STZ, TAX, TAY, TSX, TXA, TXS, TYA
-    if (key == "PHA" or key == "PHP" or key == "PHX" or key == "PHY" or key == "STA" or key == "STX" or key == "STY" or key == "STZ" or key == "TAX" or key == "TAY" or key == "TSX" or key == "TXA" or key == "TXS" or key == "TYA"):
+    if ("BBR" in key or "BBS" in key
+        or key == "BCC" or key == "BCS" or key == "BEQ"
+        or key == "BMI" or key == "BNE" or key == "BPL"
+        or key == "BRA" or key == "BVC" or key == "BVS"):
         for key2, value2 in value.items():
             print(value2)
-
     
+
+
+# BBR, BBS, BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS
