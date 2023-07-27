@@ -32,7 +32,7 @@ wire branch_valid;
 wire branch_load;
 wire [2:0] address_select;
 wire [2:0] alu_select;
-wire [2:0] alu_opcode;
+wire [5:0] alu_opcode;
 
 
 // Program Counter Wires

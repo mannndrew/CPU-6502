@@ -18,7 +18,7 @@ module control_unit
 	output reg read_write,
 	output reg [2:0] address_select,
 	output reg [2:0] alu_select,
-	output reg [2:0] alu_opcode
+	output reg [5:0] alu_opcode
 	,output [5:0] fsm
 );
 
@@ -50,11 +50,8 @@ parameter
 	
 /* Opcodes */
 parameter
-	ADR0				= 3'b000,
-	ADR1				= 3'b001,
-	ADC				= 3'b010,
-	LD					= 3'b011,
-	ASL				= 3'b100;
+	ADR0				= 6'b000000,
+	ADR1				= 6'b000001;
 
 /* States */
 parameter
@@ -84,7 +81,7 @@ parameter
 reg [5:0] state;
 reg [2:0] alu_select_ad;
 reg [2:0] alu_select_ex;
-reg [2:0] alu_opcode_ex;
+reg [5:0] alu_opcode_ex;
 reg storing_instruction;
 reg load;
 
@@ -437,15 +434,177 @@ end
 
 always @(opcode_reg) begin
 	casex (opcode_reg)
-		8'b011x_001x,
-		8'b011x_xx01: alu_opcode_ex <= ADC;
-		//8'b001x_001x,
-		//8'b001x_xx01: alu_opcode_ex <= AND;
-		//8'b0000_0110: alu_opcode_ex <= ASL;
-		8'b1001_0000: alu_opcode_ex <= 3'b101;
+		8'b0111_0010,
+		8'b011x_xx01: alu_opcode_ex <= 6'b000010; // ADC
 		
+		8'b0011_0010,
+		8'b001x_xx01: alu_opcode_ex <= 6'b000011; // AND
+		
+		8'b0000_1x10,
+		8'b000x_x110: alu_opcode_ex <= 6'b000100; // ASL
+		
+		8'b1000_1001,
+		8'b001x_x100: alu_opcode_ex <= 6'b000101; // BIT
+		
+		8'b1001_0000,
+		8'b0000_1111: alu_opcode_ex <= 6'b000110; // BBR0, BCC
+		
+		8'b1101_0000,
+		8'b0001_1111: alu_opcode_ex <= 6'b000111; // BBR1, BNE
+		
+		8'b0010_1111: alu_opcode_ex <= 6'b001000; // BBR2
+		
+		8'b0011_1111: alu_opcode_ex <= 6'b001001; // BBR3
+		
+		8'b0100_1111: alu_opcode_ex <= 6'b001010; // BBR4
+		
+		8'b0101_1111: alu_opcode_ex <= 6'b001011; // BBR5
+		
+		8'b0101_0000,
+		8'b0110_1111: alu_opcode_ex <= 6'b001100; // BBR6, BVC
+		
+		8'b0001_0000,
+		8'b0111_1111: alu_opcode_ex <= 6'b001101; // BBR7, BPL
 
-		default: alu_opcode_ex <= 3'b011;
+		8'b1011_0000,
+		8'b1000_1111: alu_opcode_ex <= 6'b001110; // BBS0, BCS
+		
+		8'b1111_0000,
+		8'b1001_1111: alu_opcode_ex <= 6'b001111; // BBS1, BEQ
+		
+		8'b1010_1111: alu_opcode_ex <= 6'b010000; // BBS2
+		
+		8'b1011_1111: alu_opcode_ex <= 6'b010001; // BBS3
+		
+		8'b1100_1111: alu_opcode_ex <= 6'b010010; // BBS4
+		
+		8'b1101_1111: alu_opcode_ex <= 6'b010011; // BBS5
+		
+		8'b0111_0000,
+		8'b1110_1111: alu_opcode_ex <= 6'b010100; // BBS6, BVS
+		
+		8'b0011_0000,
+		8'b1111_1111: alu_opcode_ex <= 6'b010101; // BBS7, BMI
+		
+		8'b1000_0000: alu_opcode_ex <= 6'b010110; // BRA
+		
+		8'b0001_1000: alu_opcode_ex <= 6'b010111; // CLC
+		
+		8'b0101_1000: alu_opcode_ex <= 6'b011000; // CLI
+		
+		8'b1101_1000: alu_opcode_ex <= 6'b011001; // CLD
+		
+		8'b1011_1000: alu_opcode_ex <= 6'b011010; // CLV
+		
+		8'b1101_0010,
+		8'b11x0_x100,
+		8'b11x0_0x00,
+		8'b110x_xx01: alu_opcode_ex <= 6'b011011; // CMP, CPX, CPY
+		
+		8'b0011_1010,
+		8'b1000_1000,
+		8'b110x_x110,
+		8'b1100_1x10: alu_opcode_ex <= 6'b011100; // DEC, DEX, DEY
+		
+		8'b0101_0010,
+		8'b010x_xx01: alu_opcode_ex <= 6'b011101; // EOR
+		
+		8'b0001_1010,
+		8'b11x0_1000,
+		8'b111x_x110: alu_opcode_ex <= 6'b011110; // INC, INX, INY
+		
+		8'b1010_0xx0,
+		8'bx111_1010,
+		8'b0x10_1000,
+		8'b101x_0x10,
+		8'b101x_xx01,
+		8'b101x_x1x0: alu_opcode_ex <= 6'b011111; // LDA, LDX, LDY, PLA, PLP, PLX, PLY
+		
+		8'h48, // PHA
+		8'hd8, // PHP
+		8'hda, // PHX
+		8'h5a, // PHY
+		8'h81, // STA
+		8'h95,
+		8'h92,
+		8'h91,
+		8'h8e, // STX
+		8'h86,
+		8'h96,
+		8'h8c, // STY
+		8'h84,
+		8'h94,
+		8'h9c, // STZ
+		8'h9e,
+		8'h64,
+		8'h74,
+		8'haa, // TAX
+		8'ha8, // TAY
+		8'hba, // TSX
+		8'h8a, // TXA
+		8'h9a, // TXS
+		8'h98: // TYA
+			alu_opcode_ex <= 6'b100000; // PHA, PHP, PHX, PHY, STA, STX, STY, STZ, TAX, TAY, TSX, TXA, TXS, TYA
+		
+		8'b0100_1x10,
+		8'b010x_x110: alu_opcode_ex <= 6'b100001; // LSR
+		
+		8'b0001_0010,
+		8'b000x_xx01: alu_opcode_ex <= 6'b100010; // ORA
+		
+		8'b0000_0111: alu_opcode_ex <= 6'b100011; // RMB0
+		
+		8'b0001_0111: alu_opcode_ex <= 6'b100100; // RMB1
+		
+		8'b0010_0111: alu_opcode_ex <= 6'b100101; // RMB2
+		
+		8'b0011_0111: alu_opcode_ex <= 6'b100110; // RMB3
+		
+		8'b0100_0111: alu_opcode_ex <= 6'b100111; // RMB4
+		
+		8'b0101_0111: alu_opcode_ex <= 6'b101000; // RMB5
+		
+		8'b0110_0111: alu_opcode_ex <= 6'b101001; // RMB6
+		
+		8'b0111_0111: alu_opcode_ex <= 6'b101010; // RMB7
+		
+		8'b0010_1x10,
+		8'b001x_x110: alu_opcode_ex <= 6'b101011; // ROL
+		
+		8'b0110_1x10,
+		8'b011x_x110: alu_opcode_ex <= 6'b101100; // ROR
+		
+		8'b1111_0010,
+		8'b111x_xx01: alu_opcode_ex <= 6'b101101; // SBC
+		
+		8'b0011_1000: alu_opcode_ex <= 6'b101110; // SEC
+		
+		8'b0111_1000: alu_opcode_ex <= 6'b101111; // SEI
+		
+		8'b1111_1000: alu_opcode_ex <= 6'b110000; // SED
+		
+		8'b1000_0111: alu_opcode_ex <= 6'b110001; // SMB0
+		
+		8'b1001_0111: alu_opcode_ex <= 6'b110010; // SMB1
+		
+		8'b1010_0111: alu_opcode_ex <= 6'b110011; // SMB2
+		
+		8'b1011_0111: alu_opcode_ex <= 6'b110100; // SMB3
+		
+		8'b1100_0111: alu_opcode_ex <= 6'b110101; // SMB4
+		
+		8'b1101_0111: alu_opcode_ex <= 6'b110110; // SMB5
+		
+		8'b1110_0111: alu_opcode_ex <= 6'b110111; // SMB6
+		
+		8'b1111_0111: alu_opcode_ex <= 6'b111000; // SMB7
+		
+		8'b0001_x100: alu_opcode_ex <= 6'b111001; // TRB
+		
+		8'b0000_x100: alu_opcode_ex <= 6'b111010; // TSB
+		
+		default: alu_opcode_ex <= 6'b111111;
+		
 	endcase
 end
 

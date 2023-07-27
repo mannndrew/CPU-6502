@@ -131,7 +131,7 @@ jump_dict = {
 
 # print values in dictionary
 for key, value in instruction_dict.items():
-    if key == "ASL":
+    if (key == "TYA"):
         for key2, value2 in value.items():
             print(value2)
 
