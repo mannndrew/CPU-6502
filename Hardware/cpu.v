@@ -20,6 +20,7 @@ assign register_y = y_out;
 
 // FSM Wires
 wire increment_pc;
+wire [1:0] sp_op;
 wire instruction_load;
 wire indirl_load;
 wire indirh_load;
@@ -41,6 +42,9 @@ wire [7:0] pcl;
 wire [7:0] pch;
 wire [7:0] pcl_branch;
 wire [7:0] pch_branch;
+
+// Stack Pointer Wires
+wire [7:0] sp;
 
 // Instruction Reg Wires
 wire [7:0] opcode;
@@ -91,6 +95,13 @@ program_counter pc_high
 	.branch_load(branch_load),
 	.branch(pch_branch),
 	.pc(pch)
+);
+
+stack_pointer sp_reg
+(
+	.clk(clk),
+	.sel(sp_op),
+	.sp(sp)
 );
 
 register instruction_reg

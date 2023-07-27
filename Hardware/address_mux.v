@@ -3,6 +3,7 @@ module address_mux
 	input [2:0] address_select,
 	input [7:0] pcl,
 	input [7:0] pch,
+	input [7:0] sp,
 	input [7:0] dirl,
 	input [7:0] dirh,
 	input [7:0] indirl,
@@ -24,7 +25,7 @@ always @(*) begin
 		3'b100: address = {8'h00, indirl_plus};
 		3'b101: address = {indirh, indirl};
 		3'b110: address = {indir_plus};
-		default: address = 16'h0;
+		3'b111: address = {8'h03, sp};
 	endcase
 end
 

@@ -116,10 +116,9 @@ always @(posedge clk, negedge rst) begin
 
 					8'b0xx0_1010,
 					8'b00xx_1010: state <= AC0;
-					8'b110x_1011,
-					8'bxxx1_1000,
-					8'b1xx0_10x0,
-					8'b10xx_10x0: state <= IM0;
+					8'b1010_00x0,
+					8'b11x0_0000,
+					8'bxxx0_1001: state <= IM0;
 					8'b1xx0_01xx,
 					8'b0x1x_01xx,
 					8'bx0xx_01xx,

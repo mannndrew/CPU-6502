@@ -131,11 +131,8 @@ jump_dict = {
 
 # print values in dictionary
 for key, value in instruction_dict.items():
-    if ("BBR" in key or "BBS" in key
-        or key == "BCC" or key == "BCS" or key == "BEQ"
-        or key == "BMI" or key == "BNE" or key == "BPL"
-        or key == "BRA" or key == "BVC" or key == "BVS"):
-        for key2, value2 in value.items():
+    for key2, value2 in value.items():
+        if key2 == 7:
             print(value2)
     
 
