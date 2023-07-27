@@ -520,31 +520,15 @@ always @(opcode_reg) begin
 		8'b101x_xx01,
 		8'b101x_x1x0: alu_opcode_ex <= 6'b011111; // LDA, LDX, LDY, PLA, PLP, PLX, PLY
 		
-		8'h48, // PHA
-		8'hd8, // PHP
-		8'hda, // PHX
-		8'h5a, // PHY
-		8'h81, // STA
-		8'h95,
-		8'h92,
-		8'h91,
-		8'h8e, // STX
-		8'h86,
-		8'h96,
-		8'h8c, // STY
-		8'h84,
-		8'h94,
-		8'h9c, // STZ
-		8'h9e,
-		8'h64,
-		8'h74,
-		8'haa, // TAX
-		8'ha8, // TAY
-		8'hba, // TSX
-		8'h8a, // TXA
-		8'h9a, // TXS
-		8'h98: // TYA
-			alu_opcode_ex <= 6'b100000; // PHA, PHP, PHX, PHY, STA, STX, STY, STZ, TAX, TAY, TSX, TXA, TXS, TYA
+		8'bx101_1010,
+		8'b100x_0x01,
+		8'b1001_1x0x,
+		8'b100x_xx10,
+		8'b01xx_0100,
+		8'b0x00_1000,
+		8'b10xx_101x,
+		8'b1010_10x0,
+		8'b100x_x10x: alu_opcode_ex <= 6'b100000; // PHA, PHP, PHX, PHY, STA, STX, STY, STZ, TAX, TAY, TSX, TXA, TXS, TYA
 		
 		8'b0100_1x10,
 		8'b010x_x110: alu_opcode_ex <= 6'b100001; // LSR

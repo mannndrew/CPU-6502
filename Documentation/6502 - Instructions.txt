@@ -391,7 +391,7 @@
     Output: M
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
-#10  Stack                                  s               PHP                                D8    1     2
+#10  Stack                                  s               PHP                                08    1     2
 
 41. PHX Instruction - Push X Register on Stack
     Input: X

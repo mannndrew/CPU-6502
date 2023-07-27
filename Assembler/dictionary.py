@@ -52,7 +52,7 @@ instruction_dict = {
     "NOP":  {8: "EA"},
     "ORA":  {1: "0D", 3: "1D", 4: "19", 7: "09", 11: "05", 12: "01", 13: "15", 15: "12", 16: "11"},
     "PHA":  {10: "48"},
-    "PHP":  {10: "D8"},
+    "PHP":  {10: "08"},
     "PHX":  {10: "DA"},
     "PHY":  {10: "5A"},
     "PLA":  {10: "68"},
@@ -131,7 +131,8 @@ jump_dict = {
 
 # print values in dictionary
 for key, value in instruction_dict.items():
-    if (key == "TYA"):
+    # Check if PHA, PHP, PHX, PHY, STA, STX, STY, STZ, TAX, TAY, TSX, TXA, TXS, TYA
+    if (key == "PHA" or key == "PHP" or key == "PHX" or key == "PHY" or key == "STA" or key == "STX" or key == "STY" or key == "STZ" or key == "TAX" or key == "TAY" or key == "TSX" or key == "TXA" or key == "TXS" or key == "TYA"):
         for key2, value2 in value.items():
             print(value2)
 
