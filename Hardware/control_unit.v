@@ -7,6 +7,8 @@ module control_unit
 	input branch_valid,
 	output reg instruction_load,
 	output reg increment_pc,
+	output reg [1:0] sp_op,
+	output reg sp_load,
 	output reg indirl_load,
 	output reg indirh_load,
 	output reg dirl_load,
@@ -15,8 +17,13 @@ module control_unit
 	output reg x_load,
 	output reg y_load,
 	output reg branch_load,
+	output reg pcl_load,
+	output reg pch_load,
+	output reg jmp_load,
+	output reg jsr_load,
 	output reg read_write,
-	output reg [2:0] address_select,
+	output reg [2:0] write_select,
+	output reg [3:0] address_select,
 	output reg [2:0] alu_select,
 	output reg [5:0] alu_opcode
 	,output [5:0] fsm
@@ -32,21 +39,27 @@ parameter
 
 /* Address Select */
 parameter
-	PC					= 3'b000,
-	ZERO				= 3'b001,
-	ABS				= 3'b010,
-	IND_ZERO_0		= 3'b011,
-	IND_ZERO_1		= 3'b100,
-	IND_ABS_0		= 3'b101,
-	IND_ABS_1		= 3'b110;
+	PC					= 4'b0000,
+	ZERO				= 4'b0001,
+	ABS				= 4'b0010,
+	IND_ZERO_0		= 4'b0011,
+	IND_ZERO_1		= 4'b0100,
+	IND_ABS_0		= 4'b0101,
+	IND_ABS_1		= 4'b0110,
+	STACK				= 4'b0111,
+	IVL				= 4'b1000,
+	IVH				= 4'b1001;
 
 /* ALU Select */
 parameter
 	A					= 3'b000,
-	X					= 3'b001,
-	Y					= 3'b010,
-	M					= 3'b011,
-	Z					= 3'b100;
+	F					= 3'b001,
+	M					= 3'b010,
+	SP					= 3'b011,
+	X					= 3'b100,
+	Y					= 3'b101,
+	Z					= 3'b110;
+
 	
 /* Opcodes */
 parameter
@@ -56,49 +69,98 @@ parameter
 /* States */
 parameter
 	FETCH				= 6'd0,
-	AC0				= 6'd1,
-	IM0				= 6'd2,
-	ZP0				= 6'd3,
-	ZP1				= 6'd4,
-	ABS0				= 6'd5,
-	ABS1				= 6'd6,
-	ABS2				= 6'd7,
-	IND_ZP0			= 6'd8,
-	IND_ZP1			= 6'd9,
-	IND_ZP2			= 6'd10,
-	IND_ZP3			= 6'd11,
-	IND_ABS0			= 6'd12,
-	IND_ABS1			= 6'd13,
-	IND_ABS2			= 6'd14,
-	IND_ABS3			= 6'd15,
-	IND_ABS4			= 6'd16,
-	ZP_STORE			= 6'd17,
-	ABS_STORE		= 6'd18,
+	IM0				= 6'd1,
+	ZP0				= 6'd2,
+	ZP1				= 6'd3,
+	ABS0				= 6'd4,
+	ABS1				= 6'd5,
+	ABS2				= 6'd6,
+	IND_ZP0			= 6'd7,
+	IND_ZP1			= 6'd8,
+	IND_ZP2			= 6'd9,
+	IND_ZP3			= 6'd10,
+	IND_ABS0			= 6'd11,
+	IND_ABS1			= 6'd12,
+	IND_ABS2			= 6'd13,
+	ZP_WRITE			= 6'd14,
+	ABS_WRITE		= 6'd15,
+	ZP_STORE			= 6'd16,
+	ABS_STORE		= 6'd17,
+	IND_ZP_STORE	= 6'd18,
 	BRANCH_CHECK	= 6'd19,
-	BRANCH_GO		= 6'd20;
+	BRANCH_GO		= 6'd20,
+	PUSH				= 6'd21,
+	PULL				= 6'd22,
+	ABS_JMP			= 6'd23,
+	IND_ABS_JMP		= 6'd24,
+	JSR0				= 6'd25,
+	JSR1				= 6'd26,
+	JSR2				= 6'd27,
+	BRK0				= 6'd28,
+	BRK1				= 6'd29,
+	BRK2				= 6'd30,
+	BRK3				= 6'd31,
+	BRK4				= 6'd32,
+	BRK5				= 6'd33;
+	
 	
 	
 reg [5:0] state;
 reg [2:0] alu_select_ad;
 reg [2:0] alu_select_ex;
 reg [5:0] alu_opcode_ex;
+reg jumping_nosave_instruction;
+reg jumping_save_instruction;
+reg writing_instruction;
 reg storing_instruction;
 reg load;
+
+/* Jumping No Save Instruction? */
+
+always @(opcode_reg) begin
+	casex (opcode_reg)
+		8'b01x0_1100,
+		8'b011x_1100: jumping_nosave_instruction <= 1'b1;
+		/* JMP */
+		default: jumping_nosave_instruction <= 1'b0;
+	endcase
+end
+
+/* Jumping Save Instruction? */
+
+always @(opcode_reg) begin
+	casex (opcode_reg)
+		8'b0010_0000: jumping_save_instruction <= 1'b1;
+		/* JSR */
+		default: jumping_save_instruction <= 1'b0;
+	endcase
+end
+
+/* Writing Instruction? */
+
+always @(opcode_reg) begin
+	casex (opcode_reg)
+		8'b000x_x1x0,
+		8'b00xx_1x10,
+		8'bx1xx_x110,
+		8'b0xx0_1x10,
+		8'b0xxx_x110: writing_instruction <= 1'b1;
+		/* ASL, DEC, INC, LSR, RMB, ROL, ROR, SMB, TRB, TSB */
+		default: writing_instruction <= 1'b0;
+	endcase
+end
 
 /* Storing Instruction? */
 
 always @(opcode_reg) begin
 	casex (opcode_reg)
-		8'b0xx0_xx10,
-		8'b100x_0x01,
-		8'b100x_0x10,
+		8'b011x_0100,
+		8'b1001_0x10,
 		8'b1001_xx01,
-		8'b00xx_1x10,
-		8'b100x_x10x,
-		8'b01xx_01x0,
-		8'bx1xx_x110,
-		8'bx00x_x1x0,
-		8'b0xxx_x110: storing_instruction <= 1'b1;
+		8'b100x_0x01,
+		8'b100x_x1x0,
+		8'b100x_x10x: storing_instruction <= 1'b1;
+		/* STA, STX, STY, STZ */
 		default: storing_instruction <= 1'b0;
 	endcase
 end
@@ -115,7 +177,7 @@ always @(posedge clk, negedge rst) begin
 				casex (opcode)
 
 					8'b0xx0_1010,
-					8'b00xx_1010: state <= AC0;
+					8'b00xx_1010,
 					8'b1010_00x0,
 					8'b11x0_0000,
 					8'bxxx0_1001: state <= IM0;
@@ -136,50 +198,76 @@ always @(posedge clk, negedge rst) begin
 					8'b100x_0000,
 					8'bxxx1_0000,
 					8'bxxxx_1111: state <= BRANCH_CHECK;
+					8'b0x00_1000,
+					8'bx101_1010: state <= PUSH;
+					8'b0x10_1000,
+					8'bx111_1010: state <= PULL;
+
+
 					default: state <= FETCH;
 					
 				endcase
-			AC0: state <= FETCH;
-			
 			
 			IM0: state <= FETCH;
 			
 			
-			ZP0: state <= ZP1;
-			ZP1: 
+			ZP0:
 				if (storing_instruction) state <= ZP_STORE;
+				else state <= ZP1;
+			ZP1: 
+				if (writing_instruction) state <= ZP_WRITE;
 				else state <= FETCH;
 			
 			
 			
-			ABS0: state <= ABS1;
-			ABS1: state <= ABS2;
-			ABS2:
+			ABS0:
+				if (jumping_nosave_instruction) state <= ABS_JMP;
+				else state <= ABS1;
+			ABS1:
 				if (storing_instruction) state <= ABS_STORE;
+				else if (jumping_save_instruction) state <= JSR0;
+				else state <= ABS2;
+			ABS2:
+				if (writing_instruction) state <= ABS_WRITE;
 				else state <= FETCH;
 			
 			
 			IND_ZP0: state <= IND_ZP1;
 			IND_ZP1: state <= IND_ZP2;
-			IND_ZP2: state <= IND_ZP3;
-			IND_ZP3:
-				if (storing_instruction) state <= ABS_STORE;
-				else state <= FETCH;
+			IND_ZP2: 
+				if (storing_instruction) state <= IND_ZP_STORE;
+				else state <= IND_ZP3;
+			IND_ZP3: state <= FETCH;
+				
 			
 			
 			IND_ABS0: state <= IND_ABS1;
 			IND_ABS1: state <= IND_ABS2;
-			IND_ABS2: state <= IND_ABS3;
-			IND_ABS3: state <= IND_ABS4;
-			IND_ABS4: state <= FETCH;
+			IND_ABS2: state <= IND_ABS_JMP;
+			
 			
 			ZP_STORE: state <= FETCH;
+			ABS_STORE: state <= FETCH;
+			IND_ZP_STORE: state <= FETCH;
+			
+			ZP_WRITE: state <= FETCH;
+			ABS_WRITE: state <= FETCH;
 			
 			BRANCH_CHECK:
 				if (branch_valid) state <= BRANCH_GO;
 				else state <= FETCH;
 				
 			BRANCH_GO: state <= FETCH;
+			
+			PUSH: state <= FETCH;
+			PULL: state <= FETCH;
+			
+			ABS_JMP: state <= FETCH;
+			IND_ABS_JMP: state <= FETCH;
+			
+			JSR0: state <= JSR1;
+			JSR1: state <= JSR2;
+			JSR2: state <= FETCH;
 			
 		endcase
 	end
@@ -208,6 +296,22 @@ always @(state) begin
 		IND_ABS1: increment_pc <= 1'b1;
 		BRANCH_CHECK: increment_pc <= 1'b1;
 		default: increment_pc <= 1'b0;
+	endcase
+end
+
+/* Stack Pointer Operation */
+
+always @(state) begin
+	case (state)
+		PUSH: sp_op <= 2'b10;		// Decrement SP
+		JSR0: sp_op <= 2'b10;		// Decrement SP
+		JSR1: sp_op <= 2'b10;		// Decrement SP
+		BRK0: sp_op <= 2'b10;		// Decrement SP
+		BRK1: sp_op <= 2'b10;		// Decrement SP
+		BRK2: sp_op <= 2'b10;		// Decrement SP
+		PULL: sp_op <= 2'b01;		// Increment SP
+		
+		default: sp_op <= 2'b00;	// Leave SP as is
 	endcase
 end
 
@@ -248,21 +352,27 @@ always @(state) begin
 	case (state)
 		ABS1: dirh_load <= 1'b1;
 		IND_ZP2: dirh_load <= 1'b1;
-		IND_ABS3: dirh_load <= 1'b1;
 		default: dirh_load <= 1'b0;
 	endcase
 end
+
+/* ------------------------------------------------------- Outputs ------------------------------------------------------- */
+		/* PC: JMP, JSR 																																				*/
+							
+		
 
 /* Load */
 
 always @(state) begin
 	case (state)
-		AC0: load <= 1'b1;
 		IM0: load <= 1'b1;
 		ZP1: load <= 1'b1;
 		ABS2: load <= 1'b1;
+		ABS_JMP: load <= 1'b1;
 		IND_ZP3: load <= 1'b1;
-		IND_ABS4: load <= 1'b1;
+		IND_ABS_JMP: load <= 1'b1;
+		JSR2: load <= 1'b1;
+		PULL: load <= 1'b1;
 		default: load <= 1'b0;
 	endcase
 end
@@ -317,6 +427,17 @@ always @(opcode_reg, load) begin
 	endcase
 end
 
+/* SP Load */
+
+always @(opcode_reg, load) begin
+	casex (opcode_reg)
+		8'b1001_1010: sp_load <= 1'b1 & load;
+		/* TXS */
+		
+		default: sp_load <= 1'b0;
+	endcase
+end
+
 /* Branch Load */
 
 always @(state) begin
@@ -326,13 +447,74 @@ always @(state) begin
 	endcase
 end
 
+/* PCL Load */
+
+always @(state) begin
+	casex (state)
+		BRK4: pcl_load <= 1'b1;
+		default: pcl_load <= 1'b0;
+	endcase
+end
+
+/* PCH Load */
+
+always @(state) begin
+	casex (state)
+		BRK5: pch_load <= 1'b1;
+		default: pch_load <= 1'b0;
+	endcase
+end
+
+/* JMP Load */
+
+always @(state) begin
+	casex (state)
+		ABS_JMP,
+		IND_ABS_JMP: jmp_load <= 1'b1;
+		default: jmp_load <= 1'b0;
+	endcase
+end
+
+/* JSR Load */
+
+always @(state) begin
+	casex (state)
+		JSR2: jsr_load <= 1'b1;
+		default: jsr_load <= 1'b0;
+	endcase
+end
+
 /* Read/Write */
 
 always @(state) begin
 	case (state)
 		ZP_STORE: read_write <= write;
+		ZP_WRITE: read_write <= write;
 		ABS_STORE: read_write <= write;
+		ABS_WRITE: read_write <= write;
+		IND_ZP_STORE: read_write <= write;
+		PUSH: read_write <= write;
+		JSR0: read_write <= write;
+		JSR1: read_write <= write;
+		BRK0: read_write <= write;
+		BRK1: read_write <= write;
+		BRK2: read_write <= write;
 		default: read_write <= read;
+	endcase
+end
+
+/* Write Select */
+
+always @(state) begin
+	case (state)
+		ZP_WRITE,
+		ABS_WRITE: write_select <= 3'b001; // Result
+		JSR0: write_select <= 3'b011; // PCH
+		JSR1: write_select <= 3'b010; // PCL
+		BRK0: write_select <= 3'b011; // PCH
+		BRK1: write_select <= 3'b010; // PCL
+		BRK2: write_select <= 3'b100; // Flags
+		default: write_select <= 3'b000; // ALU
 	endcase
 end
 
@@ -341,7 +523,6 @@ end
 always @(state) begin
 	case (state)
 		FETCH: address_select <= PC;
-		AC0: address_select <= PC;
 		IM0: address_select <= PC;
 		ZP0: address_select <= PC;
 		ZP1: address_select <= ZERO;
@@ -350,15 +531,25 @@ always @(state) begin
 		ABS1: address_select <= PC;
 		ABS2: address_select <= ABS;
 		ABS_STORE: address_select <= ABS;
+		ABS_JMP: address_select <= PC;
 		IND_ZP0: address_select <= PC;
 		IND_ZP1: address_select <= IND_ZERO_0;
 		IND_ZP2: address_select <= IND_ZERO_1;
 		IND_ZP3: address_select <= ABS;
+		IND_ZP_STORE: address_select <= ABS;
 		IND_ABS0: address_select <= PC;
 		IND_ABS1: address_select <= PC;
 		IND_ABS2: address_select <= IND_ABS_0;
-		IND_ABS3: address_select <= IND_ABS_1;
-		IND_ABS4: address_select <= ABS;
+		IND_ABS_JMP: address_select <= IND_ABS_1;
+		PUSH: address_select <= STACK;
+		PULL: address_select <= STACK;
+		JSR0: address_select <= STACK;
+		JSR1: address_select <= STACK;
+		BRK0: address_select <= STACK;
+		BRK1: address_select <= STACK;
+		BRK2: address_select <= STACK;
+		BRK4: address_select <= IVL;
+		BRK5: address_select <= IVH;
 		default: address_select <= PC;
 	endcase
 end
@@ -385,36 +576,74 @@ end
 
 always @(opcode_reg) begin
 	casex (opcode_reg)
-		8'b0111_0010,
-		8'b011x_xx01: alu_select_ex <= A; 
+		8'b0100_10x0,
+		8'b00x1_x010,
+		8'bx1x1_0010,
+		8'bxx01_0010,
+		8'b0xx0_1010,
+		8'b1010_10x0,
+		8'b00xx_x10x,
+		8'bx1xx_xx01,
+		8'bxx0x_xx01,
+		8'b0xxx_xx01: alu_select_ex <= A;
+		/* ADC, AND, ASL A, BBR, BBS,
+		BIT, CMP, DEC A, EOR, INC A, 
+		LSR A, ORA, PHA, ROL A, ROR A, 
+		SBC, STA, TAX, TAY, TRB, TSB */
 		
-		8'b0000_0110: alu_select_ex <= M;
-		/* ------------------------------------------------------- Inputs -------------------------------------------------------- */
-		/* A: ADC, AND, ASL A, BBR, BBS, BIT, CMP, DEC A, EOR, INC A, LSR A, ORA, PHA, ROL A, ROR A, SBC, STA, TAX, TAY, TRB, TSB	*/
-		/* F: BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS, CLC, CLD, CLI, CLV, PHP, SEC, SED, SEI 											*/
-		/* M: ASL, DEC, INC, LDA, LDX, LDY, LSR, PLA, PLP, PLX, PLY, RMB, ROL, ROR, SMB															*/
-		/* X: CPX, DEX, INX, PHX, STX, TXA, TXS    																											*/
-		/* Y: CPY, DEY, INY, PHY, STY, TYA   																													*/
-		/* Z: STZ 																																						*/
-		/* SP: TSX 																																						*/
+		8'bxxx1_0000,
+		8'b100x_0000,
+		8'b000x_1000,
+		8'bx1x1_x000,
+		8'bxx11_x000: alu_select_ex <= F;
+		/* BCC, BCS, BEQ, BMI, BNE, 
+		BPL, BRA, BVC, BVS, CLC, CLD, 
+		CLI, CLV, PHP, SEC, SED, SEI */
 		
-		/* ------------------------------------------------------- Outputs ------------------------------------------------------- */
-		/* A: ADC, AND, ASL A, DEC A, EOR, INC A, LDA, LSR A, ORA, PLA, ROL A, ROR A, SBC, TXA, TYA 											*/
-		/* F: CLC, CLD, CLI, CLV, PLP, SEC, SED, SEI 																										*/
-		/* M: ASL, DEC, INC, LSR, PHA, PHP, PHX, PHY, RMB, ROL, ROR, SMB, STA, STX, STY, STZ, TRB, TSB   									*/
-		/* X: DEX, INX, LDX, PLX, TAX, TSX,     																												*/
-		/* Y: DEY, INY, LDY, PLY, TAY   																															*/
-		/* SP: TXS  																																					*/
-		/* PC: JMP, JSR 																																				*/
-							
+		8'b1010_0xx0,
+		8'b101x_x1x0,
+		8'b101x_xx01,
+		8'b0x10_1000,
+		8'bx111_1x10,
+		8'b0xxx_x110,
+		8'bx1xx_x110,
+		8'b101x_0x10: alu_select_ex <= M;
+		/* ASL, DEC, INC, LDA, LDX, 
+		LDY, LSR, PLA, PLP, PLX, PLY, 
+		RMB, ROL, ROR, SMB */
+		
+		8'b1000_x110,
+		8'b1110_xx00,
+		8'b100x_0110,
+		8'b1x0x_1010: alu_select_ex <= X;
+		/* CPX, DEX, INX, PHX, STX, TXA, TXS */
+		
+		8'b1x00_x100,
+		8'b0101_1010,
+		8'b100x_0100,
+		8'b100x_1000,
+		8'b1100_xx00: alu_select_ex <= Y;
+		/* CPY, DEY, INY, PHY, STY, TYA */
+		
+		8'b011x_0100,
+		8'b1001_11x0: alu_select_ex <= Z;
+		/* STZ */
+		
+		8'b1011_1010: alu_select_ex <= SP;
+		/* TSX */
 		
 		default: alu_select_ex <= M;
 	endcase
 end
+		
+		
+		
+		
+		
+
 
 always @(state, alu_select_ad, alu_select_ex) begin
 	case (state)
-		AC0: alu_select <= A;
 		IM0: alu_select <= alu_select_ex;
 		ZP0: alu_select <= alu_select_ad;
 		ZP1: alu_select <= alu_select_ex;
@@ -427,11 +656,9 @@ always @(state, alu_select_ad, alu_select_ex) begin
 					else alu_select <= Z;
 		IND_ZP3: alu_select <= alu_select_ex;
 		
-		
 		IND_ABS0: alu_select <= alu_select_ad;
-		IND_ABS4: alu_select <= alu_select_ex;
 		
-		default: alu_select <= Z;
+		default: alu_select <= M;
 	endcase
 end
 
@@ -595,14 +822,13 @@ always @(opcode_reg) begin
 		
 		8'b0000_x100: alu_opcode_ex <= 6'b111010; // TSB
 		
-		default: alu_opcode_ex <= 6'b111111;
+		default: alu_opcode_ex <= 6'b100000;
 		
 	endcase
 end
 
 always @(state, alu_opcode_ex) begin
 	case (state)
-		AC0: alu_opcode <= alu_opcode_ex;
 		IM0: alu_opcode <= alu_opcode_ex;
 		ZP0: alu_opcode <= ADR0;
 		ZP1: alu_opcode <= alu_opcode_ex;
@@ -616,11 +842,10 @@ always @(state, alu_opcode_ex) begin
 		IND_ABS0: alu_opcode <= ADR0;
 		IND_ABS1: alu_opcode <= ADR1;
 		IND_ABS2: alu_opcode <= ADR0;
-		IND_ABS3: alu_opcode <= ADR0;
-		IND_ABS4: alu_opcode <= alu_opcode_ex;
+		IND_ABS_JMP: alu_opcode <= ADR1;
 		BRANCH_CHECK: alu_opcode <= alu_opcode_ex;
 		
-		default: alu_opcode <= 3'b001;
+		default: alu_opcode <= 6'b100000;
 	endcase
 end
 

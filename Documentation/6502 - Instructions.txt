@@ -88,21 +88,21 @@
 
 6. BCC Inustruction - Branch on Carry Clear (Pc=0)
    Input: Flags
-   Output: None
+   Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BCC {Branch Name}                  90    2     2/3
 
 7. BCS Instruction - Branch on Carry Set (Pc=1)
    Input: Flags
-   Output: None
+   Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BCS {Branch Name}                  B0    2     2/3
 
 8. BEQ Instruction - Branch if Equal (Pz=1)
    Input: Flags
-   Output: None
+   Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BEQ {Branch Name}                  F0    2     2/3
@@ -120,28 +120,28 @@
 
 10. BMI Instruction - Branch if result Minus (Pn=1)
     Input: Flags
-    Output: None
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BMI {Branch Name}                  30    2     2/3
 
 11. BNE Instruction - Branch if Not Equal (Pz=0)
     Input: Flags
-    Output: None
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BNE {Branch Name}                  D0    2     2/3
 
 12. BPL Instruction - Branch if result Plus (Pn=0)
     Input: Flags
-    Output: None
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BPL {Branch Name}                  10    2     2/3
 
 13. BRA Instruction - Branch Always
-    Input: None
-    Output: None
+    Input: Flags
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BRA {Branch Name}                  80    2     3
@@ -155,14 +155,14 @@
 
 15. BVC Instruction - Branch on Overflow Clear (Pv=0)
     Input: Flags
-    Output: None
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BVC {Branch Name}                  50    2     2/3
 
 16. BVS Instruction - Branch on Overflow Set (Pv=1)
     Input: Flags
-    Output: None
+    Output: Branch Valid
 
 #    MODE                                   SYNTAX          USAGE                              HEX   LEN   TIM
 #9   Program Counter Relative               r               BVS {Branch Name}                  70    2     2/3

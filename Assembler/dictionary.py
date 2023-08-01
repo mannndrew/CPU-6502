@@ -129,12 +129,14 @@ jump_dict = {
     "JSR": 2
 }
 
-# print values in dictionary
+# STA, STX, STY, STZ
+test = ["JSR"]
+
+
+
 for key, value in instruction_dict.items():
-    for key2, value2 in value.items():
-        if key2 == 7:
-            print(value2)
+    for str in test:
+        if key == str:
+            for key2, value2 in value.items():
+                print(value2)
     
-
-
-# BBR, BBS, BCC, BCS, BEQ, BMI, BNE, BPL, BRA, BVC, BVS
