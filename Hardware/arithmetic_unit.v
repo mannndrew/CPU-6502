@@ -674,6 +674,20 @@ begin
 			branch_valid <= 1'b0;
 		end
 		
+		6'b111011: begin // BRK
+			alu_out <= 8'b0;
+			flags_out <= {8'b11111111}; 
+			flags_ena <= 8'b00010100; 
+			branch_valid <= 1'b0;
+		end
+		
+		6'b111110: begin // RTI
+			alu_out <= 8'b0;
+			flags_out <= alu_a; 
+			flags_ena <= 8'b11111111; 
+			branch_valid <= 1'b0;
+		end
+		
 		default: begin 
 			alu_out <= 8'b0; 
 			flags_out <= 8'b0; 

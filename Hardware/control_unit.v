@@ -101,7 +101,12 @@ parameter
 	BRK2				= 6'd30,
 	BRK3				= 6'd31,
 	BRK4				= 6'd32,
-	BRK5				= 6'd33;
+	BRK5				= 6'd33,
+	RTI0				= 6'd34,
+	RTI1				= 6'd35,
+	RTI2				= 6'd36,
+	RTS0				= 6'd37,
+	RTS1				= 6'd38;
 	
 	
 	
@@ -202,6 +207,9 @@ always @(posedge clk, negedge rst) begin
 					8'bx101_1010: state <= PUSH;
 					8'b0x10_1000,
 					8'bx111_1010: state <= PULL;
+					8'b0000_0000: state <= BRK0;
+					8'b0100_0000: state <= RTI0;
+					8'b0110_0000: state <= RTS0;
 
 
 					default: state <= FETCH;
@@ -269,6 +277,21 @@ always @(posedge clk, negedge rst) begin
 			JSR1: state <= JSR2;
 			JSR2: state <= FETCH;
 			
+			BRK0: state <= BRK1;
+			BRK1: state <= BRK2;
+			BRK2: state <= BRK3;
+			BRK3: state <= BRK4;
+			BRK4: state <= BRK5;
+			BRK5: state <= FETCH;
+			
+			RTI0: state <= RTI1;
+			RTI1: state <= RTI2;
+			RTI2: state <= FETCH;
+			
+			RTS0: state <= RTS1;
+			RTS1: state <= FETCH;
+			
+			
 		endcase
 	end
 end
@@ -310,6 +333,11 @@ always @(state) begin
 		BRK1: sp_op <= 2'b10;		// Decrement SP
 		BRK2: sp_op <= 2'b10;		// Decrement SP
 		PULL: sp_op <= 2'b01;		// Increment SP
+		RTI0: sp_op <= 2'b01;		// Increment SP
+		RTI1: sp_op <= 2'b01;		// Increment SP
+		RTI2: sp_op <= 2'b01;		// Increment SP
+		RTS0: sp_op <= 2'b01;		// Increment SP
+		RTS1: sp_op <= 2'b01;		// Increment SP
 		
 		default: sp_op <= 2'b00;	// Leave SP as is
 	endcase
@@ -368,10 +396,7 @@ always @(state) begin
 		IM0: load <= 1'b1;
 		ZP1: load <= 1'b1;
 		ABS2: load <= 1'b1;
-		ABS_JMP: load <= 1'b1;
 		IND_ZP3: load <= 1'b1;
-		IND_ABS_JMP: load <= 1'b1;
-		JSR2: load <= 1'b1;
 		PULL: load <= 1'b1;
 		default: load <= 1'b0;
 	endcase
@@ -452,6 +477,8 @@ end
 always @(state) begin
 	casex (state)
 		BRK4: pcl_load <= 1'b1;
+		RTI1: pcl_load <= 1'b1;
+		RTS0: pcl_load <= 1'b1;
 		default: pcl_load <= 1'b0;
 	endcase
 end
@@ -461,6 +488,8 @@ end
 always @(state) begin
 	casex (state)
 		BRK5: pch_load <= 1'b1;
+		RTI2: pch_load <= 1'b1;
+		RTS1: pch_load <= 1'b1;
 		default: pch_load <= 1'b0;
 	endcase
 end
@@ -550,6 +579,11 @@ always @(state) begin
 		BRK2: address_select <= STACK;
 		BRK4: address_select <= IVL;
 		BRK5: address_select <= IVH;
+		RTI0: address_select <= STACK;
+		RTI1: address_select <= STACK;
+		RTI2: address_select <= STACK;
+		RTS0: address_select <= STACK;
+		RTS1: address_select <= STACK;
 		default: address_select <= PC;
 	endcase
 end
@@ -822,6 +856,10 @@ always @(opcode_reg) begin
 		
 		8'b0000_x100: alu_opcode_ex <= 6'b111010; // TSB
 		
+		8'b0000_0000: alu_opcode_ex <= 6'b111011; // BRK
+		
+		8'b0100_0000: alu_opcode_ex <= 6'b111110; // RTI
+		
 		default: alu_opcode_ex <= 6'b100000;
 		
 	endcase
@@ -844,6 +882,8 @@ always @(state, alu_opcode_ex) begin
 		IND_ABS2: alu_opcode <= ADR0;
 		IND_ABS_JMP: alu_opcode <= ADR1;
 		BRANCH_CHECK: alu_opcode <= alu_opcode_ex;
+		BRK3: alu_opcode <= alu_opcode_ex;
+		RTI0: alu_opcode <= alu_opcode_ex;
 		
 		default: alu_opcode <= 6'b100000;
 	endcase
