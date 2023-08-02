@@ -25,9 +25,11 @@ always @(*) begin
 		4'b0100: address = {8'h00, indirl_plus};
 		4'b0101: address = {indirh, indirl};
 		4'b0110: address = {indir_plus};
-		4'b0111: address = {8'h03, sp};
-		4'b1000: address = {16'hfffa};
-		4'b1001: address = {16'hfffb};
+		4'b0111: address = {8'h01, sp};
+		4'b1000: address = {16'hfffe};
+		4'b1001: address = {16'hffff};
+		4'b1010: address = {16'hfffc};
+		4'b1011: address = {16'hfffd};
 		default: address = {pch, pcl};
 	endcase
 end

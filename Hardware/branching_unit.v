@@ -1,7 +1,6 @@
 module branching_unit
 (
 	input clk,
-	input ena,
 	input [7:0] data_read,
 	input [7:0] pcl,
 	input [7:0] pch,

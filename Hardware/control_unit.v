@@ -21,6 +21,7 @@ module control_unit
 	output reg pch_load,
 	output reg jmp_load,
 	output reg jsr_load,
+	output reg rst_load,
 	output reg read_write,
 	output reg [2:0] write_select,
 	output reg [3:0] address_select,
@@ -48,7 +49,9 @@ parameter
 	IND_ABS_1		= 4'b0110,
 	STACK				= 4'b0111,
 	IVL				= 4'b1000,
-	IVH				= 4'b1001;
+	IVH				= 4'b1001,
+	RVL				= 4'b1010,
+	RVH				= 4'b1011;
 
 /* ALU Select */
 parameter
@@ -106,7 +109,12 @@ parameter
 	RTI1				= 6'd35,
 	RTI2				= 6'd36,
 	RTS0				= 6'd37,
-	RTS1				= 6'd38;
+	RTS1				= 6'd38,
+	STP				= 6'd39,
+	WAI				= 6'd40,
+	RST0				= 6'd41,
+	RST1				= 6'd42,
+	RST2				= 6'd43;
 	
 	
 	
@@ -173,19 +181,20 @@ end
 	
 /* State Machine */
 	
-always @(posedge clk, negedge rst) begin
+always @(posedge clk) begin
 	if (rst == 1'b0)
 		state <= FETCH;
 	else begin
 		case (state)
 			FETCH:
 				casex (opcode)
-
-					8'b0xx0_1010,
-					8'b00xx_1010,
-					8'b1010_00x0,
-					8'b11x0_0000,
-					8'bxxx0_1001: state <= IM0;
+					8'b1xx0_10x0,
+					8'bx0xx_1010,
+					8'b1010_x0x0,
+					8'b11x0_x000,
+					8'bxxx0_1001,
+					8'bxxx1_1000,
+					8'bxxx0_1010: state <= IM0;
 					8'b1xx0_01xx,
 					8'b0x1x_01xx,
 					8'bx0xx_01xx,
@@ -210,6 +219,8 @@ always @(posedge clk, negedge rst) begin
 					8'b0000_0000: state <= BRK0;
 					8'b0100_0000: state <= RTI0;
 					8'b0110_0000: state <= RTS0;
+					8'b1101_1011: state <= STP;
+					8'b1100_1011: state <= WAI;
 
 
 					default: state <= FETCH;
@@ -290,6 +301,13 @@ always @(posedge clk, negedge rst) begin
 			
 			RTS0: state <= RTS1;
 			RTS1: state <= FETCH;
+			
+			STP: state <= STP;
+			WAI: state <= WAI;
+			
+			RST0: state <= RST1;
+			RST1: state <= RST2;
+			RST2: state <= FETCH;
 			
 			
 		endcase
@@ -382,11 +400,7 @@ always @(state) begin
 		IND_ZP2: dirh_load <= 1'b1;
 		default: dirh_load <= 1'b0;
 	endcase
-end
-
-/* ------------------------------------------------------- Outputs ------------------------------------------------------- */
-		/* PC: JMP, JSR 																																				*/
-							
+end						
 		
 
 /* Load */
@@ -479,6 +493,7 @@ always @(state) begin
 		BRK4: pcl_load <= 1'b1;
 		RTI1: pcl_load <= 1'b1;
 		RTS0: pcl_load <= 1'b1;
+		RST1: pcl_load <= 1'b1;
 		default: pcl_load <= 1'b0;
 	endcase
 end
@@ -490,6 +505,7 @@ always @(state) begin
 		BRK5: pch_load <= 1'b1;
 		RTI2: pch_load <= 1'b1;
 		RTS1: pch_load <= 1'b1;
+		RST2: pch_load <= 1'b1;
 		default: pch_load <= 1'b0;
 	endcase
 end
@@ -510,6 +526,15 @@ always @(state) begin
 	casex (state)
 		JSR2: jsr_load <= 1'b1;
 		default: jsr_load <= 1'b0;
+	endcase
+end
+
+/* RST Load */
+
+always @(state) begin
+	casex (state)
+		RST0: rst_load <= 1'b1;
+		default: rst_load <= 1'b1;
 	endcase
 end
 
@@ -584,6 +609,8 @@ always @(state) begin
 		RTI2: address_select <= STACK;
 		RTS0: address_select <= STACK;
 		RTS1: address_select <= STACK;
+		RST1: address_select <= RVL;
+		RST2: address_select <= RVH;
 		default: address_select <= PC;
 	endcase
 end

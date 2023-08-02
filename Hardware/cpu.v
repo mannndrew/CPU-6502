@@ -36,6 +36,7 @@ wire pcl_load;
 wire pch_load;
 wire jmp_load;
 wire jsr_load;
+wire rst_load;
 wire [2:0] write_select;
 wire [3:0] address_select;
 wire [2:0] alu_select;
@@ -121,6 +122,7 @@ program_counter pc_high
 stack_pointer sp_reg
 (
 	.clk(clk),
+	.reset(rst_load),
 	.sp_load(sp_load),
 	.sel(sp_op),
 	.d(alu_out),
@@ -130,6 +132,7 @@ stack_pointer sp_reg
 register instruction_reg
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(instruction_load),
 	.d(data_read),
 	.q(opcode)
@@ -138,6 +141,7 @@ register instruction_reg
 register indirl_reg
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(indirl_load),
 	.d(alu_out),
 	.q(indirl_out)
@@ -146,6 +150,7 @@ register indirl_reg
 register indirh_reg
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(indirh_load),
 	.d(alu_out),
 	.q(indirh_out)
@@ -154,6 +159,7 @@ register indirh_reg
 register dirl_reg
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(dirl_load),
 	.d(alu_out),
 	.q(dirl_out)
@@ -162,6 +168,7 @@ register dirl_reg
 register dirh_reg
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(dirh_load),
 	.d(alu_out),
 	.q(dirh_out)
@@ -170,6 +177,7 @@ register dirh_reg
 register a_reg
 (
 	.clk(clk),
+	.reset(rst_load),
 	.ena(a_load),
 	.d(alu_out),
 	.q(a_out)
@@ -178,6 +186,7 @@ register a_reg
 register x_reg
 (
 	.clk(clk),
+	.reset(rst_load),
 	.ena(x_load),
 	.d(alu_out),
 	.q(x_out)
@@ -186,6 +195,7 @@ register x_reg
 register y_reg
 (
 	.clk(clk),
+	.reset(rst_load),
 	.ena(y_load),
 	.d(alu_out),
 	.q(y_out)
@@ -194,6 +204,7 @@ register y_reg
 flag_register f_reg
 (
 	.clk(clk),
+	.reset(rst_load),
 	.ena(flags_ena),
 	.d(flags_in),
 	.q(flags_out)
@@ -202,6 +213,7 @@ flag_register f_reg
 register result
 (
 	.clk(clk),
+	.reset(1'b1),
 	.ena(1'b1),
 	.d(alu_out),
 	.q(result_out)
@@ -273,6 +285,7 @@ control_unit clu
 	.pch_load(pch_load),
 	.jmp_load(jmp_load),
 	.jsr_load(jsr_load),
+	.rst_load(rst_load),
 	.read_write(read_write),
 	.write_select(write_select),
 	.address_select(address_select),
