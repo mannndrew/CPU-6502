@@ -76,4 +76,5 @@ set_global_assignment -name VERILOG_FILE flag_register.v
 set_global_assignment -name VERILOG_FILE arithmetic_unit.v
 set_global_assignment -name VECTOR_WAVEFORM_FILE Waveform.vwf
 set_global_assignment -name VERILOG_FILE branching_unit.v
+set_global_assignment -name VERILOG_FILE subtractor.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

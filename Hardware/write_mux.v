@@ -16,7 +16,8 @@ always @(*) begin
 		3'b010: data_write = pcl;
 		3'b011: data_write = pch;
 		3'b100: data_write = flags;
-		default: data_write = alu;
+		3'b101: data_write = 8'b0;
+		default: data_write = 8'b0;
 	endcase
 end
 

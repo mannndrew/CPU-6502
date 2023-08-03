@@ -102,12 +102,19 @@ wire bra_branch = 1'b1;
 
 // CLC, CLD, CLI, CLV
 
-// CMP, CPX, CPY
-wire [7:0] cmp_out;
-wire cmp_n, cmp_z, cmp_c;
-assign {cmp_c, cmp_out} = alu_a + ~alu_b + 1'b1;
-assign cmp_n = cmp_out[7];
-assign cmp_z = ~(|cmp_out);
+// CMP, CPX, CPY, SBC
+wire [7:0] sub_res;
+wire [7:0] sub_flg;
+reg sub_car;
+
+subtractor s1
+(
+	.a(alu_a),
+	.b(alu_b),
+	.cin(sub_car),
+	.result(sub_res),
+	.flags(sub_flg)
+);
 
 // DEC, DEX, DEY
 wire [7:0] dec_out;
@@ -198,16 +205,6 @@ assign ror_n = ror_out[7];
 assign ror_z = !(|ror_out);
 assign ror_c = alu_a[0];
 
-
-
-// SBC
-wire [7:0] sbc_out;
-wire sbc_n, sbc_v, sbc_z, sbc_c;
-assign {sbc_c, sbc_out} = alu_a + (~alu_b) + carry_in;
-assign sbc_n = sbc_out[7];
-assign sbc_v = (~alu_a[7] & ~alu_b[7] & sbc_out[7]) || (alu_a[7] & alu_b[7] & ~sbc_out[7]);
-assign sbc_z = ~(|sbc_out);
-
 // SEC, SED, SEI
 
 // SMB0
@@ -249,6 +246,13 @@ assign tsb_out = alu_a | alu_b;
 assign tsb_z = ~(|(alu_a & alu_b));
 
 
+
+always @(*) begin
+	if (alu_opcode == 6'b011011) 
+		sub_car <= 1'b1;
+	else 
+		sub_car <= carry_in;
+end
 
 
 always @(posedge clk) begin
@@ -451,8 +455,8 @@ begin
 		end
 		
 		6'b011011: begin // CMP, CPX, CPY
-			alu_out <= cmp_out;
-			flags_out <= {cmp_n, 5'b00000, cmp_z, cmp_c}; 
+			alu_out <= sub_res;
+			flags_out <= sub_flg; 
 			flags_ena <= 8'b10000011; 
 			branch_valid <= 1'b0;
 		end
@@ -577,8 +581,8 @@ begin
 		end
 		
 		6'b101101: begin // SBC
-			alu_out <= sbc_out;
-			flags_out <= {sbc_n, sbc_v, 4'b0000, sbc_z, sbc_c}; 
+			alu_out <= sub_res;
+			flags_out <= sub_flg; 
 			flags_ena <= 8'b11000011; 
 			branch_valid <= 1'b0;
 		end

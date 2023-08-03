@@ -562,14 +562,21 @@ end
 
 always @(state) begin
 	case (state)
-		ZP_WRITE,
-		ABS_WRITE: write_select <= 3'b001; // Result
+		ZP_STORE: write_select <= 3'b000; 		// ALU
+		ABS_STORE: write_select <= 3'b000; 		// ALU
+		IND_ZP_STORE: write_select <= 3'b000;	// ALU
+		PUSH: write_select <= 3'b000;				// ALU
+		ZP_WRITE: write_select <= 3'b001; 		// Result
+		ABS_WRITE: write_select <= 3'b001; 		// Result
+		
 		JSR0: write_select <= 3'b011; // PCH
 		JSR1: write_select <= 3'b010; // PCL
+		
 		BRK0: write_select <= 3'b011; // PCH
 		BRK1: write_select <= 3'b010; // PCL
 		BRK2: write_select <= 3'b100; // Flags
-		default: write_select <= 3'b000; // ALU
+		
+		default: write_select <= 3'b101; // Zero
 	endcase
 end
 
@@ -582,10 +589,12 @@ always @(state) begin
 		ZP0: address_select <= PC;
 		ZP1: address_select <= ZERO;
 		ZP_STORE: address_select <= ZERO;
+		ZP_WRITE: address_select <= ZERO;
 		ABS0: address_select <= PC;
 		ABS1: address_select <= PC;
 		ABS2: address_select <= ABS;
 		ABS_STORE: address_select <= ABS;
+		ABS_WRITE: address_select <= ABS;
 		ABS_JMP: address_select <= PC;
 		IND_ZP0: address_select <= PC;
 		IND_ZP1: address_select <= IND_ZERO_0;
