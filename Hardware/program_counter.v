@@ -26,7 +26,7 @@ always @(posedge clk) begin
 	
 end
 
-assign pc = counter + increment;
+assign pc = counter;
 assign carry = (counter == 8'hff && increment == 1'b1) ? 1'b1 : 1'b0;
 
 endmodule

@@ -10,12 +10,14 @@ module cpu
 	,output [7:0] register_a 
 	,output [7:0] register_x 
 	,output [7:0] register_y 
+	,output [7:0] register_f
 	,output [5:0] fsm
 );
 
 assign register_a = a_out;
 assign register_x = x_out;
 assign register_y = y_out;
+assign register_f = flags_out;
 
 
 // FSM Wires

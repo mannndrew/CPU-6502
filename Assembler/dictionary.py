@@ -137,12 +137,6 @@ test = ["CLC", "CLD", "CLI", "CLV", "DEX", "DEY", "INX", "INY", "NOP", "SEC", "S
 
 for key, value in instruction_dict.items():
     for key2, value2 in value.items():
-        if key2 == 6 or key2 == 7:
+        if key2 == 2 or key2 == 5:
             print(value2)
-
-for key, value in instruction_dict.items():
-    for str in test:
-        if str == key:
-            for key2, value2 in value.items():
-                print(value2)
     

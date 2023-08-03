@@ -183,7 +183,7 @@ end
 	
 always @(posedge clk) begin
 	if (rst == 1'b0)
-		state <= FETCH;
+		state <= RST0;
 	else begin
 		case (state)
 			FETCH:
@@ -209,6 +209,7 @@ always @(posedge clk) begin
 					8'bxxxx_1101: state <= ABS0;
 					8'bxxx1_0010,
 					8'bxxxx_0001: state <= IND_ZP0;
+					8'b011x_1100: state <= IND_ABS0;
 					8'b100x_0000,
 					8'bxxx1_0000,
 					8'bxxxx_1111: state <= BRANCH_CHECK;
@@ -709,17 +710,22 @@ always @(state, alu_select_ad, alu_select_ex) begin
 		ZP0: alu_select <= alu_select_ad;
 		ZP1: alu_select <= alu_select_ex;
 		ABS0: alu_select <= alu_select_ad;
+		ABS1: alu_select <= Z;
 		ABS2: alu_select <= alu_select_ex;
 		
 		IND_ZP0: if (alu_select_ad == X) alu_select <= alu_select_ad;
 					else alu_select <= Z;
 		IND_ZP1: if (alu_select_ad == Y) alu_select <= alu_select_ad;
 					else alu_select <= Z;
+		IND_ZP2: alu_select <= Z;
+
 		IND_ZP3: alu_select <= alu_select_ex;
 		
 		IND_ABS0: alu_select <= alu_select_ad;
+		IND_ABS1: alu_select <= Z;
+		IND_ABS2: alu_select <= Z;
 		
-		default: alu_select <= M;
+		default: alu_select <= alu_select_ex;
 	endcase
 end
 
