@@ -73,49 +73,50 @@ parameter
 /* States */
 parameter
 	FETCH				= 6'd0,
-	IM0				= 6'd1,
-	ZP0				= 6'd2,
-	ZP1				= 6'd3,
-	ABS0				= 6'd4,
-	ABS1				= 6'd5,
-	ABS2				= 6'd6,
-	IND_ZP0			= 6'd7,
-	IND_ZP1			= 6'd8,
-	IND_ZP2			= 6'd9,
-	IND_ZP3			= 6'd10,
-	IND_ABS0			= 6'd11,
-	IND_ABS1			= 6'd12,
-	IND_ABS2			= 6'd13,
-	ZP_WRITE			= 6'd14,
-	ABS_WRITE		= 6'd15,
-	ZP_STORE			= 6'd16,
-	ABS_STORE		= 6'd17,
-	IND_ZP_STORE	= 6'd18,
-	BRANCH_CHECK	= 6'd19,
-	BRANCH_GO		= 6'd20,
-	PUSH				= 6'd21,
-	PULL				= 6'd22,
-	ABS_JMP			= 6'd23,
-	IND_ABS_JMP		= 6'd24,
-	JSR0				= 6'd25,
-	JSR1				= 6'd26,
-	JSR2				= 6'd27,
-	BRK0				= 6'd28,
-	BRK1				= 6'd29,
-	BRK2				= 6'd30,
-	BRK3				= 6'd31,
-	BRK4				= 6'd32,
-	BRK5				= 6'd33,
-	RTI0				= 6'd34,
-	RTI1				= 6'd35,
-	RTI2				= 6'd36,
-	RTS0				= 6'd37,
-	RTS1				= 6'd38,
-	STP				= 6'd39,
-	WAI				= 6'd40,
-	RST0				= 6'd41,
-	RST1				= 6'd42,
-	RST2				= 6'd43;
+	IMP				= 6'd1,
+	IMM				= 6'd2,
+	ZP0				= 6'd3,
+	ZP1				= 6'd4,
+	ABS0				= 6'd5,
+	ABS1				= 6'd6,
+	ABS2				= 6'd7,
+	IND_ZP0			= 6'd8,
+	IND_ZP1			= 6'd9,
+	IND_ZP2			= 6'd10,
+	IND_ZP3			= 6'd11,
+	IND_ABS0			= 6'd12,
+	IND_ABS1			= 6'd13,
+	IND_ABS2			= 6'd14,
+	ZP_WRITE			= 6'd15,
+	ABS_WRITE		= 6'd16,
+	ZP_STORE			= 6'd17,
+	ABS_STORE		= 6'd18,
+	IND_ZP_STORE	= 6'd19,
+	BRANCH_CHECK	= 6'd20,
+	BRANCH_GO		= 6'd21,
+	PUSH				= 6'd22,
+	PULL				= 6'd23,
+	ABS_JMP			= 6'd24,
+	IND_ABS_JMP		= 6'd25,
+	JSR0				= 6'd26,
+	JSR1				= 6'd27,
+	JSR2				= 6'd28,
+	BRK0				= 6'd29,
+	BRK1				= 6'd30,
+	BRK2				= 6'd31,
+	BRK3				= 6'd32,
+	BRK4				= 6'd33,
+	BRK5				= 6'd34,
+	RTI0				= 6'd35,
+	RTI1				= 6'd36,
+	RTI2				= 6'd37,
+	RTS0				= 6'd38,
+	RTS1				= 6'd39,
+	STP				= 6'd40,
+	WAI				= 6'd41,
+	RST0				= 6'd42,
+	RST1				= 6'd43,
+	RST2				= 6'd44;
 	
 	
 	
@@ -198,13 +199,16 @@ always @(posedge clk) begin
 		case (state)
 			FETCH:
 				casex (opcode)
-					8'b1xx0_10x0,
+					8'b1xxx_1000,
 					8'bx0xx_1010,
-					8'b1010_x0x0,
-					8'b11x0_x000,
-					8'bxxx0_1001,
 					8'bxxx1_1000,
-					8'bxxx0_1010: state <= IM0;
+					8'bxxx0_1010: state <= IMP;
+					
+					8'b1010_00x0,
+					8'b11x0_0000,
+					8'bxxx0_1001: state <= IMM;
+
+
 					8'b1xx0_01xx,
 					8'b0x1x_01xx,
 					8'bx0xx_01xx,
@@ -238,7 +242,8 @@ always @(posedge clk) begin
 					
 				endcase
 			
-			IM0: state <= FETCH;
+			IMP: state <= FETCH;
+			IMM: state <= FETCH;
 			
 			
 			ZP0:
@@ -339,7 +344,7 @@ end
 always @(state) begin
 	case (state)
 		FETCH: increment_pc <= 1'b1;
-		IM0: increment_pc <= 1'b1;
+		IMM: increment_pc <= 1'b1;
 		ZP0: increment_pc <= 1'b1;
 		ABS0: increment_pc <= 1'b1;
 		ABS1: increment_pc <= 1'b1;
@@ -418,7 +423,8 @@ end
 
 always @(state) begin
 	case (state)
-		IM0: load <= 1'b1;
+		IMP: load <= 1'b1;
+		IMM: load <= 1'b1;
 		ZP1: load <= 1'b1;
 		ABS2: load <= 1'b1;
 		IND_ZP3: load <= 1'b1;
@@ -595,7 +601,8 @@ end
 always @(state) begin
 	case (state)
 		FETCH: address_select <= PC;
-		IM0: address_select <= PC;
+		IMP: address_select <= PC;
+		IMM: address_select <= PC;
 		ZP0: address_select <= PC;
 		ZP1: address_select <= ZERO;
 		ZP_STORE: address_select <= ZERO;
@@ -725,7 +732,8 @@ end
 
 always @(state, alu_select_ad, alu_select_ex) begin
 	case (state)
-		IM0: alu_select <= alu_select_ex;
+		IMP: alu_select <= alu_select_ex;
+		IMM: alu_select <= alu_select_ex;
 		ZP0: alu_select <= alu_select_ad;
 		ZP1: alu_select <= alu_select_ex;
 		ABS0: alu_select <= alu_select_ad;
@@ -919,7 +927,8 @@ end
 
 always @(state, alu_opcode_ex) begin
 	case (state)
-		IM0: alu_opcode <= alu_opcode_ex;
+		IMP: alu_opcode <= alu_opcode_ex;
+		IMM: alu_opcode <= alu_opcode_ex;
 		ZP0: alu_opcode <= ADR0;
 		ZP1: alu_opcode <= alu_opcode_ex;
 		ABS0: alu_opcode <= ADR0;

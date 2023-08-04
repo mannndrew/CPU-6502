@@ -31,7 +31,7 @@ wire [7:0] tmp;
 
 assign led = clk_slow;
 
-clock_div #(.WIDTH(32), .DIV(5000000)) inst // Defaults to 10Hz
+clock_div #(.WIDTH(32), .DIV(2500)) inst // Defaults to 100Hz
 (
 	.clk(clk), 
 	.reset(~switch),

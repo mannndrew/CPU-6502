@@ -51,21 +51,26 @@ assign color_address = color_address_tmp[15:0];
 
 
 
-always @(video_active, color_index) begin
-	if (video_active == 1'b0)
-		{red, green, blue} = 12'b000000000000;
+always @(video_active, color_index, pixel_x, pixel_y) begin
+	if ((72 <= pixel_x && pixel_x < 80) || (560 <= pixel_x && pixel_x < 568))
+		{red, green, blue} = 12'hfff;
 		
 	else begin
-		case (color_index)
-			3'b000: {red, green, blue} = 12'h000; // Black
-			3'b001: {red, green, blue} = 12'hfff; // White
-			3'b010: {red, green, blue} = 12'hf00; // Red
-			3'b011: {red, green, blue} = 12'h0f0; // Green
-			3'b100: {red, green, blue} = 12'h00f; // Blue
-			3'b101: {red, green, blue} = 12'hff0; // Yellow
-			3'b110: {red, green, blue} = 12'h0ff; // Cyan
-			3'b111: {red, green, blue} = 12'hf0f; // Magenta
-		endcase
+		if (video_active == 0)
+			{red, green, blue} = 12'h000;
+	
+		else begin
+			case (color_index)
+				3'b000: {red, green, blue} = 12'h000; // Black
+				3'b001: {red, green, blue} = 12'hfff; // White
+				3'b010: {red, green, blue} = 12'hf00; // Red
+				3'b011: {red, green, blue} = 12'h0f0; // Green
+				3'b100: {red, green, blue} = 12'h00f; // Blue
+				3'b101: {red, green, blue} = 12'hff0; // Yellow
+				3'b110: {red, green, blue} = 12'h0ff; // Cyan
+				3'b111: {red, green, blue} = 12'hf0f; // Magenta
+			endcase
+		end
 	end
 end
 
