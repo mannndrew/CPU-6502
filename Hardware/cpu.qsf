@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY cpu
+set_global_assignment -name TOP_LEVEL_ENTITY computer
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 20.1.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:35:36  JULY 18, 2023"
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
@@ -62,19 +62,57 @@ set_location_assignment PIN_P11 -to clk
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VERILOG_FILE write_mux.v
-set_global_assignment -name VERILOG_FILE stack_pointer.v
-set_global_assignment -name VERILOG_FILE control_unit.v
-set_global_assignment -name VERILOG_FILE program_counter.v
-set_global_assignment -name VERILOG_FILE register.v
-set_global_assignment -name VERILOG_FILE ram.v
-set_global_assignment -name VERILOG_FILE cpu.v
+set_location_assignment PIN_C11 -to rst
+set_location_assignment PIN_C14 -to hex0[0]
+set_location_assignment PIN_E15 -to hex0[1]
+set_location_assignment PIN_C15 -to hex0[2]
+set_location_assignment PIN_C16 -to hex0[3]
+set_location_assignment PIN_E16 -to hex0[4]
+set_location_assignment PIN_D17 -to hex0[5]
+set_location_assignment PIN_C17 -to hex0[6]
+set_location_assignment PIN_C18 -to hex1[0]
+set_location_assignment PIN_D18 -to hex1[1]
+set_location_assignment PIN_E18 -to hex1[2]
+set_location_assignment PIN_B16 -to hex1[3]
+set_location_assignment PIN_A17 -to hex1[4]
+set_location_assignment PIN_A18 -to hex1[5]
+set_location_assignment PIN_B17 -to hex1[6]
+set_location_assignment PIN_B20 -to hex2[0]
+set_location_assignment PIN_A20 -to hex2[1]
+set_location_assignment PIN_B19 -to hex2[2]
+set_location_assignment PIN_A21 -to hex2[3]
+set_location_assignment PIN_B21 -to hex2[4]
+set_location_assignment PIN_C22 -to hex2[5]
+set_location_assignment PIN_B22 -to hex2[6]
+set_location_assignment PIN_F21 -to hex3[0]
+set_location_assignment PIN_E22 -to hex3[1]
+set_location_assignment PIN_E21 -to hex3[2]
+set_location_assignment PIN_C19 -to hex3[3]
+set_location_assignment PIN_C20 -to hex3[4]
+set_location_assignment PIN_D19 -to hex3[5]
+set_location_assignment PIN_E17 -to hex3[6]
+set_location_assignment PIN_A8 -to state[0]
+set_location_assignment PIN_A9 -to state[1]
+set_location_assignment PIN_A10 -to state[2]
+set_location_assignment PIN_B10 -to state[3]
+set_location_assignment PIN_D13 -to state[4]
+set_location_assignment PIN_C13 -to state[5]
+set_location_assignment PIN_B11 -to led
+set_location_assignment PIN_C10 -to switch
 set_global_assignment -name VERILOG_FILE computer.v
-set_global_assignment -name VERILOG_FILE address_mux.v
-set_global_assignment -name VERILOG_FILE arithmetic_mux.v
-set_global_assignment -name VERILOG_FILE flag_register.v
-set_global_assignment -name VERILOG_FILE arithmetic_unit.v
-set_global_assignment -name VECTOR_WAVEFORM_FILE Waveform.vwf
-set_global_assignment -name VERILOG_FILE branching_unit.v
-set_global_assignment -name VERILOG_FILE subtractor.v
+set_global_assignment -name VERILOG_FILE rtl/ram.v
+set_global_assignment -name VERILOG_FILE rtl/clock_div.v
+set_global_assignment -name VERILOG_FILE rtl/binary2seven.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/cpu.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/units/control_unit.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/units/branching_unit.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/units/arithmetic_unit/subtractor.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/units/arithmetic_unit/arithmetic_unit.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/register/stack_pointer.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/register/register.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/register/program_counter.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/register/flag_register.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/mux/write_mux.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/mux/arithmetic_mux.v
+set_global_assignment -name VERILOG_FILE rtl/cpu/mux/address_mux.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -7,17 +7,17 @@ module cpu
 	output [7:0] data_write,
 	output [15:0] address
 	
-	,output [7:0] register_a 
-	,output [7:0] register_x 
-	,output [7:0] register_y 
-	,output [7:0] register_f
-	,output [5:0] fsm
+//	,output [7:0] register_a 
+//	,output [7:0] register_x 
+//	,output [7:0] register_y 
+//	,output [7:0] register_f
+	,output [5:0] state
 );
 
-assign register_a = a_out;
-assign register_x = x_out;
-assign register_y = y_out;
-assign register_f = flags_out;
+//assign register_a = a_out;
+//assign register_x = x_out;
+//assign register_y = y_out;
+//assign register_f = flags_out;
 
 
 // FSM Wires
@@ -293,7 +293,7 @@ control_unit clu
 	.address_select(address_select),
 	.alu_select(alu_select),
 	.alu_opcode(alu_opcode)
-	,.fsm(fsm)
+	,.fsm(state)
 );
 
 arithmetic_unit alu

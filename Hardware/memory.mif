@@ -65537,7 +65537,7 @@ fff9: 00;
 fffa: 00;
 fffb: 00;
 fffc: 00;
-fffd: 00;
+fffd: 80;
 fffe: 00;
 ffff: 00;
 END;
