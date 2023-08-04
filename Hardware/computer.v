@@ -2,7 +2,8 @@ module computer
 (
 	input clk,
 	input rst,
-	input switch,
+	input w, a, s, d,
+	input switch_on,
 	output [6:0] hex0,
 	output [6:0] hex1,
 	output [6:0] hex2,
@@ -19,22 +20,25 @@ module computer
 );
 
 wire cpu_read_write;
+wire [7:0] data_read_a;
 wire [7:0] cpu_data_read;
 wire [7:0] cpu_data_write;
 wire [15:0] cpu_address;
 wire clk_slow;
 
-wire [7:0] display_data_read;
+wire [7:0] data_read_b;
 wire [15:0] display_address;
 
 wire [7:0] tmp;
+wire [7:0] random;
+wire [7:0] key;
 
 assign led = clk_slow;
 
 clock_div #(.WIDTH(32), .DIV(2500)) inst // Defaults to 100Hz
 (
 	.clk(clk), 
-	.reset(~switch),
+	.reset(~switch_on),
 	.clk_out(clk_slow)
 );
 
@@ -60,14 +64,45 @@ ram inst2
 	.data_b(8'b0),
 	.wren_a(cpu_read_write),
 	.wren_b(1'b0),
-	.q_a(cpu_data_read),
-	.q_b(display_data_read)
+	.q_a(data_read_a),
+	.q_b(data_read_b)
 );
+
+random_num_gen random_gen
+(
+    .clk(~clk_slow),
+    .out(random)
+);
+
+keyboard keyhold
+(
+	.clk(~clk_slow),
+	.w(w),
+	.a(a),
+	.s(s),
+	.d(d),
+	.last_key(key)
+);
+
+cpu_mux mux
+(
+	.address(cpu_address),
+	
+	.memory(data_read_a),
+	.random(random),
+	.key(key),
+	.out(cpu_data_read)
+);
+
+
+
+
+
 
 display_driver display
 (
 	.clk(clk),
-	.color_data(display_data_read),
+	.color_data(data_read_b),
 	.color_address(display_address),
 	.red(red),
 	.green(green),

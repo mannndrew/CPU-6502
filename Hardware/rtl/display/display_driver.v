@@ -52,7 +52,16 @@ assign color_address = color_address_tmp[15:0];
 
 
 always @(video_active, color_index, pixel_x, pixel_y) begin
-	if ((72 <= pixel_x && pixel_x < 80) || (560 <= pixel_x && pixel_x < 568))
+//	if ((72 <= pixel_x && pixel_x < 80) || (560 <= pixel_x && pixel_x < 568))
+//		{red, green, blue} = 12'hfff;
+//		
+//	else if (pixel_x == 10'd0 || pixel_x == 10'd639 || pixel_y == 10'd0 || pixel_y == 10'd479)
+//		{red, green, blue} = 12'hfff;
+		
+	if ((pixel_x == 80 || pixel_x == 559) && (0 <= pixel_y && pixel_y < 480)) // LEFT and RIGHT
+		{red, green, blue} = 12'hfff;
+		
+	else if ((pixel_y == 0 || pixel_y == 479) && (80 <= pixel_x && pixel_x < 560)) // TOP and BOTTOM
 		{red, green, blue} = 12'hfff;
 		
 	else begin

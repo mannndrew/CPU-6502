@@ -51,8 +51,8 @@ wire CounterYmaxed = (CounterY == V_Total-1);
 	end
 	
 	
-	assign hsync = (CounterX <= (H_D + H_FP) || ((H_D + H_FP + H_SP) <= CounterX));   // active for 640 clocks
-	assign vsync = (CounterY <= (V_D + V_FP) || ((V_D + V_FP + V_SP) <= CounterY));   // active for 480 clocks
+	assign hsync = (CounterX < (H_D + H_FP) || ((H_D + H_FP + H_SP) <= CounterX));   // active for 640 clocks
+	assign vsync = (CounterY < (V_D + V_FP) || ((V_D + V_FP + V_SP) <= CounterY));   // active for 480 clocks
 	assign video_active = (80 <= CounterX && CounterX < 560) && (CounterY < V_D);
 	assign pixel_x = CounterX;
 	assign pixel_y = CounterY;
