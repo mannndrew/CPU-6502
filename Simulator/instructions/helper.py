@@ -1,6 +1,6 @@
 import readchar
 import time
-cycle_mode = "step"
+cycle_mode = "run"
 cycle_speed = 5
 print_mode = "yes"
 
