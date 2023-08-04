@@ -28,6 +28,7 @@ module control_unit
 	output reg [2:0] alu_select,
 	output reg [5:0] alu_opcode
 	,output [5:0] fsm
+	,output reg [7:0] tmp
 );
 
 assign fsm = state;
@@ -127,6 +128,15 @@ reg jumping_save_instruction;
 reg writing_instruction;
 reg storing_instruction;
 reg load;
+
+
+always @(posedge clk) begin
+	if (state == FETCH)
+		tmp = tmp + 8'b1;
+		
+	else
+		tmp = tmp;
+end
 
 /* Jumping No Save Instruction? */
 

@@ -12,6 +12,7 @@ module cpu
 //	,output [7:0] register_y 
 //	,output [7:0] register_f
 	,output [5:0] state
+	,output [7:0] tmp
 );
 
 //assign register_a = a_out;
@@ -294,6 +295,7 @@ control_unit clu
 	.alu_select(alu_select),
 	.alu_opcode(alu_opcode)
 	,.fsm(state)
+	,.tmp(tmp)
 );
 
 arithmetic_unit alu
