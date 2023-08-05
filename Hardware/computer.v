@@ -2,42 +2,36 @@ module computer
 (
 	input clk,
 	input rst,
-	// input w, a, s, d,
 	input switch_on,
-	input [3:0] row,
-	output [3:0] col,
-	output [6:0] hex0,
-	output [6:0] hex1,
-	output [6:0] hex2,
-	output [6:0] hex3,
-	output [6:0] hex4,
-	output [6:0] hex5,
-	output [5:0] state,
+	// input w, a, s, d,		// Keyboard Switches		- Option 1
+	input [3:0] row,			// Keypad Buttons			- Option 2
+	output [3:0] col,			// Keypad Buttons			- Option 2
 	output [3:0] red,
 	output [3:0] green,
 	output [3:0] blue,
 	output hsync,
-	output vsync,
-	output led
+	output vsync
 );
 
+
+wire clk_slow;
+
+// CPU
 wire cpu_read_write;
-wire [7:0] data_read_a;
+wire [7:0] cpu_data;
 wire [7:0] cpu_data_read;
 wire [7:0] cpu_data_write;
 wire [15:0] cpu_address;
-wire clk_slow;
 
-wire [7:0] data_read_b;
+// Display
+wire [7:0] display_data;
 wire [15:0] display_address;
 
-wire [7:0] tmp;
+// Peripheralsa
 wire [7:0] random;
 wire [7:0] key;
 
-assign led = clk_slow;
-
-clock_div #(.WIDTH(32), .DIV(2500)) inst // Defaults to 100Hz
+clock_div #(.WIDTH(32), .DIV(2500)) inst // Defaults to 20000 Hz
 (
 	.clk(clk), 
 	.reset(~switch_on),
@@ -51,9 +45,7 @@ cpu inst1
 	.data_read(cpu_data_read),
 	.data_write(cpu_data_write),
 	.read_write(cpu_read_write),
-	.address(cpu_address),
-	.state(state),
-	.tmp(tmp)
+	.address(cpu_address)
 );
 
 ram inst2
@@ -66,8 +58,8 @@ ram inst2
 	.data_b(8'b0),
 	.wren_a(cpu_read_write),
 	.wren_b(1'b0),
-	.q_a(data_read_a),
-	.q_b(data_read_b)
+	.q_a(cpu_data),
+	.q_b(display_data)
 );
 
 random_gen inst3
@@ -97,8 +89,7 @@ keypad inst4
 cpu_mux inst5
 (
 	.address(cpu_address),
-	
-	.memory(data_read_a),
+	.memory(cpu_data),
 	.random(random),
 	.key(key),
 	.out(cpu_data_read)
@@ -107,54 +98,13 @@ cpu_mux inst5
 display_driver inst6
 (
 	.clk(clk),
-	.color_data(data_read_b),
+	.color_data(display_data),
 	.color_address(display_address),
 	.red(red),
 	.green(green),
 	.blue(blue),
 	.hsync(hsync),
 	.vsync(vsync)
-);
-
-
-
-
-
-
-binary2seven hexdisplay0
-(
-	.bin(cpu_address[3:0]),
-	.hex(hex0)
-);
-
-binary2seven hexdisplay1
-(
-	.bin(cpu_address[7:4]),
-	.hex(hex1)
-);
-
-binary2seven hexdisplay2
-(
-	.bin(cpu_address[11:8]),
-	.hex(hex2)
-);
-
-binary2seven hexdisplay3
-(
-	.bin(cpu_address[15:12]),
-	.hex(hex3)
-);
-
-binary2seven hexdisplay4
-(
-	.bin(tmp[3:0]),
-	.hex(hex4)
-);
-
-binary2seven hexdisplay5
-(
-	.bin(tmp[7:4]),
-	.hex(hex5)
 );
 
 endmodule

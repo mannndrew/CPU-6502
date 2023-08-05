@@ -9,11 +9,9 @@ module keypad
 wire slow_clock;
 wire sense;
 wire valid;
-wire valid_press;
+wire press = valid & sense;
 
 wire [7:0] value;
-
-assign valid_press = valid && sense;
 
 keypad_div #(.DIV(100000)) L0 // 50MHz to 500Hz
 (
@@ -39,7 +37,8 @@ keypad_decoder L2
 
 keypad_reg L3
 (
-	.clk(valid_press),
+	.clk(clk),
+	.ena(press),
 	.d(value),
 	.q(key)
 );
