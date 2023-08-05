@@ -27,7 +27,7 @@ wire [15:0] cpu_address;
 wire [7:0] display_data;
 wire [15:0] display_address;
 
-// Peripheralsa
+// Peripherals
 wire [7:0] random;
 wire [7:0] key;
 
