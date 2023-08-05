@@ -2,8 +2,10 @@ module computer
 (
 	input clk,
 	input rst,
-	input w, a, s, d,
+	// input w, a, s, d,
 	input switch_on,
+	input [3:0] row,
+	output [3:0] col,
 	output [6:0] hex0,
 	output [6:0] hex1,
 	output [6:0] hex2,
@@ -68,23 +70,31 @@ ram inst2
 	.q_b(data_read_b)
 );
 
-random_num_gen random_gen
+random_gen inst3
 (
     .clk(~clk_slow),
     .out(random)
 );
 
-keyboard keyhold
+//keyboard inst4
+//(
+//	.clk(~clk_slow),
+//	.w(w),
+//	.a(a),
+//	.s(s),
+//	.d(d),
+//	.last_key(key)
+//);
+
+keypad inst4
 (
-	.clk(~clk_slow),
-	.w(w),
-	.a(a),
-	.s(s),
-	.d(d),
-	.last_key(key)
+	.clk(clk),
+	.row(row),
+	.col(col),
+	.key(key)
 );
 
-cpu_mux mux
+cpu_mux inst5
 (
 	.address(cpu_address),
 	
@@ -94,12 +104,7 @@ cpu_mux mux
 	.out(cpu_data_read)
 );
 
-
-
-
-
-
-display_driver display
+display_driver inst6
 (
 	.clk(clk),
 	.color_data(data_read_b),
@@ -111,37 +116,42 @@ display_driver display
 	.vsync(vsync)
 );
 
-binary2seven inst3
+
+
+
+
+
+binary2seven hexdisplay0
 (
 	.bin(cpu_address[3:0]),
 	.hex(hex0)
 );
 
-binary2seven inst4
+binary2seven hexdisplay1
 (
 	.bin(cpu_address[7:4]),
 	.hex(hex1)
 );
 
-binary2seven inst5
+binary2seven hexdisplay2
 (
 	.bin(cpu_address[11:8]),
 	.hex(hex2)
 );
 
-binary2seven inst6
+binary2seven hexdisplay3
 (
 	.bin(cpu_address[15:12]),
 	.hex(hex3)
 );
 
-binary2seven inst7
+binary2seven hexdisplay4
 (
 	.bin(tmp[3:0]),
 	.hex(hex4)
 );
 
-binary2seven inst8
+binary2seven hexdisplay5
 (
 	.bin(tmp[7:4]),
 	.hex(hex5)

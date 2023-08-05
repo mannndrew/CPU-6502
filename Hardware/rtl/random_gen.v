@@ -1,4 +1,4 @@
-module random_num_gen
+module random_gen
 (
     input clk,     // System clock
     output [7:0] out

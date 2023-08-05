@@ -126,9 +126,19 @@ set_location_assignment PIN_N18 -to hex5[3]
 set_location_assignment PIN_M20 -to hex5[4]
 set_location_assignment PIN_N19 -to hex5[5]
 set_location_assignment PIN_N20 -to hex5[6]
+set_location_assignment PIN_C10 -to switch_on
+# set_location_assignment PIN_F15 -to w
+# set_location_assignment PIN_B14 -to a
+# set_location_assignment PIN_A14 -to s
+# set_location_assignment PIN_A13 -to d
 set_global_assignment -name VERILOG_FILE computer.v
-set_global_assignment -name VERILOG_FILE rtl/random_num_gen.v
+set_global_assignment -name VERILOG_FILE rtl/keypad.v
+set_global_assignment -name VERILOG_FILE rtl/keypad/keypad_reg.v
+set_global_assignment -name VERILOG_FILE rtl/keypad/keypad_fsm.v
+set_global_assignment -name VERILOG_FILE rtl/keypad/keypad_div.v
+set_global_assignment -name VERILOG_FILE rtl/keypad/keypad_decoder.v
 set_global_assignment -name VERILOG_FILE rtl/ram.v
+set_global_assignment -name VERILOG_FILE rtl/random_gen.v
 set_global_assignment -name VERILOG_FILE rtl/clock_div.v
 set_global_assignment -name VERILOG_FILE rtl/binary2seven.v
 set_global_assignment -name VERILOG_FILE rtl/cpu/cpu.v
@@ -148,9 +158,12 @@ set_global_assignment -name VERILOG_FILE rtl/display/vga_core.v
 set_global_assignment -name VERILOG_FILE rtl/display/display_driver.v
 set_global_assignment -name VERILOG_FILE rtl/keyboard.v
 set_global_assignment -name VERILOG_FILE rtl/cpu_mux.v
-set_location_assignment PIN_C10 -to switch_on
-set_location_assignment PIN_F15 -to w
-set_location_assignment PIN_B14 -to a
-set_location_assignment PIN_A14 -to s
-set_location_assignment PIN_A13 -to d
+set_location_assignment PIN_AB8 -to row[0]
+set_location_assignment PIN_AB7 -to row[1]
+set_location_assignment PIN_AB6 -to row[2]
+set_location_assignment PIN_AB5 -to row[3]
+set_location_assignment PIN_AA12 -to col[0]
+set_location_assignment PIN_AA11 -to col[1]
+set_location_assignment PIN_Y10 -to col[2]
+set_location_assignment PIN_AB9 -to col[3]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
