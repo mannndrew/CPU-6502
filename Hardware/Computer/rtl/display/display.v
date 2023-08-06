@@ -1,4 +1,4 @@
-module display_driver
+module display
 (
 	input clk,
 	input [7:0] color_data,
@@ -27,13 +27,13 @@ reg [4:0] chunk_y;
 wire [31:0] color_address_tmp;
 
 
-pll test
+display_pll sync
 (
 	.inclk0(clk),
 	.c0(clk_slow)
 );
 
-vga_core core
+display_core core
 (
 	.clk(clk_slow),
 	.hsync(hsync),
@@ -49,14 +49,7 @@ assign color_address_tmp =  16'h0200 + (sub_y * 6'h20) + sub_x;
 assign color_address = color_address_tmp[15:0];
 
 
-
-
 always @(video_active, color_index, pixel_x, pixel_y) begin
-//	if ((72 <= pixel_x && pixel_x < 80) || (560 <= pixel_x && pixel_x < 568))
-//		{red, green, blue} = 12'hfff;
-//		
-//	else if (pixel_x == 10'd0 || pixel_x == 10'd639 || pixel_y == 10'd0 || pixel_y == 10'd479)
-//		{red, green, blue} = 12'hfff;
 		
 	if ((pixel_x == 80 || pixel_x == 559) && (0 <= pixel_y && pixel_y < 480)) // LEFT and RIGHT
 		{red, green, blue} = 12'hfff;

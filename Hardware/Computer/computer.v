@@ -95,7 +95,7 @@ cpu_mux inst5
 	.out(cpu_data_read)
 );
 
-display_driver inst6
+display inst6
 (
 	.clk(clk),
 	.color_data(display_data),

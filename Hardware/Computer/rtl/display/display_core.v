@@ -1,4 +1,4 @@
-module vga_core
+module display_core
 (
 	input clk,
 	output hsync,
