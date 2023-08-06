@@ -1,9 +1,11 @@
 import sys
 import pygame
 import random
+import utils.config as config
 from pygame.locals import *
-from utils.cycles import *
 from utils.helper import *
+from utils.cycles import *
+
 
 
 ########################################################### File IO ###########################################################
@@ -58,24 +60,24 @@ print(f"Hexdump loaded successfully!\n")
 
 
 # Default addresses
-zero_page_begin = 0x0000
-zero_page_end = 0x00FF
-stack_pointer_end = 0x0100
-stack_pointer_begin = 0x01FF
-screen_begin = 0x0200
-screen_end = 0x05FF
-data_begin = 0x0600
-data_end = 0x7FFF
-program_begin = 0x8000
-program_end = 0xFFFF
+zero_page_begin = config.zero_page_begin
+zero_page_end = config.zero_page_end
+stack_pointer_end = config.stack_pointer_end
+stack_pointer_begin = config.stack_pointer_begin
+screen_begin = config.screen_begin
+screen_end = config.screen_end
+data_begin = config.data_begin
+data_end = config.data_end
+program_begin = config.program_begin
+program_end = config.program_end
 
 # Default vectors
-nonmaskable_interupt_vector_low = 0xFFFA
-nonmaskable_interupt_vector_high = 0xFFFB
-reset_vector_low = 0xFFFC
-reset_vector_high = 0xFFFD
-interupt_vector_low = 0xFFFE
-interupt_vector_high = 0xFFFF
+nonmaskable_interupt_vector_low = config.nonmaskable_interupt_vector_low
+nonmaskable_interupt_vector_high = config.nonmaskable_interupt_vector_high
+reset_vector_low = config.reset_vector_low
+reset_vector_high = config.reset_vector_high
+interupt_vector_low = config.interupt_vector_low
+interupt_vector_high = config.interupt_vector_high
 
 # Registers
 reg = {

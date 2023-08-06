@@ -24,6 +24,8 @@ from utils.helper import *
 # Variables
 linenum = 1
 starting_address = config.starting_address
+reset_vector_low = config.reset_vector_low
+reset_vector_high = config.reset_vector_high
 address = starting_address
 filename = ""
 defines = {}
@@ -236,34 +238,22 @@ if mode == "hex":
     file = open(filename[:-4] + ".hex", "w")
 
     for address in range(0x10000):
-        if (address < starting_address):
-            if address % 16 == 0:
-                file.write(f"{address:04x}: ")
-                
-            file.write(f"00 ")
+        if address % 16 == 0:
+            file.write(f"{address:04x}: ")
 
-            if address % 16 == 15:
-                file.write("\n")
-
+        if (address == reset_vector_low):
+            file.write(f"{(starting_address & 0x00FF):02x} ")
+        elif (address == reset_vector_high):
+            file.write(f"{(starting_address >> 8):02x} ")
         elif (starting_address <= address and 
             address < starting_address + len(hexdump)):
-
-                if address % 16 == 0:
-                    file.write(f"{address:04x}: ")
-
                 file.write(f"{hexdump[address - starting_address]} ")
-
-                if address % 16 == 15:
-                    file.write("\n")
-
-        else:
-            if address % 16 == 0:
-                file.write(f"{address:04x}: ")
-                
+        else:   
             file.write(f"00 ")
 
-            if address % 16 == 15:
-                file.write("\n")
+        if address % 16 == 15:
+            file.write("\n")
+
 
 elif mode == "mif":
     # Open write file
@@ -276,14 +266,13 @@ elif mode == "mif":
     file.write(f"BEGIN\n")
 
     for address in range(0x10000):
-        if (address < starting_address):
-            file.write(f"{address:04x}: 00;\n")
-
+        if (address == reset_vector_low):
+            file.write(f"{address:04x}: {(starting_address & 0x00FF):02x};\n")
+        elif (address == reset_vector_high):
+            file.write(f"{address:04x}: {(starting_address >> 8):02x};\n")
         elif (starting_address <= address and 
             address < starting_address + len(hexdump)):
-
                 file.write(f"{address:04x}: {hexdump[address - starting_address]};\n")
-
         else:
             file.write(f"{address:04x}: 00;\n")
 
