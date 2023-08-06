@@ -2,8 +2,8 @@ import sys
 import pygame
 import random
 from pygame.locals import *
-from instructions.cycles import *
-from instructions.helper import *
+from utils.cycles import *
+from utils.helper import *
 
 
 ########################################################### File IO ###########################################################

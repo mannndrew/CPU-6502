@@ -1,6 +1,7 @@
 import sys
-import dictionary
-from helper import *
+import utils.dictionary as dictionary
+import utils.config as config
+from utils.helper import *
 
 # Addressing Modes
 # 1 = Absolute                             a
@@ -22,7 +23,7 @@ from helper import *
 
 # Variables
 linenum = 1
-starting_address = 0x8000
+starting_address = config.starting_address
 address = starting_address
 filename = ""
 defines = {}
@@ -30,7 +31,7 @@ labels = {}
 addressing_mode = [0]
 addressing_dict = {}
 hexdump = []
-mode = "mif" # mif or hex
+mode = config.mode
 
 # Dictionaries
 instruction_dict = dictionary.instruction_dict
@@ -287,6 +288,10 @@ elif mode == "mif":
             file.write(f"{address:04x}: 00;\n")
 
     file.write(f"END;")
+
+else:
+    print(f"**Invalid mode {mode}**")
+    exit(2)
 
 # Close write file
 file.close()

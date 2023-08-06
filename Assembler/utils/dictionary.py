@@ -128,21 +128,3 @@ jump_dict = {
     "JMP": 2,
     "JSR": 2
 }
-
-# IMM, ACC
-# CLC, CLD, CLI, CLV, DEX, DEY, INX, INY, NOP, SEC, SED, SEI, TAX, TAY, TSX, TXA, TXS, TYA
-test = ["CLC", "CLD", "CLI", "CLV", "DEX", "DEY", "INX", "INY", "NOP", "SEC", "SED", "SEI", "TAX", "TAY", "TSX", "TXA", "TXS", "TYA"]
-
-
-
-for key, value in instruction_dict.items():
-    for key2, value2 in value.items():
-        if key2 == 6:
-            print(value2)
-
-
-for key, value in instruction_dict.items():
-    if key in test:
-        for key2, value2 in value.items():
-            print(value2)   
-        
