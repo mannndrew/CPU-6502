@@ -1,8 +1,12 @@
+import utils.config as config
 import readchar
 import time
-cycle_mode = "run"
-cycle_speed = 5
-print_mode = "yes"
+
+cycle_mode = config.cycle_mode
+cycle_speed = config.cycle_speed
+print_mode = config.print_mode
+
+
 
 ########################################################### Functions #########################################################
 
