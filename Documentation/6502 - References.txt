@@ -1,0 +1,8 @@
+Manual: Created document showcasing all possible instructions with different addressing modes.
+Datasheet: Official datasheet of w65c02s provided by the western design center in April 8, 2022.
+Diagram: Realistic depiction of the old 6502 diagram along with registers, contrtol signals, buses, etc.
+Opcode Details: http://6502.org/tutorials/6502opcodes.html
+Opcode Details: http://6502.org/tutorials/65c02opcodes.html
+Online Assembler/Simulator: http://skilldrick.github.io/easy6502/
+Another Verilog 6502: https://github.com/Arlet/verilog-6502
+
