@@ -2,7 +2,7 @@
 
 A modern (2023) assembler, simulator and hardware description of the [W65C02S](https://www.westerndesigncenter.com/wdc/w65c02s-chip.php).
 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif) 
+![Alt Text](https://github.com/mannndrew/CPU-6502/blob/main/Documentation/6502%20-%20FPGA.gif) 
 
 Shown above is video recording of an example snake game running on a softcore model of the W65C02S on a completely standalone FPGA in realtime. 
 
