@@ -24,6 +24,7 @@ $ python3 assembler.py "filename.asm"
 - The simulator can be used to imitate the exact instructions of the 6502 down to each cycle. It can track and monitor values in all registers and counters along with other critical information.
 - Along with the simulator, there is a built in display along with a keyboard correlating to certain memory addresses in order to further stimulate the reality of the processor.
 - Inside the main "simulator.py" script, each instruction is broken down by opcode and execute cycle by cycle with detailed instructions for simple understanding.
+- Check utils/config.py to modify default vectors, simulation settings, etc.
 
 ### Dependencies
 ```
