@@ -31,7 +31,7 @@ wire [15:0] display_address;
 wire [7:0] random;
 wire [7:0] key;
 
-clock_div #(.WIDTH(32), .DIV(2500)) inst // Defaults to 20000 Hz
+clock_div #(.WIDTH(32), .DIV(1000)) inst // Defaults to 50000 Hz
 (
 	.clk(clk), 
 	.reset(~switch_on),
