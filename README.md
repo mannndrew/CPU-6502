@@ -45,12 +45,12 @@ $ python3 simulator.py "filename.hex"
 - Computer contains the processor integrated with memory, keyboard/keypad, and display in order to realisticly portray the W65C02S in all of its glory on an FPGA.
 
 ### Dependencies
-```
-Simulate "CPU": Must have verilog simulators such as Verilator, Icarus, or even synthesis tools including Quartus Prime or Xilinx Vivado.
-Run "Computer" on FPGA: Must have an FPGA board to begin with along with EDA design software including Quartus Prime or Xilinx Vivado. Must have program "filename.mif" in "Computer" directory to successfully initialize memory.
-```
 
-Quartus Prime was used alongside the DE10Lite FPGA in this project.
+- To Simulate "CPU": Must have verilog simulators such as Verilator, Icarus, or even synthesis tools including Quartus Prime or Xilinx Vivado.
+
+- To Run "Computer" on FPGA: Must have an FPGA board to begin with along with EDA design software including Quartus Prime or Xilinx Vivado. Must have program "filename.mif" in "Computer" directory to successfully initialize memory.
+
+**Quartus Prime** was used alongside the **DE10Lite** FPGA in this project.
 
 ---
 
